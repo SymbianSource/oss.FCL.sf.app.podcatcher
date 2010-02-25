@@ -108,6 +108,7 @@ class CPodcastAppUi : public CAknViewAppUi, public MAknTabObserver, MTimeoutObse
        void UpdateQueueTab(TInt aQueueLength);
        void TabLeft();
        void TabRight();
+       void SetTabsVisibleL(TBool aVisible);
     private:
         // From MEikMenuObserver
         void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);
@@ -132,7 +133,7 @@ class CPodcastAppUi : public CAknViewAppUi, public MAknTabObserver, MTimeoutObse
 		CAknNavigationDecorator* iNaviDecorator;
 		CAknTabGroup* iTabGroup;
 		CAknNavigationControlContainer* iNaviPane;
-		
+		TBool iTabsVisible;
 		CTimeout* iStartTimer;
     };
 

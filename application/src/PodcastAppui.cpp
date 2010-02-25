@@ -171,12 +171,17 @@ void CPodcastAppUi::NaviShowTabGroupL()
 	iTabGroup->SetObserver(this);
 
 	iNaviPane->Pop();
-	iNaviPane->PushL(*iNaviDecorator);
+	SetTabsVisibleL(ETrue);
 	}
 
 void CPodcastAppUi::TabChangedL (TInt aIndex)
 	{
 	DP("CPodcastListView::TabChangedL ");
+	
+	if (!iTabsVisible)
+		{
+		return;
+		}
 	
 	TUid newview = TUid::Uid(0);
 	TUid messageUid = TUid::Uid(0);
@@ -226,6 +231,11 @@ void CPodcastAppUi::UpdateQueueTab(TInt aQueueLength)
 
 void CPodcastAppUi::TabLeft()
 	{
+	if (!iTabsVisible)
+		{
+		return;
+		}
+	
 	TInt ati = iTabGroup->ActiveTabIndex();
 	if(ati > 0) {
 		SetActiveTab(ati-1);
@@ -235,10 +245,30 @@ void CPodcastAppUi::TabLeft()
 
 void CPodcastAppUi::TabRight()
 	{
-	TInt ati = iTabGroup->ActiveTabIndex();
+	if (!iTabsVisible)
+		{
+		return;
+		}
 	
+	TInt ati = iTabGroup->ActiveTabIndex();
 	if(ati < iTabGroup->TabCount()-1) {
 		SetActiveTab(ati+1);
 		TabChangedL(ati+1);
 	}
+	}
+
+void CPodcastAppUi::SetTabsVisibleL(TBool aVisible)
+	{
+	if (aVisible)
+		{
+		if(!iTabsVisible && iNaviDecorator)
+			{
+			iNaviPane->PushL(*iNaviDecorator);
+			}
+		}
+	else if (iTabsVisible) {
+		iNaviPane->Pop(iNaviDecorator);
+	}
+	
+	iTabsVisible=aVisible;
 	}

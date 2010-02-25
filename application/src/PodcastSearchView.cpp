@@ -147,6 +147,7 @@ void CPodcastSearchView::DoDeactivate()
 	CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
 		     ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
 	titlePane->SetTextToDefaultL();
+	((CPodcastAppUi*)AppUi())->SetTabsVisibleL(ETrue);
 }
 
 
