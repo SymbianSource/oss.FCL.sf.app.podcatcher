@@ -796,7 +796,11 @@ void CPodcastShowsView::HandleLongTapEventL( const TPoint& aPenEventLocation, co
 {
 	DP("CPodcastShowsView::HandleLongTapEventL BEGIN");
 	
-    if(iStylusPopupMenu)
+	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
+	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
+			iListContainer->Listbox()->Model()->NumberOfItems()) - KListboxDefaultHeight;
+
+    if(iStylusPopupMenu && aPenEventLocation.iY < lbHeight)
     {
 		TInt index = iListContainer->Listbox()->CurrentItemIndex();
 		if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())

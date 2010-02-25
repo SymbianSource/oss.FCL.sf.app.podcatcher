@@ -575,18 +575,6 @@ void CPodcastQueueView::UpdateToolbar()
 	toolbar->HideItem(EPodcastResumeDownloads,!iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);	
 }
 
-void CPodcastQueueView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
-{
-	DP("CPodcastQueueView::HandleLongTapEventL BEGIN");
-	
-    if(iStylusPopupMenu)
-    {
-		iStylusPopupMenu->ShowMenu();
-		iStylusPopupMenu->SetPosition(aPenEventLocation);
-    }
-	DP("CPodcastQueueView::HandleLongTapEventL END");
-}
-
 void CPodcastQueueView::DownloadQueueUpdatedL(TInt /*aDownloadingShows*/, TInt /*aQueuedShows*/)
 	{
 	}
