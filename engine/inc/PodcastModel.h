@@ -88,11 +88,11 @@ public:
 	
 	sqlite3* DB();
 	
-	IMPORT_C void GetAllShows();
-	IMPORT_C void GetNewShows();
-	IMPORT_C void GetShowsDownloaded();
-	IMPORT_C void GetShowsDownloading();
-	IMPORT_C void GetShowsByFeed(TUint aFeedUid);
+	IMPORT_C void GetAllShowsL();
+	IMPORT_C void GetNewShowsL();
+	IMPORT_C void GetShowsDownloadedL();
+	IMPORT_C void GetShowsDownloadingL();
+	IMPORT_C void GetShowsByFeedL(TUint aFeedUid);
 	IMPORT_C void MarkSelectionPlayed();
 	
 	TInt FindActiveShowByUid(TUint aUid);

@@ -96,6 +96,9 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 
 		// from MImageHandlerCallback
 		void ImageOperationCompleteL(TInt aError);
+		
+		void HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& aPenEventScreenLocation);
+
 	private:
 		void FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aIsUpdating = EFalse);
 		void HandleAddFeedL();

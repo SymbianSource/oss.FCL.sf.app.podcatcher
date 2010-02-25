@@ -236,7 +236,7 @@ void CPodcastQueueView::ShowDownloadFinishedL(TUint /*aShowUid*/, TInt aError)
 	{
 	iProgressAdded = EFalse;
 
-	iPodcastModel.GetShowsDownloading();
+	iPodcastModel.GetShowsDownloadingL();
 	UpdateListboxItemsL();
 	UpdateToolbar();
 	
@@ -262,7 +262,7 @@ void CPodcastQueueView::FeedDownloadStartedL(TFeedState /*aState*/, TUint aFeedU
 	if (iPodcastModel.ActiveFeedInfo() != NULL
 			&& iPodcastModel.ActiveFeedInfo()->Uid() == aFeedUid)
 		{
-		TRAP_IGNORE(UpdateFeedUpdateStateL());
+		UpdateFeedUpdateStateL();
 		UpdateToolbar();
 		}	
 	}
@@ -275,7 +275,7 @@ void CPodcastQueueView::FeedDownloadFinishedL(TFeedState /*aState*/, TUint aFeed
 	if (iPodcastModel.ActiveFeedInfo() != NULL
 			&& iPodcastModel.ActiveFeedInfo()->Uid() == aFeedUid)
 		{
-		TRAP_IGNORE(UpdateFeedUpdateStateL());
+		UpdateFeedUpdateStateL();
 		}
 	DP("CPodcastQueueView::FeedDownloadFinishedL END");
 	}
@@ -430,7 +430,7 @@ void CPodcastQueueView::UpdateListboxItemsL()
 		TListItemProperties itemProps;
 		TInt len = 0;
 
-		iPodcastModel.GetShowsDownloading();
+		iPodcastModel.GetShowsDownloadingL();
 	
 		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
 		len = fItems.Count();

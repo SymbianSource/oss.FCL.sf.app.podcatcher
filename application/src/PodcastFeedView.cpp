@@ -939,3 +939,23 @@ void CPodcastFeedView::GetFeedErrorText(TDes &aErrorMessage, TInt aErrorCode)
 	{
 	iEikonEnv->GetErrorText(aErrorMessage, aErrorCode);
 	}
+
+void CPodcastFeedView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
+{
+	DP("CPodcastListView::HandleLongTapEventL BEGIN");
+	
+	if (iUpdatingAllRunning) {
+		return; // we don't allow feed manipulation while update is running
+	}
+	
+	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
+	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
+			iListContainer->Listbox()->Model()->NumberOfItems()) - KListboxDefaultHeight;
+
+    if(iStylusPopupMenu && aPenEventLocation.iY < lbHeight)
+    {
+		iStylusPopupMenu->ShowMenu();
+		iStylusPopupMenu->SetPosition(aPenEventLocation);
+    }
+	DP("CPodcastListView::HandleLongTapEventL END");
+}

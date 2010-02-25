@@ -311,7 +311,7 @@ void CPodcastShowsView::FeedDownloadStartedL(TFeedState /*aState*/, TUint aFeedU
 	if (iPodcastModel.ActiveFeedInfo() != NULL
 			&& iPodcastModel.ActiveFeedInfo()->Uid() == aFeedUid)
 		{
-		TRAP_IGNORE(UpdateFeedUpdateStateL());
+		UpdateFeedUpdateStateL();
 		UpdateToolbar();
 		}	
 	}
@@ -324,8 +324,8 @@ void CPodcastShowsView::FeedDownloadFinishedL(TFeedState /*aState*/, TUint aFeed
 	if (iPodcastModel.ActiveFeedInfo() != NULL
 			&& iPodcastModel.ActiveFeedInfo()->Uid() == aFeedUid)
 		{
-		TRAP_IGNORE(UpdateFeedUpdateStateL());
-		TRAP_IGNORE(UpdateViewTitleL());
+		UpdateFeedUpdateStateL();
+		UpdateViewTitleL();
 		}
 	DP("CPodcastShowsView::FeedDownloadFinishedL END");
 	}
@@ -518,7 +518,7 @@ void CPodcastShowsView::UpdateListboxItemsL()
 		TListItemProperties itemProps;
 		TInt len = 0;
 
-		iPodcastModel.GetShowsByFeed(iPodcastModel.ActiveFeedInfo()->Uid());
+		iPodcastModel.GetShowsByFeedL(iPodcastModel.ActiveFeedInfo()->Uid());
 
 		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
 		len = fItems.Count();

@@ -378,34 +378,34 @@ TInt CPodcastModel::GetIapId()
 	return iapId;
 	}
 
-EXPORT_C void CPodcastModel::GetAllShows()
+EXPORT_C void CPodcastModel::GetAllShowsL()
 	{
 	iActiveShowList.ResetAndDestroy();
-	TRAP_IGNORE(iShowEngine->GetAllShowsL(iActiveShowList));
+	iShowEngine->GetAllShowsL(iActiveShowList);
 	}
 
-EXPORT_C void CPodcastModel::GetNewShows()
+EXPORT_C void CPodcastModel::GetNewShowsL()
 	{
 	iActiveShowList.ResetAndDestroy();
-	TRAP_IGNORE(iShowEngine->GetNewShowsL(iActiveShowList));	
+	iShowEngine->GetNewShowsL(iActiveShowList);	
 	}
 
-EXPORT_C void CPodcastModel::GetShowsDownloaded()
+EXPORT_C void CPodcastModel::GetShowsDownloadedL()
 	{
 	iActiveShowList.ResetAndDestroy();
-	TRAP_IGNORE(iShowEngine->GetShowsDownloadedL(iActiveShowList));
+	iShowEngine->GetShowsDownloadedL(iActiveShowList);
 	}
 
-EXPORT_C void CPodcastModel::GetShowsDownloading()
+EXPORT_C void CPodcastModel::GetShowsDownloadingL()
 	{
 	iActiveShowList.ResetAndDestroy();
-	TRAP_IGNORE(iShowEngine->GetShowsDownloadingL(iActiveShowList));
+	iShowEngine->GetShowsDownloadingL(iActiveShowList);
 	}
 
-EXPORT_C void CPodcastModel::GetShowsByFeed(TUint aFeedUid)
+EXPORT_C void CPodcastModel::GetShowsByFeedL(TUint aFeedUid)
 	{
 	iActiveShowList.ResetAndDestroy();
-	TRAP_IGNORE(iShowEngine->GetShowsByFeedL(iActiveShowList, aFeedUid));
+	iShowEngine->GetShowsByFeedL(iActiveShowList, aFeedUid);
 	}
 
 EXPORT_C void CPodcastModel::MarkSelectionPlayed()

@@ -230,16 +230,13 @@ EXPORT_C TBool CFeedEngine::UpdateFeedL(TUint aFeedUid)
 
 void CFeedEngine::NewShowL(CShowInfo& aItem)
 	{
-	//DP4("\nTitle: %S\nURL: %S\nDescription length: %d\nFeed: %d", &(item->Title()), &(item->Url()), item->Description().Length(), item->FeedUid());
-	
 	HBufC* description = HBufC::NewLC(KMaxDescriptionLength);
 	TPtr ptr(description->Des());
 	ptr.Copy(aItem.Description());
 	PodcastUtils::CleanHtmlL(ptr);
-	//DP1("New show has feed ID: %u") item->FeedUid());
-	TRAP_IGNORE(aItem.SetDescriptionL(*description));
+
+	aItem.SetDescriptionL(*description);
 	CleanupStack::PopAndDestroy(description);
-	//DP1("Description: %S", &description);
 
 	if (iCatchupMode) {
 		// in catchup mode, we let one show be unplayed
@@ -475,8 +472,7 @@ void CFeedEngine::ParsingCompleteL(CFeedInfo *item)
 	{
 	TBuf<KMaxLineLength> title;
 	title.Copy(item->Title());
-	TRAP_IGNORE(item->SetTitleL(title));
-	//DBUpdateFeed(*item);
+	item->SetTitleL(title); // if this leaves we are out of memory
 	}
 
 
