@@ -547,7 +547,7 @@ void CPodcastShowsView::UpdateListboxItemsL()
 				for (TInt loop = 0; loop< len; loop++)
 					{					
 					UpdateShowItemDataL(fItems[loop], loop);
-					iListContainer->Listbox()->DrawItem(loop);
+					//iListContainer->Listbox()->DrawItem(loop);
 					}
 				}
 			else
@@ -684,7 +684,7 @@ void CPodcastShowsView::DisplayShowInfoDialogL()
 		{
 		CShowInfo* info = iPodcastModel.ActiveShowList()[index];
 		TUint32 feedUid = info->FeedUid();							
-		CFeedInfo* feedInfo = iPodcastModel.FeedEngine().GetFeedInfoByUid(feedUid);
+//		CFeedInfo* feedInfo = iPodcastModel.FeedEngine().GetFeedInfoByUid(feedUid);
 		
 		CPodcastImageMessageQueryDialog* note = new ( ELeave ) CPodcastImageMessageQueryDialog( (TDesC*)&info->Description(), (TDesC*)&info->Title() );
 							
