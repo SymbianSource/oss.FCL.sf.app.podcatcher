@@ -16,7 +16,6 @@
 "..\help\podcatcher.hlp"-"!:\resource\help\podcatcher.hlp"
 
 ; configuration and DB
-"../../engine/config/config.cfg"-"!:\private\A0009D00\config.cfg"
 "../../engine/config/defaultfeeds.xml"-"!:\private\A0009D00\defaultfeeds.xml"
 "../../engine/config/podcatcher.sqlite"-"!:\private\A0009D00\podcatcher.sqlite.template"
 
