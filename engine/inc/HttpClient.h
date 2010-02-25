@@ -49,6 +49,8 @@ private:
 	void ConnectHttpSessionL();
 	void ConnectCompleteL(TInt aErrorCode);
 	void Disconnected();
+	void ConnectionSelectionStart() {}
+	void ConnectionSelectionEnd() {}
 	void DoGetAfterConnectL();
 private:
 	RHTTPSession iSession;	

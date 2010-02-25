@@ -560,19 +560,22 @@ void CPodcastQueueView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPan
 		}
 }
 
-void CPodcastQueueView::UpdateToolbar()
+void CPodcastQueueView::UpdateToolbar(TBool aVisible)
 {
 	CAknToolbar* toolbar = Toolbar();
 	
-	RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
-	TInt itemCnt = fItems.Count();
+	if (toolbar) {
+		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
+		TInt itemCnt = fItems.Count();
+		toolbar->SetToolbarVisibility(aVisible);
 	
-	toolbar->HideItem(EPodcastRemoveDownload, EFalse, ETrue);
-	toolbar->HideItem(EPodcastRemoveAllDownloads, EFalse, ETrue);
-	toolbar->SetItemDimmed(EPodcastRemoveDownload, itemCnt == 0, ETrue);
-	toolbar->SetItemDimmed(EPodcastRemoveAllDownloads, itemCnt == 0, ETrue);
-	toolbar->HideItem(EPodcastSuspendDownloads,iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);
-	toolbar->HideItem(EPodcastResumeDownloads,!iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);	
+		toolbar->HideItem(EPodcastRemoveDownload, EFalse, ETrue);
+		toolbar->HideItem(EPodcastRemoveAllDownloads, EFalse, ETrue);
+		toolbar->SetItemDimmed(EPodcastRemoveDownload, itemCnt == 0, ETrue);
+		toolbar->SetItemDimmed(EPodcastRemoveAllDownloads, itemCnt == 0, ETrue);
+		toolbar->HideItem(EPodcastSuspendDownloads,iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);
+		toolbar->HideItem(EPodcastResumeDownloads,!iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);	
+	}
 }
 
 void CPodcastQueueView::DownloadQueueUpdatedL(TInt /*aDownloadingShows*/, TInt /*aQueuedShows*/)

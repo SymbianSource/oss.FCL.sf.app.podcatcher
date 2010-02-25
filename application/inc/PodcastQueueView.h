@@ -37,6 +37,7 @@ public:
 	static CPodcastQueueView* NewL(CPodcastModel& aPodcastModel);
 	static CPodcastQueueView* NewLC(CPodcastModel& aPodcastModel);
 	~CPodcastQueueView();
+	void UpdateToolbar(TBool aVisible=ETrue);
 protected:
 	void ConstructL();
 	CPodcastQueueView(CPodcastModel& aPodcastModel);
@@ -96,8 +97,6 @@ protected:
 
 private:
 	void GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex);
-	void UpdateToolbar();
-
 	
 private:
 	

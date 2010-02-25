@@ -284,7 +284,7 @@ void CPodcastSearchView::OpmlParsingComplete(TInt /*aError*/, TUint /*aNumFeedsI
 	DP("CPodcastSearchView::OpmlParsingComplete END");
 	}
 
-void CPodcastSearchView::UpdateToolbar()
+void CPodcastSearchView::UpdateToolbar(TBool aVisible)
 {
 	TBool disableAdd = iItemArray->MdcaCount() == 0 || iSearchRunning;
 	
@@ -292,6 +292,7 @@ void CPodcastSearchView::UpdateToolbar()
 	
 	if (toolbar)
 		{
+		toolbar->SetToolbarVisibility(aVisible);
 		toolbar->SetItemDimmed(EPodcastAddSearchResult, disableAdd, ETrue );
 		toolbar->HideItem(EPodcastSearch, iSearchRunning, ETrue );
 		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !iSearchRunning, ETrue);

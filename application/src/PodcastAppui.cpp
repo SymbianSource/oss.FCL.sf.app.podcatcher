@@ -45,6 +45,8 @@ void CPodcastAppUi::ConstructL()
     DP("CPodcastAppUi::ConstructL() BEGIN");
     BaseConstructL(CAknAppUi::EAknEnableSkin); 
 
+    iPodcastModel->ConnectionEngine().AddObserver(this);
+    
     DP("Constructing FeedView");
 	iFeedView = CPodcastFeedView::NewL(*iPodcastModel);
 	this->AddViewL(iFeedView);
@@ -271,4 +273,23 @@ void CPodcastAppUi::SetTabsVisibleL(TBool aVisible)
 	}
 	
 	iTabsVisible=aVisible;
+	}
+
+void CPodcastAppUi::ConnectionSelectionStart()
+	{
+	DP("CPodcastAppUi::ConnectionSelectionStart()");
+	iFeedView->UpdateToolbar(EFalse);
+	iShowsView->UpdateToolbar(EFalse);
+	iQueueView->UpdateToolbar(EFalse);
+	iSearchView->UpdateToolbar(EFalse);
+	}
+
+void CPodcastAppUi::ConnectionSelectionEnd()
+	{
+	DP("CPodcastAppUi::ConnectionSelectionEnd()");
+	iFeedView->UpdateToolbar(ETrue);
+	iFeedView->UpdateToolbar(ETrue);
+	iShowsView->UpdateToolbar(ETrue);
+	iQueueView->UpdateToolbar(ETrue);
+	iSearchView->UpdateToolbar(ETrue);
 	}

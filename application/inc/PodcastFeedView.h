@@ -40,6 +40,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
         ~CPodcastFeedView();
         void UpdateItemL(TInt aIndex);
 		void CheckResumeDownload();
+		void UpdateToolbar(TBool aVisible=ETrue);
 
 	protected:
 	    void ConstructL();
@@ -90,7 +91,6 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 		void UpdateFeedInfoDataL(CFeedInfo* aFeedInfo, TInt aIndex, TBool aIsUpdating = EFalse);
 		void UpdateFeedInfoStatusL(TUint aFeedUid, TBool aIsUpdating = EFalse);
 
-		void UpdateToolbar();
 		// from MProgressDialogCallback
 		void DialogDismissedL(TInt aButtonId); 
 

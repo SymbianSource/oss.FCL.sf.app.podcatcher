@@ -62,6 +62,7 @@ class CPodcastListContainer : public CCoeControl
 		CEikFormattedCellListBox* Listbox();
 		void ScrollToVisible();
     	void Draw(const TRect& aRect) const;
+    	
 		CEikFormattedCellListBox * iListbox;		
 
 	protected:
@@ -81,6 +82,8 @@ public MProgressDialogCallback, public MKeyEventListener
     {
     public: 
         ~CPodcastListView();
+		virtual void UpdateToolbar(TBool aVisible=ETrue) = 0;
+
 	protected:
 	    void ConstructL();
 		CPodcastListView();	
@@ -145,7 +148,6 @@ public MProgressDialogCallback, public MKeyEventListener
 		// from MPointerListener
 		void PointerEventL(const TPointerEvent& aPointerEvent);
 
-		virtual void UpdateToolbar() = 0;
 	protected:
 		 CPodcastListContainer* iListContainer;
 		 /** Previous activated view */

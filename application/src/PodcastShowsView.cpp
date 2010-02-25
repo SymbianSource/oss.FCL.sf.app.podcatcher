@@ -724,10 +724,16 @@ void CPodcastShowsView::DisplayShowInfoDialogL()
 		}
 	}
 
-void CPodcastShowsView::UpdateToolbar()
+void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 {
 	CAknToolbar* toolbar = Toolbar();
+
+	if (!toolbar) {
+		return;
+	}
 	
+	toolbar->SetToolbarVisibility(aVisible);
+
 	RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
 	TInt itemCnt = fItems.Count();
 

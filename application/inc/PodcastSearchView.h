@@ -32,6 +32,7 @@ class CPodcastSearchView : public CPodcastListView, public MEikListBoxObserver,
         static CPodcastSearchView* NewL(CPodcastModel& aPodcastModel);
         static CPodcastSearchView* NewLC(CPodcastModel& aPodcastModel);
         ~CPodcastSearchView();
+		void UpdateToolbar(TBool aVisible=ETrue);
 
 	protected:
 	    void ConstructL();
@@ -77,9 +78,7 @@ class CPodcastSearchView : public CPodcastListView, public MEikListBoxObserver,
 		 * @param aCommand ID of the command to respond to. 
 		 */
 		void HandleCommandL(TInt aCommand);
-		
-		void UpdateToolbar();
-		
+				
 	private:
 		CPodcastModel& iPodcastModel;		
 		TBool iSearchRunning;

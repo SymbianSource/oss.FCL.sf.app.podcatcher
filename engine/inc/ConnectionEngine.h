@@ -33,6 +33,8 @@ class CPodcastModel;
 class MConnectionObserver
 	{
 public:
+	virtual void ConnectionSelectionStart() = 0;
+	virtual void ConnectionSelectionEnd() = 0;
 	virtual void ConnectCompleteL(TInt aErrorCode) = 0;
 	virtual void Disconnected() = 0;
 	};
@@ -89,6 +91,9 @@ protected:
 	TBool ConnectionSettingL();
 	
 	void ReportConnection(TInt aError);
+	void ReportConnectionSelectionStart();
+	void ReportConnectionSelectionEnd();
+	
 private:
 	RConnection                   iConnection;
 	RSocketServ                   iSocketServer;

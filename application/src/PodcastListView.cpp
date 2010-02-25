@@ -371,8 +371,6 @@ void CPodcastListView::HandleLongTapEventL( const TPoint& aPenEventLocation, con
 
 void CPodcastListView::DynInitToolbarL (TInt /*aResourceId*/, CAknToolbar * /*aToolbar*/)
 	{
-	DP("CPodcastListView::DynInitToolbarL");
-	UpdateToolbar();
 	}
 
 

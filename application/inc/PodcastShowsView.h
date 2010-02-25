@@ -40,6 +40,8 @@ public:
 	static CPodcastShowsView* NewL(CPodcastModel& aPodcastModel);
 	static CPodcastShowsView* NewLC(CPodcastModel& aPodcastModel);
 	~CPodcastShowsView();
+	void UpdateToolbar(TBool aVisible=ETrue);
+
 protected:
 	void ConstructL();
 	CPodcastShowsView(CPodcastModel& aPodcastModel);
@@ -101,7 +103,6 @@ protected:
 
 private:
 	void GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex);
-	void UpdateToolbar();
 	void DisplayShowInfoDialogL();
 	/*
 	 * Called by CImageHandler when an image has been loaded.

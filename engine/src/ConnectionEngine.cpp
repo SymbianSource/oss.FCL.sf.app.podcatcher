@@ -134,13 +134,13 @@ TBool CConnectionEngine::ConnectionSettingL()
 	CMManager::EShowDestinations;
 
 	TBearerFilterArray filter;
-
+	ReportConnectionSelectionStart();
 	selected = settings->RunApplicationSettingsL( iUserSelection,
 			listedItems,
 			filter );
 
 	CleanupStack::PopAndDestroy( settings );
-
+	ReportConnectionSelectionEnd();
 	return selected;
 	}
 
@@ -279,5 +279,27 @@ void CConnectionEngine::ReportConnection(TInt aError)
 		{
 		noObservers--;
 		iObserverArray[noObservers]->ConnectCompleteL(aError);
+		}
+	}
+
+
+void CConnectionEngine::ReportConnectionSelectionStart()
+	{
+	TInt noObservers = iObserverArray.Count();
+	while(noObservers)
+		{
+		noObservers--;
+		iObserverArray[noObservers]->ConnectionSelectionStart();
+		}
+	}
+
+
+void CConnectionEngine::ReportConnectionSelectionEnd()
+	{
+	TInt noObservers = iObserverArray.Count();
+	while(noObservers)
+		{
+		noObservers--;
+		iObserverArray[noObservers]->ConnectionSelectionEnd();
 		}
 	}

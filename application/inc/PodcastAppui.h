@@ -24,6 +24,8 @@
 #include <akntabgrp.h>
 #include <aknnavide.h> 
 
+#include "ConnectionEngine.h"
+
 class CPodcastMainView;
 class CPodcastFeedView;
 class CPodcastShowsView;
@@ -97,7 +99,8 @@ protected:
     MTimeoutObserver& iObserver;
 };
 
-class CPodcastAppUi : public CAknViewAppUi, public MAknTabObserver, MTimeoutObserver
+class CPodcastAppUi : public CAknViewAppUi, public MAknTabObserver, 
+	public MTimeoutObserver, public MConnectionObserver
     {
     public: 
     	CPodcastAppUi(CPodcastModel* aPodcastModel);
@@ -120,6 +123,14 @@ class CPodcastAppUi : public CAknViewAppUi, public MAknTabObserver, MTimeoutObse
     protected:
     	void HandleTimeout(const CTimeout& aId, TInt aError);
 
+    protected:
+    	// from MConnectionObserver
+    	
+    	void ConnectionSelectionStart();
+    	void ConnectionSelectionEnd();    	
+    	void ConnectCompleteL(TInt /*aErrorCode*/) {}
+    	void Disconnected() {};
+    	
     private:
     	CPodcastMainView *iMainView;
 		CPodcastFeedView* iFeedView;

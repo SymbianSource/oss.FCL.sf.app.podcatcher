@@ -197,9 +197,9 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 
 	switch(aEventType)
 		{
-	case EEventEnterKeyPressed:
+//	case EEventEnterKeyPressed:
 	case EEventItemDoubleClicked:
-	case EEventItemActioned:
+//	case EEventItemActioned:
 			{
 			const RFeedInfoArray* sortedItems = NULL;
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
@@ -547,12 +547,13 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 	UpdateToolbar();
 	}
 
-void CPodcastFeedView::UpdateToolbar()
+void CPodcastFeedView::UpdateToolbar(TBool aVisible)
 {
 	CAknToolbar* toolbar = Toolbar();
 	
 	if (toolbar)
 		{
+		toolbar->SetToolbarVisibility(aVisible);
 		toolbar->HideItem(EPodcastUpdateAllFeeds, iUpdatingAllRunning, ETrue);
 		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !iUpdatingAllRunning, ETrue );
 		toolbar->SetItemDimmed(EPodcastAddFeed, iUpdatingAllRunning, ETrue );
