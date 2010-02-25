@@ -51,7 +51,7 @@ rls_string STRING_r_podcast_feeds_update_message "Updating..."
 rls_string STRING_r_podcast_feeds_update_error "Update failed!"
 
 // Actions for shows
-rls_string STRING_r_view_download_show_cmd "Download"
+rls_string STRING_r_view_download_show_cmd "Get"
 rls_string STRING_r_view_delete_show_cmd "Delete"
 rls_string STRING_r_view_delete_shows_cmd "Delete All"
 rls_string STRING_r_view_delete_show_cmd "Delete"

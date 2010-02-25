@@ -197,9 +197,9 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 
 	switch(aEventType)
 		{
-//	case EEventEnterKeyPressed:
+	case EEventEnterKeyPressed:
 	case EEventItemDoubleClicked:
-//	case EEventItemActioned:
+	case EEventItemActioned:
 			{
 			const RFeedInfoArray* sortedItems = NULL;
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
