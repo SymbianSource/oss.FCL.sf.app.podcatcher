@@ -297,9 +297,10 @@ void CPodcastShowsView::ShowDownloadFinishedL(TUint /*aShowUid*/, TInt aError)
 			ShowErrorMessage(message);
 			}
 			break;
-		default: // Do nothing
+		default:
 			break;
 		}
+	UpdateListboxItemsL();
 	}
 
 
@@ -465,18 +466,15 @@ void CPodcastShowsView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aS
 
 	if(aShowInfo.LastError() != KErrNone)
 		{
-		TBuf<KSizeBufLen> errorBuffer;
-		GetShowErrorText(errorBuffer, aShowInfo.LastError());
-		iListboxFormatbuffer.Format(KShowErrorFormat(), iconIndex, &aShowInfo.Title(), &errorBuffer);
+		GetShowErrorText(infoSize, aShowInfo.LastError());
 		}
-	else	
+	
+	if (infoSize.Length() > 0)
 		{
-		if (infoSize.Length() > 0) {
-			infoSize.Insert(0,_L(", "));
+		infoSize.Insert(0,_L(", "));
 		}
 		
-		iListboxFormatbuffer.Format(KShowFormat(), iconIndex, &aShowInfo.Title(), &showDate, &infoSize);
-		}
+	iListboxFormatbuffer.Format(KShowFormat(), iconIndex, &aShowInfo.Title(), &showDate, &infoSize);
 	}
 
 void CPodcastShowsView::GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode)
@@ -548,7 +546,8 @@ void CPodcastShowsView::UpdateListboxItemsL()
 				{
 				for (TInt loop = 0; loop< len; loop++)
 					{					
-					UpdateShowItemDataL(fItems[loop], loop);	
+					UpdateShowItemDataL(fItems[loop], loop);
+					iListContainer->Listbox()->DrawItem(loop);
 					}
 				}
 			else

@@ -274,10 +274,14 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 		// decide what kind of file this is		
 		if(aError != KErrCouldNotConnect)
 			{
-			if(aError == KErrDisconnected && !iPodcastModel.SettingsEngine().DownloadSuspended()) {
+			if(aError == KErrDisconnected && iPodcastModel.SettingsEngine().DownloadSuspended())
+				{
 				// no error if disconnect happened because of suspended downloading
+				}
+			else
+				{
 				iShowDownloading->SetLastError(aError);
-			}
+				}
 
 			if (aError == KErrNone)
 				{
