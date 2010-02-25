@@ -692,35 +692,35 @@ void CPodcastShowsView::DisplayShowInfoDialogL()
 							
 		note->PrepareLC( R_SHOW_INFO_NOTE ); // Adds to CleanupStack
 		
-		if(feedInfo && feedInfo->ImageFileName().Length()>0)
-			{
-			CFbsBitmap * bitmap = new (ELeave) CFbsBitmap;
-			CleanupStack::PushL(bitmap);
-			
-			TRAPD(loaderror, iPodcastModel.ImageHandler().LoadFileAndScaleL(bitmap, feedInfo->ImageFileName(), TSize(KPodcastImageWidth, KPodcastImageHeight), *this));
-			
-			if(loaderror == KErrNone)
-				{
-				CActiveScheduler::Start();
-				if(iLastImageHandlerError == KErrNone)
-					{	
-					CEikImage* image = static_cast<CEikImage*>(note->ControlOrNull(EPodcastShowInfoImage));
-					image->SetBitmap(bitmap);
-					CleanupStack::Pop(bitmap);
-					bitmap = NULL;
-					}
-				else
-					{				
-					CleanupStack::PopAndDestroy(bitmap);
-					bitmap = NULL;
-					}
-				}
-			else
-				{
-				CleanupStack::PopAndDestroy(bitmap);
-				bitmap = NULL;
-				}
-			}												
+//		if(feedInfo && feedInfo->ImageFileName().Length()>0)
+//			{
+//			CFbsBitmap * bitmap = new (ELeave) CFbsBitmap;
+//			CleanupStack::PushL(bitmap);
+//			
+//			TRAPD(loaderror, iPodcastModel.ImageHandler().LoadFileAndScaleL(bitmap, feedInfo->ImageFileName(), TSize(KPodcastImageWidth, KPodcastImageHeight), *this));
+//			
+//			if(loaderror == KErrNone)
+//				{
+//				CActiveScheduler::Start();
+//				if(iLastImageHandlerError == KErrNone)
+//					{	
+//					CEikImage* image = static_cast<CEikImage*>(note->ControlOrNull(EPodcastShowInfoImage));
+//					image->SetBitmap(bitmap);
+//					CleanupStack::Pop(bitmap);
+//					bitmap = NULL;
+//					}
+//				else
+//					{				
+//					CleanupStack::PopAndDestroy(bitmap);
+//					bitmap = NULL;
+//					}
+//				}
+//			else
+//				{
+//				CleanupStack::PopAndDestroy(bitmap);
+//				bitmap = NULL;
+//				}
+//			}												
 		
 		note->RunLD(); 
 		}
