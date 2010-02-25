@@ -292,7 +292,9 @@ void CPodcastSearchView::UpdateToolbar(TBool aVisible)
 	
 	if (toolbar)
 		{
-		toolbar->SetToolbarVisibility(aVisible);
+		if (iListContainer->IsVisible()) {
+			toolbar->SetToolbarVisibility(aVisible);
+		}
 		toolbar->SetItemDimmed(EPodcastAddSearchResult, disableAdd, ETrue );
 		toolbar->HideItem(EPodcastSearch, iSearchRunning, ETrue );
 		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !iSearchRunning, ETrue);

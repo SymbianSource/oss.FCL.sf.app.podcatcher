@@ -553,7 +553,9 @@ void CPodcastFeedView::UpdateToolbar(TBool aVisible)
 	
 	if (toolbar)
 		{
-		toolbar->SetToolbarVisibility(aVisible);
+		if (iListContainer->IsVisible()) {
+			toolbar->SetToolbarVisibility(aVisible);
+		}
 		toolbar->HideItem(EPodcastUpdateAllFeeds, iUpdatingAllRunning, ETrue);
 		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !iUpdatingAllRunning, ETrue );
 		toolbar->SetItemDimmed(EPodcastAddFeed, iUpdatingAllRunning, ETrue );

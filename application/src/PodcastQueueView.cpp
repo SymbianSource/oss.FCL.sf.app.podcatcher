@@ -567,8 +567,9 @@ void CPodcastQueueView::UpdateToolbar(TBool aVisible)
 	if (toolbar) {
 		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
 		TInt itemCnt = fItems.Count();
-		toolbar->SetToolbarVisibility(aVisible);
-	
+		if (iListContainer->IsVisible()) {
+			toolbar->SetToolbarVisibility(aVisible);
+		}
 		toolbar->HideItem(EPodcastRemoveDownload, EFalse, ETrue);
 		toolbar->HideItem(EPodcastRemoveAllDownloads, EFalse, ETrue);
 		toolbar->SetItemDimmed(EPodcastRemoveDownload, itemCnt == 0, ETrue);
