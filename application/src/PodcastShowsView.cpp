@@ -871,9 +871,9 @@ void CPodcastShowsView::HandleDeleteShow()
 		}
 	}
 
-void CPodcastShowsView::DownloadQueueUpdatedL(TInt /*aDownloadingShows*/, TInt /*aQueuedShows*/)
+void CPodcastShowsView::DownloadQueueUpdatedL(TInt aDownloadingShows, TInt aQueuedShows)
 	{
-	//((CPodcastAppUi*)AppUi())->UpdateQueueTab(aDownloadingShows+aQueuedShows);
+	((CPodcastAppUi*)AppUi())->UpdateQueueTab(aDownloadingShows+aQueuedShows);
 	}
 
 void CPodcastShowsView::FeedUpdateAllCompleteL(TFeedState /*aState*/)

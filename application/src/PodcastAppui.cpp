@@ -161,11 +161,7 @@ void CPodcastAppUi::NaviShowTabGroupL()
 		
 	HBufC *label3 = iEikonEnv->AllocReadResourceLC(R_TABGROUP_QUEUE);
 	iTabGroup->AddTabL(KTabIdQueue,*label3);
-	
-//	HBufC *label4 = iEikonEnv->AllocReadResourceLC(R_TABGROUP_SEARCH);			
-//	iTabGroup->AddTabL(KTabIdSearch,*label4);
-//	
-//	CleanupStack::PopAndDestroy(label4);
+
 	CleanupStack::PopAndDestroy(label3);
 	CleanupStack::PopAndDestroy(label1);
 	
@@ -174,6 +170,8 @@ void CPodcastAppUi::NaviShowTabGroupL()
 
 	iNaviPane->Pop();
 	SetTabsVisibleL(ETrue);
+	
+	UpdateQueueTab(iPodcastModel->ShowEngine().GetNumDownloadingShows());
 	}
 
 void CPodcastAppUi::TabChangedL (TInt aIndex)
