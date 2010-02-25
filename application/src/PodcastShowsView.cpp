@@ -45,7 +45,7 @@ const TInt KDefaultGran = 5;
 _LIT(KSizeDownloadingOf, "%.1f/%.1f MB");
 _LIT(KShowsSizeFormatS60, "%.1f MB");
 
-_LIT(KShowFormat, "%d\t%S\t%S %S\t");
+_LIT(KShowFormat, "%d\t%S\t%S%S\t");
 _LIT(KShowErrorFormat, "%d\t%S\t%S\t");
 _LIT(KShowQueueFormat, "%d\t%S\t%S%S\t");
 
@@ -592,17 +592,17 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 	switch (aCommand)
 		{
 		case EPodcastMarkAsPlayed:
-			SetShowPlayed(ETrue);
+			HandleSetShowPlayed(ETrue);
 			break;
 		case EPodcastMarkAsUnplayed:
-			SetShowPlayed(EFalse);
+			HandleSetShowPlayed(EFalse);
 			break;
 		case EPodcastMarkAllPlayed:
 			iPodcastModel.MarkSelectionPlayed();
 			UpdateListboxItemsL();
 			break;
 		case EPodcastDeleteShow:
-			DeleteShow();
+			HandleDeleteShow();
 			break;
 		case EPodcastDownloadShow:
 			{
@@ -623,8 +623,7 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 
 				if (error != KErrNone)
 					{
-					HBufC
-							* str =
+					HBufC* str =
 							iEikonEnv->AllocReadResourceLC(R_PODCAST_FEEDS_UPDATE_ERROR);
 					User::InfoPrint(*str);
 					CleanupStack::PopAndDestroy(str);
@@ -823,7 +822,7 @@ void CPodcastShowsView::HandleLongTapEventL( const TPoint& aPenEventLocation, co
 	DP("CPodcastShowsView::HandleLongTapEventL END");
 }
 
-void CPodcastShowsView::SetShowPlayed(TBool aPlayed)
+void CPodcastShowsView::HandleSetShowPlayed(TBool aPlayed)
 	{
 
 	TInt index = iListContainer->Listbox()->CurrentItemIndex();
@@ -838,7 +837,7 @@ void CPodcastShowsView::SetShowPlayed(TBool aPlayed)
 		}
 	}
 
-void CPodcastShowsView::DeleteShow()
+void CPodcastShowsView::HandleDeleteShow()
 	{
 	TInt index = iListContainer->Listbox()->CurrentItemIndex();
 

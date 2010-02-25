@@ -376,6 +376,11 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		}
 	}
 	
+	if(aFeedInfo.LastError() != KErrNone)
+		{
+		GetFeedErrorText(unplayedShows, aFeedInfo.LastError());
+		}
+		
 	if (unplayedShows.Length() > 0) {
 		unplayedShows.Insert(0,_L(", "));
 	}
@@ -915,4 +920,9 @@ void CPodcastFeedView::OpmlParsingComplete(TUint aNumFeedsImported)
 void CPodcastFeedView::DialogDismissedL(TInt /*aButtonId*/)
 	{
 	iPodcastModel.FeedEngine().CancelUpdateAllFeeds();
+	}
+
+void CPodcastFeedView::GetFeedErrorText(TDes &aErrorMessage, TInt aErrorCode)
+	{
+	iEikonEnv->GetErrorText(aErrorMessage, aErrorCode);
 	}

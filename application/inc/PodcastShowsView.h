@@ -109,8 +109,8 @@ private:
 	 *   image was loaded successfully.
 	 */
 	virtual void ImageOperationCompleteL(TInt aError);
-	void SetShowPlayed(TBool aPlayed);
-	void DeleteShow();
+	void HandleSetShowPlayed(TBool aPlayed);
+	void HandleDeleteShow();
 	void UpdateViewTitleL();
 	void CreateIconsL();
 	void GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode);
