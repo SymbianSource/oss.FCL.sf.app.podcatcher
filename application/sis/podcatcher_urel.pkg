@@ -16,11 +16,11 @@
 "..\help\podcatcher.hlp"-"!:\resource\help\podcatcher.hlp"
 
 ; configuration and DB
-"../../engine/config/defaultfeeds.xml"-"!:\private\A0009D00\defaultfeeds.xml"
-"../../engine/config/podcatcher.sqlite"-"!:\private\A0009D00\podcatcher.sqlite.template"
+"../../engine/config/defaultfeeds.xml"-"c:\private\A0009D00\defaultfeeds.xml"
+"../../engine/config/podcatcher.sqlite"-"c:\private\A0009D00\podcatcher.sqlite.template"
 
 ; backup
-"./backup_registration.xml" - "!:\private\A0009D00\backup_registration.xml"
+"./backup_registration.xml" - "c:\private\A0009D00\backup_registration.xml"
 
 ; app DLL
 ;"\epoc32\release\gcce\urel\podcastengine.dll"-"!:\sys\bin\podcastengine.dll"

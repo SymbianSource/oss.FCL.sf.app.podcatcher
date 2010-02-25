@@ -195,7 +195,7 @@ void CPodcastSearchView::UpdateListboxItemsL()
 			
 			TBuf<512> descr;
 			descr.Copy(fi->Description().Left(512));
-			
+			PodcastUtils::RemoveAllFormatting(descr);
 			iListboxFormatbuffer.Format(KSearchResultFormat(), iconIndex, &fi->Title(), &descr);
 			iItemArray->AppendL(iListboxFormatbuffer);
 			iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(i, itemProps);

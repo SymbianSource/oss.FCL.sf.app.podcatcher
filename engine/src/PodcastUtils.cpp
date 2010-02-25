@@ -126,6 +126,16 @@ EXPORT_C void PodcastUtils::CleanHtmlL(TDes &str)
 	CleanupStack::PopAndDestroy(tmpBuf);
 }
 
+EXPORT_C void PodcastUtils::RemoveAllFormatting(TDes & aString)
+	{
+	// check for combination first so we prevent adding two spaces 
+	ReplaceString(aString,_L("\r\n"), _L(" "));
+	
+	ReplaceString(aString,_L("\n"), _L(" "));
+	ReplaceString(aString,_L("\r"), _L(" "));
+	
+	}
+
 EXPORT_C void PodcastUtils::ReplaceString(TDes & aString, const TDesC& aStringToReplace, const TDesC& aReplacement)
 	{
 	TInt pos=aString.Find(aStringToReplace);

@@ -271,7 +271,6 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 	if (iShowDownloading != NULL)
 		{
 		DP1("CShowEngine::Complete\tDownload of file: %S is complete", &iShowDownloading->FileName());		
-		// decide what kind of file this is		
 		if(aError != KErrCouldNotConnect)
 			{
 			if(aError == KErrDisconnected && iPodcastModel.SettingsEngine().DownloadSuspended())
@@ -303,7 +302,7 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 				DBRemoveDownload(iShowDownloading->Uid());
 				AddShowToMpxCollection(*iShowDownloading);				
 				NotifyShowFinishedL(aError);
-
+				iDownloadErrors = 0;
 				delete iShowDownloading;
 				iShowDownloading = NULL;
 				}
