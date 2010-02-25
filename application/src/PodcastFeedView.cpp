@@ -659,18 +659,15 @@ void CPodcastFeedView::HandleEditFeedL()
 						// Remove the temp entry so that the correct entry could be changed
 						iPodcastModel.FeedEngine().RemoveFeedL(temp->Uid());	
 						
-						// user has accepted that shows will be deleted
-						iPodcastModel.ShowEngine().DeleteAllShowsByFeedL(info->Uid());
-
-						// update URL
-						info->SetUrlL(url);	
-					
-						if (info->Title().Compare(title) != 0)
-							{
-							info->SetTitleL(title);
-							info->SetCustomTitle();	
-							}
-						iPodcastModel.FeedEngine().UpdateFeed(info);
+						// we remove the existing feed
+						iPodcastModel.FeedEngine().RemoveFeedL(info->Uid());	
+						
+						CFeedInfo* newFeed = CFeedInfo::NewLC();
+						newFeed->SetUrlL(url);
+						newFeed->SetTitleL(title);
+						
+						iPodcastModel.FeedEngine().AddFeedL(*newFeed);
+						CleanupStack::PopAndDestroy(newFeed);
 						UpdateListboxItemsL();
 					} else {
 						// the feed existed. Object deleted in AddFeed.	
