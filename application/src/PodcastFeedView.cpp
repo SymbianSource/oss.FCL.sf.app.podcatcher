@@ -872,46 +872,59 @@ void CPodcastFeedView::CheckResumeDownload()
 	showsDownloading.ResetAndDestroy();
 	}
 
-void CPodcastFeedView::OpmlParsingComplete(TUint aNumFeedsImported)
+void CPodcastFeedView::OpmlParsingComplete(TInt aError, TUint aNumFeedsImported)
 	{
 	DP("CPodcastFeedView::OpmlParsingComplete BEGIN");
 	
-	switch (iOpmlState)
+	switch (aError)
 		{
-		case EOpmlIdle:
-			break;
-		case EOpmlImporting:
+		case KErrCouldNotConnect:
 			{
-			UpdateListboxItemsL();
-			delete iWaitDialog;
-			iOpmlState = EOpmlIdle;
-				
 			TBuf<KMaxMessageLength> message;
-			TBuf<KMaxMessageLength> templ;
-			iEikonEnv->ReadResourceL(templ, R_IMPORT_FEED_SUCCESS);
-			message.Format(templ, aNumFeedsImported);
-			
-			if(ShowQueryMessage(message))
-				{
-				HandleCommandL(EPodcastUpdateAllFeeds);
-				}
+			iEikonEnv->ReadResourceL(message, R_PODCAST_CONNECTION_ERROR);
+			ShowErrorMessage(message);
 			}
 			break;
-		case EOpmlSearching:
-			delete iWaitDialog;
-			if (iPodcastModel.FeedEngine().GetSearchResults().Count() == 0)
+		case KErrNone: 
+		default:			// we don't do more error handling here, just show 0 imported feeds
+		switch (iOpmlState)
+			{
+			case EOpmlIdle:
+				break;
+			case EOpmlImporting:
 				{
+				UpdateListboxItemsL();
+				delete iWaitDialog;
+				iOpmlState = EOpmlIdle;
+					
 				TBuf<KMaxMessageLength> message;
-				iEikonEnv->ReadResourceL(message, R_SEARCH_NORESULTS);
-				ShowErrorMessage(message);
+				TBuf<KMaxMessageLength> templ;
+				iEikonEnv->ReadResourceL(templ, R_IMPORT_FEED_SUCCESS);
+				message.Format(templ, aNumFeedsImported);
+				
+				if(ShowQueryMessage(message))
+					{
+					HandleCommandL(EPodcastUpdateAllFeeds);
+					}
 				}
-			else
-				{
-				AppUi()->ActivateLocalViewL(KUidPodcastSearchViewID,  TUid::Uid(0), KNullDesC8());
-				}
-			iOpmlState = EOpmlIdle;
-		default:
-			break;
+				break;
+			case EOpmlSearching:
+				delete iWaitDialog;
+				if (iPodcastModel.FeedEngine().GetSearchResults().Count() == 0)
+					{
+					TBuf<KMaxMessageLength> message;
+					iEikonEnv->ReadResourceL(message, R_SEARCH_NORESULTS);
+					ShowErrorMessage(message);
+					}
+				else
+					{
+					AppUi()->ActivateLocalViewL(KUidPodcastSearchViewID,  TUid::Uid(0), KNullDesC8());
+					}
+				iOpmlState = EOpmlIdle;
+				break;
+			default:
+				break;
+			}
 		}
 	
 	DP("CPodcastFeedView::OpmlParsingComplete END");

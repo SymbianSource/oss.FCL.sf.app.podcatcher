@@ -583,40 +583,44 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 				}break;
 			}
 		
-		NotifyFeedUpdateComplete(aError);
-
-		// we will wait until the image has been downloaded to start the next feed update.
-		if (iClientState == EIdle)
-			{
-			UpdateNextFeedL();	
-			}
-		}break;
-	case EUpdatingImage:
-		{
-		// change client state to not updating
-		iClientState = EIdle;
-
-		NotifyFeedUpdateComplete(aError);
-		UpdateNextFeedL();
-		}break;
-	case ESearching: 
-		{
-		iClientState = EIdle;
-
-		DP2("Search complete, results in %S with error %d", &iSearchResultsFileName, aError);
-		if(aError == KErrNone)
-			{
-			if (!iOpmlParser) 
+			NotifyFeedUpdateComplete(aError);
+	
+			// we will wait until the image has been downloaded to start the next feed update.
+			if (iClientState == EIdle)
 				{
-				iOpmlParser = new COpmlParser(*this, iPodcastModel.FsSession());
+				UpdateNextFeedL();	
 				}
-
-			DP("Parsing OPML");
-			iOpmlParser->ParseOpmlL(iSearchResultsFileName, ETrue);
-			}
-		
-		BaflUtils::DeleteFile(iPodcastModel.FsSession(), iSearchResultsFileName);
-		}break;
+			}break;
+		case EUpdatingImage:
+			{
+			// change client state to not updating
+			iClientState = EIdle;
+	
+			NotifyFeedUpdateComplete(aError);
+			UpdateNextFeedL();
+			}break;
+		case ESearching: 
+			{
+			iClientState = EIdle;
+	
+			DP2("Search complete, results in %S with error %d", &iSearchResultsFileName, aError);
+			if(aError == KErrNone)
+				{
+				if (!iOpmlParser) 
+					{
+					iOpmlParser = new COpmlParser(*this, iPodcastModel.FsSession());
+					}
+	
+				DP("Parsing OPML");
+				iOpmlParser->ParseOpmlL(iSearchResultsFileName, ETrue);
+				}
+			else
+				{
+				NotifyOpmlParsingComplete(aError, 0);
+				}
+			
+			BaflUtils::DeleteFile(iPodcastModel.FsSession(), iSearchResultsFileName);
+			}break;
 		}
 	DP("CFeedEngine::CompleteL END");
 	}
@@ -1063,15 +1067,15 @@ EXPORT_C const RFeedInfoArray& CFeedEngine::GetSearchResults()
 	}
 
 
-EXPORT_C void CFeedEngine::OpmlParsingComplete(TUint aNumFeedsAdded)
+EXPORT_C void CFeedEngine::OpmlParsingComplete(TInt aError, TUint aNumFeedsAdded)
 	{
-	NotifyOpmlParsingComplete(aNumFeedsAdded);
+	NotifyOpmlParsingComplete(aError, aNumFeedsAdded);
 	}
 
-void CFeedEngine::NotifyOpmlParsingComplete(TUint aNumFeedsAdded)
+void CFeedEngine::NotifyOpmlParsingComplete(TInt aError, TUint aNumFeedsAdded)
 	{
 	for (TInt i=0;i<iObservers.Count();i++) 
 		{
-		iObservers[i]->OpmlParsingComplete(aNumFeedsAdded);
+		iObservers[i]->OpmlParsingComplete(aError, aNumFeedsAdded);
 		}
 	}

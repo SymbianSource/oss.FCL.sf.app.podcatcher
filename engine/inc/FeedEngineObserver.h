@@ -30,6 +30,6 @@ public:
 	virtual void FeedDownloadStartedL(TFeedState aState, TUint aFeedUid) = 0;
 	virtual void FeedDownloadFinishedL(TFeedState aState, TUint aFeedUid, TInt aError) = 0;
 	virtual void FeedUpdateAllCompleteL(TFeedState aState) = 0;
-	virtual void OpmlParsingComplete(TUint aNumFeedsImported) = 0;
+	virtual void OpmlParsingComplete(TInt aError, TUint aNumFeedsImported) = 0;
 };
 #endif /*FEEDENGINEOBSERVER_H_*/

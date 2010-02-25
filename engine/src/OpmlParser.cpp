@@ -71,9 +71,9 @@ void COpmlParser::OnStartDocumentL(const RDocumentParameters& aDocParam, TInt /*
 	CleanupStack::PopAndDestroy(charset);
 	}
 
-void COpmlParser::OnEndDocumentL(TInt /*aErrorCode*/)
+void COpmlParser::OnEndDocumentL(TInt aErrorCode)
 	{
-	iFeedEngine.OpmlParsingComplete(iNumFeedsAdded);
+	iFeedEngine.OpmlParsingComplete(aErrorCode, iNumFeedsAdded);
 	//DP("OnEndDocumentL()");
 	}
 
@@ -227,7 +227,7 @@ void COpmlParser::OnProcessingInstructionL(const TDesC8& /*aTarget*/, const TDes
 void COpmlParser::OnError(TInt aErrorCode)
 	{
 	DP1("COpmlParser::OnError %d", aErrorCode);
-	iFeedEngine.OpmlParsingComplete(iNumFeedsAdded);
+	iFeedEngine.OpmlParsingComplete(aErrorCode, iNumFeedsAdded);
 	}
 
 TAny* COpmlParser::GetExtendedInterface(const TInt32 /*aUid*/)

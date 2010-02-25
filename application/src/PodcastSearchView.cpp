@@ -275,7 +275,7 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 		UpdateToolbar();
 	}
 
-void CPodcastSearchView::OpmlParsingComplete(TUint /*aNumFeedsImported*/)
+void CPodcastSearchView::OpmlParsingComplete(TInt /*aError*/, TUint /*aNumFeedsImported*/)
 	{
 	DP("CPodcastSearchView::OpmlParsingComplete BEGIN");
 	UpdateListboxItemsL();
