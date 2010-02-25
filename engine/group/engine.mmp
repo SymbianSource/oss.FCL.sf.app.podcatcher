@@ -1,0 +1,77 @@
+/*
+ * Copyright (c) 2007-2010 Sebastian Brannstrom, Lars Persson, EmbedDev AB
+ *
+ * All rights reserved.
+ * This component and the accompanying materials are made available
+ * under the terms of the License "Eclipse Public License v1.0"
+ * which accompanies this distribution, and is available
+ * at the URL "http://www.eclipse.org/legal/epl-v10.html".
+ *
+ * Initial Contributors:
+ * EmbedDev AB - initial contribution.
+ *
+ * Contributors:
+ *
+ * Description:
+ *
+ */
+ 
+#ifdef SQLITE_INCLUDED
+// must build a .lib since sqlite uses "initialized writable data"
+TARGET podcastengine.lib
+TARGETTYPE LIB
+#else
+TARGET podcastengine.dll
+TARGETTYPE DLL
+UID             0x1000008d 0xA11F867F
+#endif
+
+SOURCEPATH ..\src
+USERINCLUDE ..\inc
+SYSTEMINCLUDE \epoc32\include 
+SYSTEMINCLUDE \epoc32\include\mw 		// needed for S^3
+
+// Engine
+SOURCE			HttpClient.cpp
+SOURCE			HttpEventHandler.cpp 
+SOURCE			FeedParser.cpp 
+SOURCE			FeedEngine.cpp 
+SOURCE			ShowInfo.cpp
+SOURCE			SoundEngine.cpp
+SOURCE			FeedInfo.cpp
+SOURCE			FeedTimer.cpp
+SOURCE			ShowEngine.cpp
+SOURCE			SettingsEngine.cpp
+SOURCE			MetaDataReader.cpp 
+SOURCE			OpmlParser.cpp 
+SOURCE			PodcastUtils.cpp
+SOURCE			PodCastModel.cpp  
+SOURCE			ImageHandler.cpp
+SOURCE 			ConnectionEngine.cpp
+CAPABILITY NetworkServices UserEnvironment
+
+#ifndef SQLITE_INCLUDED
+LIBRARY	sqlite3.lib
+#endif
+
+LIBRARY	euser.lib 
+LIBRARY	bafl.lib
+LIBRARY	efsrv.lib
+LIBRARY	mediaclientaudio.lib
+LIBRARY	inetprotutil.lib
+LIBRARY	charconv.lib
+LIBRARY	xmlframework.lib
+LIBRARY	http.lib 
+LIBRARY	flogger.lib
+LIBRARY	ezlib.lib
+LIBRARY	estor.lib 
+LIBRARY	commdb.lib
+LIBRARY esock.lib
+LIBRARY mmfcontrollerframework.lib 
+LIBRARY apgrfx.lib
+LIBRARY cone.lib
+LIBRARY apmime.lib 
+LIBRARY cmmanager.lib
+LIBRARY fbscli.lib
+LIBRARY imageconversion.lib 
+LIBRARY bitmaptransforms.lib 

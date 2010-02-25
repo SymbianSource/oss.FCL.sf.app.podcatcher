@@ -1,0 +1,10 @@
+// Project configuration file for SQLite
+// Project platforms
+PRJ_PLATFORMS
+WINSCW GCCE 
+// Project exports
+PRJ_EXPORTS
+
+// MMP files for project components
+PRJ_MMPFILES
+sqlite.mmp
