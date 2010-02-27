@@ -152,9 +152,11 @@ void COpmlParser::OnStartElementL(const RTagInfo& aElement, const RAttributeArra
 				iFeedEngine.AddSearchResultL(newFeed);
 				CleanupStack::Pop(newFeed);
 			} else {
-				iFeedEngine.AddFeedL(*newFeed);
+				if(iFeedEngine.AddFeedL(*newFeed))
+					{
+					iNumFeedsAdded++;
+					}
 				CleanupStack::PopAndDestroy(newFeed);
-				iNumFeedsAdded++;
 			}
 		}
 		break;
