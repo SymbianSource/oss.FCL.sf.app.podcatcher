@@ -68,18 +68,18 @@ EXPORT_C void PodcastUtils::FixProtocolsL(TDes &aUrl)
 
 EXPORT_C void PodcastUtils::CleanHtmlL(TDes &str)
 {
-#ifdef UIQ
-	_LIT(KLineBreak, "\r\n");
-#else
+// miscellaneous cleanup
 	const TChar KLineBreak(CEditableText::ELineBreak); 
-#endif
 	_LIT(KNewLine, "\n");
+	//	ReplaceChar(str, '"', '\'');
 	ReplaceString(str, KNewLine, KNullDesC);
+	str.Trim();
 
-//	DP2("CleanHtml %d, %S", str.Length(), &str);
+
+// strip out HTML tags
+	
 	TInt startPos = str.Locate('<');
 	TInt endPos = str.Locate('>');
-	//DP3("length: %d, startPos: %d, endPos: %d", str.Length(), startPos, endPos);
 	HBufC* tmpBuf = HBufC::NewLC(KMaxDescriptionLength);
 	TPtr tmp(tmpBuf->Des());
 	while (startPos != KErrNotFound && endPos != KErrNotFound && endPos > startPos) {
@@ -108,21 +108,95 @@ EXPORT_C void PodcastUtils::CleanHtmlL(TDes &str)
 		startPos = str.Locate('<');
 		endPos = str.Locate('>');
 	}
-	
-	str.Trim();
-	_LIT(KAmp, "&amp;");
-	_LIT(KQuot, "&quot;");
-	_LIT(KNbsp, "&nbsp;");
-	_LIT(KCopy, "&copy;");
-	_LIT(KCopyReplacement, "(c)");
-	if(str.Locate('&') != KErrNotFound) {
-		ReplaceString(str, KAmp, KNullDesC);
-		ReplaceString(str, KQuot, KNullDesC);
-		ReplaceString(str, KNbsp, KNullDesC);
-		ReplaceString(str, KCopy, KCopyReplacement);
-	}
-	ReplaceChar(str, '"', '\'');
-	
+		
+// change HTML encoded chars to unicode
+	startPos = str.Locate('&');
+	endPos = str.Locate(';');
+	while (startPos != KErrNotFound && endPos != KErrNotFound && endPos > startPos)
+		{
+		TPtrC ptr(str.Mid(startPos+1, endPos-startPos));
+		// check for whitespace
+		if (ptr.Locate(' ') == KErrNotFound)
+			{
+			// numerical constant
+			if (ptr[0] == '#')
+				{ 
+				TUint length = endPos - startPos;
+				if (length > 2)
+					{
+					tmp.Copy(str.Left(startPos));
+					ptr.Set(str.Mid(startPos+2, length-2));
+					
+					TUint charCode = 0;
+				
+					if (ptr[0] == 'x')
+						{
+						// hexadecimal
+						ptr.Set(ptr.Mid(1));
+						TLex16 lex(ptr);
+						lex.Val(charCode, EHex);	
+						}
+					else
+						{
+						//decimal
+						TLex16 lex(ptr);
+						lex.Val(charCode, EDecimal);	
+						}
+					
+					TChar charChar(charCode);
+					tmp.Append(charChar);
+					tmp.Append(str.Mid(endPos+1));
+					str.Copy(tmp);
+					}
+				}
+			// literal constant
+			else
+				{
+				_LIT(KAmp, "amp;");
+				_LIT(KQuot, "quot;");
+				_LIT(KNbsp, "nbsp;");
+				_LIT(KCopy, "copy;");
+				
+				// copy start of string
+				tmp.Copy(str.Left(startPos));
+				
+				if (ptr.CompareF(KAmp) == 0)
+					{
+					tmp.Append('&');
+					}
+				else if (ptr.CompareF(KQuot) == 0)
+					{
+					tmp.Append('"');
+					}
+				else if (ptr.CompareF(KNbsp) == 0)
+					{
+					tmp.Append(' ');
+					}
+				else if (ptr.CompareF(KCopy) == 0)
+					{
+					tmp.Append('\xA9');
+					}
+				
+				// copy end of string
+				tmp.Append(str.Mid(endPos+1));
+				str.Copy(tmp);
+				}
+			}
+		
+		TInt newPos = str.Mid(startPos+1).Locate('&');
+		
+		if (newPos != KErrNotFound)
+			{
+			startPos = startPos+1 + newPos;
+			endPos = str.Locate(';');
+			}
+		else
+			{
+			startPos = KErrNotFound;
+			endPos = KErrNotFound;
+			}
+		}
+		
 	CleanupStack::PopAndDestroy(tmpBuf);
 }
 
