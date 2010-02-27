@@ -68,6 +68,12 @@ EXPORT_C void PodcastUtils::FixProtocolsL(TDes &aUrl)
 
 EXPORT_C void PodcastUtils::CleanHtmlL(TDes &str)
 {
+
+	if (str.Length() == 0)
+		{
+		return;
+		}
+	
 // miscellaneous cleanup
 	const TChar KLineBreak(CEditableText::ELineBreak); 
 	_LIT(KNewLine, "\n");

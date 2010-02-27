@@ -737,13 +737,27 @@ TBool CShowEngine::DBAddShow(const CShowInfo& aItem)
 	{
 	DP2("CShowEngine::DBAddShow, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 
+	HBufC* titleBuf = HBufC::NewLC(KMaxLineLength);
+	TPtr titlePtr(titleBuf->Des());
+	titlePtr.Copy(aItem.Title());
+	PodcastUtils::SQLEncode(titlePtr);
+
+	HBufC* descBuf = HBufC::NewLC(KMaxLineLength);
+	TPtr descPtr(descBuf->Des());
+	descPtr.Copy(aItem.Description());
+	PodcastUtils::SQLEncode(descPtr);
+	
 	_LIT(KSqlStatement, "insert into shows (url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype)"
 			" values (\"%S\",\"%S\", \"%S\", \"%S\", \"%Lu\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%Lu\", \"%d\")");
-	iSqlBuffer.Format(KSqlStatement, &aItem.Url(), &aItem.Title(), &aItem.Description(),
+	
+	iSqlBuffer.Format(KSqlStatement, &aItem.Url(), &titlePtr, &descPtr,
 			&aItem.FileName(), aItem.Position().Int64(), aItem.PlayTime(),
 			aItem.PlayState(), aItem.DownloadState(), aItem.FeedUid(),
 			aItem.Uid(), aItem.ShowSize(), aItem.TrackNo(),
 			aItem.PubDate().Int64(), aItem.ShowType());
+
+	CleanupStack::PopAndDestroy(descBuf);
+	CleanupStack::PopAndDestroy(titleBuf);
 
 	sqlite3_stmt *st;
 
