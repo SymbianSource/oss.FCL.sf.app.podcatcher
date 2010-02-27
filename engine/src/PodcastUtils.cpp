@@ -71,10 +71,9 @@ EXPORT_C void PodcastUtils::CleanHtmlL(TDes &str)
 // miscellaneous cleanup
 	const TChar KLineBreak(CEditableText::ELineBreak); 
 	_LIT(KNewLine, "\n");
-	//	ReplaceChar(str, '"', '\'');
+	_LIT(KNewLineWindows, "\r\n");
 	ReplaceString(str, KNewLine, KNullDesC);
-	str.Trim();
-
+	ReplaceString(str, KNewLineWindows, KNullDesC);
 
 // strip out HTML tags
 	
@@ -198,6 +197,19 @@ EXPORT_C void PodcastUtils::CleanHtmlL(TDes &str)
 		}
 		
 	CleanupStack::PopAndDestroy(tmpBuf);
+	
+	// chop away newlines at start
+	while (str[0] == KLineBreak) {
+		str = str.Mid(1);
+	}
+	
+	// chop away newlines at end
+
+	while (str[str.Length()-1] == KLineBreak) {
+		str = str.Left(str.Length()-1);
+	}
+
+	str.Trim();
 }
 
 EXPORT_C void PodcastUtils::RemoveAllFormatting(TDes & aString)

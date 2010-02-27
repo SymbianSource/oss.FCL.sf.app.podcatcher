@@ -119,11 +119,6 @@ void CPodcastFeedView::ConstructL()
     
     iUpdater = CPodcastFeedViewUpdater::NewL(*this);
 	DP("CPodcastFeedView::ConstructL END");
-	
-	TBuf<1024> test;
-	test.Copy(_L("Yeah, we&#8217;re doing an episode. &quot;hej&quot; &copy; fl&nbsp;ong Should you get used to it?  Ummm&#8230; maybe not.  But let&#8217;s enjoy the ride while it lasts! Today we just yammer on about whatever, mostly just about what we&#8217;ve been up to.  Until next time!"));
-	
-	PodcastUtils::CleanHtmlL(test);
 	}
     
 CPodcastFeedView::~CPodcastFeedView()
