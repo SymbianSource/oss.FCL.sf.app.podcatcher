@@ -123,6 +123,7 @@ EXPORT_C void CShowEngine::RemoveAllDownloads()
 		}
 
 	DBRemoveAllDownloads();
+	NotifyDownloadQueueUpdatedL();
 	}
 
 EXPORT_C TBool CShowEngine::RemoveDownloadL(TUint aUid)
