@@ -213,30 +213,6 @@ RESOURCE STYLUS_POPUP_MENU r_showview_popup_menu
 		};
 	}
 
-/*
-RESOURCE DIALOG r_show_info_note
-    {
-    flags = EEikDialogFlagNoDrag |
-            EEikDialogFlagNoTitleBar |
-            EEikDialogFlagCbaButtons |
-            EEikDialogFlagFillAppClientRect;
-
-    buttons = R_AVKON_SOFTKEYS_OK_EMPTY ;
-    items =
-		{    	
-        DLG_LINE
-            {
-            type = EAknCtNote;
-            id = EGeneralNote;
-            control = AVKON_NOTE
-                {
-                layout = ENotificationWithGraphicsLayout;                                
-                };
-            }        
-        };
-
-    }*/
-
 RESOURCE DIALOG r_show_info_note
 {
    flags = EAknDialogGenericQueryFlags | EEikDialogFlagNoBorder | EEikDialogFlagNoShadow;
@@ -262,17 +238,7 @@ RESOURCE DIALOG r_show_info_note
          {
           
          };
-      }  ,      
-      DLG_LINE
-    	  {
-    	  itemflags = EEikDlgItemNonFocusing;
-    	  type = EEikCtImage;
-    	  id = EPodcastShowInfoImage;
-    	  control = IMAGE
-    		  {
-    		  
-    		  };
-    	  }
+      }
    };
 }
 

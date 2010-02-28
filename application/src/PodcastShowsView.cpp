@@ -73,45 +73,6 @@ const TUint KShowIconArrayIds[] =
 			0
 	};
 
-/** 
- *  This is an interal class to display a message query dialog with an image at the bottm
- */
-class CPodcastImageMessageQueryDialog:public CAknMessageQueryDialog
-	{
-	public:
-		/**
-		 * C++ default constructor.
-		 *
-		 * @param aMessage Dialog box text.
-		 * @param aHeader Header for the dialog.
-		 * @deprecated 
-		 */ 
-		CPodcastImageMessageQueryDialog(TDesC* aMessage, TDesC* aHeader):CAknMessageQueryDialog(aMessage, aHeader)
-    		{
-
-    		}    
-
-		~CPodcastImageMessageQueryDialog()
-			{
-
-			}
-
-		void SetSizeAndPosition(const TSize& aSize)
-			{
-			CAknMessageQueryDialog::SetSizeAndPosition(aSize);
-
-			TPoint pos = Position();		 
-			TSize size = Size();
-
-			CAknDialog::SetSizeAndPosition(aSize);		 		 
-
-			pos.iY-=((aSize.iHeight-size.iHeight)-KPodcastDialogOffset);
-			SetPosition(pos);	
-			SetSize(aSize);
-			}
-
-	};
-
 CPodcastShowsView* CPodcastShowsView::NewL(CPodcastModel& aPodcastModel)
 	{
 	CPodcastShowsView* self = CPodcastShowsView::NewLC(aPodcastModel);
@@ -686,44 +647,14 @@ void CPodcastShowsView::DisplayShowInfoDialogL()
 	if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
 		{
 		CShowInfo* info = iPodcastModel.ActiveShowList()[index];
-		TUint32 feedUid = info->FeedUid();							
-//		CFeedInfo* feedInfo = iPodcastModel.FeedEngine().GetFeedInfoByUid(feedUid);
+
+		HBufC *title = info->Title().AllocL();
+		HBufC *description = info->Description().AllocL();
 		
-		CPodcastImageMessageQueryDialog* note = new ( ELeave ) CPodcastImageMessageQueryDialog( (TDesC*)&info->Description(), (TDesC*)&info->Title() );
+		CAknMessageQueryDialog* note = new ( ELeave ) CAknMessageQueryDialog( description, title );
 							
 		note->PrepareLC( R_SHOW_INFO_NOTE ); // Adds to CleanupStack
-		
-//		if(feedInfo && feedInfo->ImageFileName().Length()>0)
-//			{
-//			CFbsBitmap * bitmap = new (ELeave) CFbsBitmap;
-//			CleanupStack::PushL(bitmap);
-//			
-//			TRAPD(loaderror, iPodcastModel.ImageHandler().LoadFileAndScaleL(bitmap, feedInfo->ImageFileName(), TSize(KPodcastImageWidth, KPodcastImageHeight), *this));
-//			
-//			if(loaderror == KErrNone)
-//				{
-//				CActiveScheduler::Start();
-//				if(iLastImageHandlerError == KErrNone)
-//					{	
-//					CEikImage* image = static_cast<CEikImage*>(note->ControlOrNull(EPodcastShowInfoImage));
-//					image->SetBitmap(bitmap);
-//					CleanupStack::Pop(bitmap);
-//					bitmap = NULL;
-//					}
-//				else
-//					{				
-//					CleanupStack::PopAndDestroy(bitmap);
-//					bitmap = NULL;
-//					}
-//				}
-//			else
-//				{
-//				CleanupStack::PopAndDestroy(bitmap);
-//				bitmap = NULL;
-//				}
-//			}												
-		
-		note->RunLD(); 
+		note->RunLD();
 		}
 	}
 

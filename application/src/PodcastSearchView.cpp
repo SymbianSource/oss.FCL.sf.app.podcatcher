@@ -132,11 +132,9 @@ void CPodcastSearchView::DoActivateL(const TVwsViewId& aPrevViewId,
 	
 	 CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
 		      ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
-	
-	HBufC* title = iEikonEnv->AllocReadResourceLC(R_SEARCH_RESULTS);
-	titlePane->SetTextL( *title, ETrue );
-	CleanupStack::PopAndDestroy(title);
-    
+
+    ((CPodcastAppUi*)AppUi())->NaviSetTextL(R_SEARCH_RESULTS);
+
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
 	iPreviousView = TVwsViewId(KUidPodcast, KUidPodcastFeedViewID);
 }
@@ -147,7 +145,7 @@ void CPodcastSearchView::DoDeactivate()
 	CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
 		     ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
 	titlePane->SetTextToDefaultL();
-	((CPodcastAppUi*)AppUi())->SetTabsVisibleL(ETrue);
+	((CPodcastAppUi*)AppUi())->NaviShowTabGroupL();
 }
 
 

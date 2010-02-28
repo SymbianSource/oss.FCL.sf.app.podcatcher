@@ -79,11 +79,21 @@ void CPodcastAppUi::ConstructL()
 
 CPodcastAppUi::~CPodcastAppUi()
     {
-    if(iNaviDecorator)
+    if (iNaviStyle != ENaviEmpty)
     	{
-    	iNaviPane->Pop(iNaviDecorator);
-    	delete iNaviDecorator;
+    	iNaviPane->Pop();
     	}
+
+    if(iNaviTabGroup)
+    	{
+    	delete iNaviTabGroup;
+    	}
+    
+    if (iNaviText)
+    	{
+    	delete iNaviText;
+    	}
+    
 	delete iStartTimer;
     }
 
@@ -149,11 +159,32 @@ CArrayFix<TCoeHelpContext>* CPodcastAppUi::HelpContextL() const
     return array;
 	}
 
+void CPodcastAppUi::NaviSetTextL(TInt aResourceId)
+	{
+	
+	if (iNaviStyle != ENaviEmpty) {
+		iNaviPane->Pop();
+	}
+
+	HBufC* naviText =  iEikonEnv->AllocReadResourceLC(aResourceId);
+	iNaviText  = iNaviPane->CreateNavigationLabelL(*naviText);
+	
+	iNaviPane->PushL(*iNaviText);
+
+	CleanupStack::PopAndDestroy(naviText);	
+	
+	iNaviStyle = ENaviText;
+	}
+
 void CPodcastAppUi::NaviShowTabGroupL()
 	{
-	iNaviDecorator = iNaviPane->CreateTabGroupL();
+	if (iNaviStyle != ENaviEmpty) {
+		iNaviPane->Pop();
+	}
 	
-	iTabGroup = STATIC_CAST(CAknTabGroup*, iNaviDecorator->DecoratedControl());
+	iNaviTabGroup = iNaviPane->CreateTabGroupL();
+	
+	iTabGroup = STATIC_CAST(CAknTabGroup*, iNaviTabGroup->DecoratedControl());
 	iTabGroup->SetTabFixedWidthL(EAknTabWidthWithTwoTabs);
 
 	HBufC *label1 = iEikonEnv->AllocReadResourceLC(R_TABGROUP_FEEDS);
@@ -168,9 +199,9 @@ void CPodcastAppUi::NaviShowTabGroupL()
 	iTabGroup->SetActiveTabByIndex(0);
 	iTabGroup->SetObserver(this);
 
-	iNaviPane->Pop();
-	SetTabsVisibleL(ETrue);
-	
+	iNaviPane->PushL(*iNaviTabGroup);
+	iNaviStyle = ENaviTabGroup;
+
 	UpdateQueueTab(iPodcastModel->ShowEngine().GetNumDownloadingShows());
 	}
 
@@ -178,30 +209,31 @@ void CPodcastAppUi::TabChangedL (TInt aIndex)
 	{
 	DP("CPodcastListView::TabChangedL ");
 	
-	if (!iTabsVisible)
+	if (iNaviStyle == ENaviTabGroup)
 		{
-		return;
+		TUid newview = TUid::Uid(0);
+		TUid messageUid = TUid::Uid(0);
+		
+		if (aIndex == KTabIdFeeds) {
+			newview = KUidPodcastFeedViewID;
+		} else if (aIndex == KTabIdQueue) {
+			newview = KUidPodcastQueueViewID;
+		} else {
+			User::Leave(KErrTooBig);
 		}
-	
-	TUid newview = TUid::Uid(0);
-	TUid messageUid = TUid::Uid(0);
-	
-	if (aIndex == KTabIdFeeds) {
-		newview = KUidPodcastFeedViewID;
-	} else if (aIndex == KTabIdQueue) {
-		newview = KUidPodcastQueueViewID;
-	} else {
-		User::Leave(KErrTooBig);
-	}
-	
-	if(newview.iUid != 0)
-		{			
-		ActivateLocalViewL(newview,  messageUid, KNullDesC8());
+		
+		if(newview.iUid != 0)
+			{			
+			ActivateLocalViewL(newview,  messageUid, KNullDesC8());
+			}
 		}
 	}
 
 void CPodcastAppUi::SetActiveTab(TInt aIndex) {
-	iTabGroup->SetActiveTabByIndex(aIndex);
+	if (iNaviStyle == ENaviTabGroup)
+		{
+		iTabGroup->SetActiveTabByIndex(aIndex);
+		}
 }
 
 void CPodcastAppUi::HandleTimeout(const CTimeout& /*aId*/, TInt /*aError*/)
@@ -211,66 +243,51 @@ void CPodcastAppUi::HandleTimeout(const CTimeout& /*aId*/, TInt /*aError*/)
 
 void CPodcastAppUi::UpdateQueueTab(TInt aQueueLength)
 	{
-	if (aQueueLength == 0)
+	if (iNaviStyle == ENaviTabGroup)
 		{
-		HBufC *queue = iEikonEnv->AllocReadResourceLC(R_TABGROUP_QUEUE);
-		iTabGroup->ReplaceTabL(KTabIdQueue, *queue);
-		CleanupStack::PopAndDestroy(queue);
-		}
-	else
-		{
-		HBufC *queueTemplate = iEikonEnv->AllocReadResourceLC(R_TABGROUP_QUEUE_COUNTER);
-		HBufC *queueCounter = HBufC::NewLC(queueTemplate->Length()+2);
-		queueCounter->Des().Format(*queueTemplate, aQueueLength);
-		
-		iTabGroup->ReplaceTabL(KTabIdQueue, *queueCounter);
-		CleanupStack::PopAndDestroy(queueCounter);
-		CleanupStack::PopAndDestroy(queueTemplate);	
+		if (aQueueLength == 0)
+			{
+			HBufC *queue = iEikonEnv->AllocReadResourceLC(R_TABGROUP_QUEUE);
+			iTabGroup->ReplaceTabL(KTabIdQueue, *queue);
+			CleanupStack::PopAndDestroy(queue);
+			}
+		else
+			{
+			HBufC *queueTemplate = iEikonEnv->AllocReadResourceLC(R_TABGROUP_QUEUE_COUNTER);
+			HBufC *queueCounter = HBufC::NewLC(queueTemplate->Length()+2);
+			queueCounter->Des().Format(*queueTemplate, aQueueLength);
+			
+			iTabGroup->ReplaceTabL(KTabIdQueue, *queueCounter);
+			CleanupStack::PopAndDestroy(queueCounter);
+			CleanupStack::PopAndDestroy(queueTemplate);	
+			}
 		}
 	}
 
 void CPodcastAppUi::TabLeft()
 	{
-	if (!iTabsVisible)
+	if (iNaviStyle == ENaviTabGroup) 
 		{
-		return;
+		TInt ati = iTabGroup->ActiveTabIndex();
+		if(ati > 0)
+			{
+			SetActiveTab(ati-1);
+			TabChangedL(ati-1);
+			}
 		}
-	
-	TInt ati = iTabGroup->ActiveTabIndex();
-	if(ati > 0) {
-		SetActiveTab(ati-1);
-		TabChangedL(ati-1);
-	}
 	}
 
 void CPodcastAppUi::TabRight()
 	{
-	if (!iTabsVisible)
+	if (iNaviStyle == ENaviTabGroup) 
 		{
-		return;
-		}
-	
-	TInt ati = iTabGroup->ActiveTabIndex();
-	if(ati < iTabGroup->TabCount()-1) {
-		SetActiveTab(ati+1);
-		TabChangedL(ati+1);
-	}
-	}
-
-void CPodcastAppUi::SetTabsVisibleL(TBool aVisible)
-	{
-	if (aVisible)
-		{
-		if(!iTabsVisible && iNaviDecorator)
+		TInt ati = iTabGroup->ActiveTabIndex();
+		if(ati < iTabGroup->TabCount()-1)
 			{
-			iNaviPane->PushL(*iNaviDecorator);
+			SetActiveTab(ati+1);
+			TabChangedL(ati+1);
 			}
 		}
-	else if (iTabsVisible) {
-		iNaviPane->Pop(iNaviDecorator);
-	}
-	
-	iTabsVisible=aVisible;
 	}
 
 void CPodcastAppUi::ConnectionSelectionStart()

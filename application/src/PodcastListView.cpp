@@ -74,13 +74,11 @@ void CPodcastListContainer::ConstructL( const TRect& aRect, TInt aListboxFlags )
 	iListbox->MakeVisible(ETrue);
     MakeVisible(EFalse);
     
-
 //#ifndef SYMBIAN1_UI
 //	TInt flags = iListbox->View()->ItemDrawer()->Flags();
 //	flags |= CListItemDrawer::EDisableHighlight;
 //	iListbox->ItemDrawer()->SetFlags(flags);
 //#endif
-//	
 
 	// Activate the window, which makes it ready to be drawn
     ActivateL();   

@@ -46,6 +46,13 @@ const TInt KTabIdQueue = 1;
 
 const TInt KTimeoutPrio = CActive::EPriorityStandard;
 
+enum TNaviStyle
+	{
+	ENaviEmpty,
+	ENaviText,
+	ENaviTabGroup
+	};
+
 class CTimeout;
 
 class MTimeoutObserver
@@ -111,15 +118,15 @@ class CPodcastAppUi : public CAknViewAppUi, public MAknTabObserver,
        void UpdateQueueTab(TInt aQueueLength);
        void TabLeft();
        void TabRight();
-       void SetTabsVisibleL(TBool aVisible);
+       void NaviSetTextL(TInt aResourceId);
+       void NaviShowTabGroupL();
+       
     private:
         // From MEikMenuObserver
         void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);
         void TabChangedL (TInt aIndex);
         CArrayFix<TCoeHelpContext>* HelpContextL() const;
-    private:
         void HandleCommandL(TInt aCommand);
-        void NaviShowTabGroupL();
     protected:
     	void HandleTimeout(const CTimeout& aId, TInt aError);
 
@@ -141,10 +148,11 @@ class CPodcastAppUi : public CAknViewAppUi, public MAknTabObserver,
 		
 		CPodcastModel* iPodcastModel;
 
-		CAknNavigationDecorator* iNaviDecorator;
+		CAknNavigationDecorator* iNaviTabGroup;
+		CAknNavigationDecorator* iNaviText;
 		CAknTabGroup* iTabGroup;
 		CAknNavigationControlContainer* iNaviPane;
-		TBool iTabsVisible;
+		TNaviStyle iNaviStyle;
 		CTimeout* iStartTimer;
     };
 

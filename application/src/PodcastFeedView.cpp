@@ -921,7 +921,6 @@ void CPodcastFeedView::OpmlParsingComplete(TInt aError, TUint aNumFeedsImported)
 					}
 				else
 					{
-					((CPodcastAppUi*)AppUi())->SetTabsVisibleL(EFalse);
 					AppUi()->ActivateLocalViewL(KUidPodcastSearchViewID,  TUid::Uid(0), KNullDesC8());
 					}
 				iOpmlState = EOpmlIdle;
