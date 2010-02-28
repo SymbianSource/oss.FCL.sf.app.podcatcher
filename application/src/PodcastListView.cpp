@@ -103,6 +103,13 @@ CCoeControl* CPodcastListContainer::ComponentControl(TInt aIndex) const
 void CPodcastListContainer::SetLongTapDetected(TBool aLongTapDetected)
 	{
 	iLongTapDetected = aLongTapDetected;
+	
+	if (aLongTapDetected == EFalse)
+		{
+		TPointerEvent event;
+		event.iType = TPointerEvent::EButton1Up;
+		CCoeControl::HandlePointerEventL(event);
+		}
 	}
 
 void CPodcastListContainer::HandleResourceChange(TInt aType)
