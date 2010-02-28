@@ -63,7 +63,9 @@ class CPodcastListContainer : public CCoeControl
 		void ScrollToVisible();
     	void Draw(const TRect& aRect) const;
     	
-		CEikFormattedCellListBox * iListbox;		
+    	void SetLongTapDetected(TBool aLongTapDetected);
+
+    	CEikFormattedCellListBox * iListbox;		
 
 	protected:
 		TTypeUid::Ptr MopSupplyObject( TTypeUid aId );
@@ -73,6 +75,8 @@ class CPodcastListContainer : public CCoeControl
 		MKeyEventListener* iKeyEventListener;
 		MPointerListener* iPointerListener;
         CAknsBasicBackgroundControlContext* iBgContext;
+		 TBool iLongTapDetected;
+
 	};
 
 

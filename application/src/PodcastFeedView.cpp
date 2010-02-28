@@ -211,12 +211,19 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 
 	switch(aEventType)
 		{
-#ifndef SYMBIAN1_UI
+		case EEventPenDownOnItem:
+			DP("PEN DOWN");
+			break;
+			
+//#ifndef SYMBIAN1_UI
 	case EEventItemClicked:
-#endif
+		DP("SINGLE TAP");
+		break;
+//#endif
 	case EEventEnterKeyPressed:
 	case EEventItemDoubleClicked:
 	case EEventItemActioned:
+		DP("DOUBLE TAP");
 			{
 			const RFeedInfoArray* sortedItems = NULL;
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
@@ -561,6 +568,8 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 			CPodcastListView::HandleCommandL(aCommand);
 			break;
 		}
+	
+	iListContainer->SetLongTapDetected(EFalse); // in case we got here by long tapping
 	UpdateToolbar();
 	}
 
@@ -960,11 +969,13 @@ void CPodcastFeedView::GetFeedErrorText(TDes &aErrorMessage, TInt aErrorCode)
 void CPodcastFeedView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
 {
 	DP("CPodcastListView::HandleLongTapEventL BEGIN");
-	
+
 	if (iUpdatingAllRunning) {
 		return; // we don't allow feed manipulation while update is running
 	}
-	
+
+	iListContainer->SetLongTapDetected(ETrue);
+
 	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
 	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
 			iListContainer->Listbox()->Model()->NumberOfItems()) - KListboxDefaultHeight;

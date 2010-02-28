@@ -100,6 +100,11 @@ CCoeControl* CPodcastListContainer::ComponentControl(TInt aIndex) const
         }
     }
 
+void CPodcastListContainer::SetLongTapDetected(TBool aLongTapDetected)
+	{
+	iLongTapDetected = aLongTapDetected;
+	}
+
 void CPodcastListContainer::HandleResourceChange(TInt aType)
 {
 	switch( aType )
@@ -161,8 +166,11 @@ void CPodcastListContainer::HandlePointerEventL(const TPointerEvent& aPointerEve
 	if (iPointerListener)
 		iPointerListener->PointerEventL(aPointerEvent);
 
-	// Call base class HandlePointerEventL()
-	CCoeControl::HandlePointerEventL(aPointerEvent);
+	// Call base class HandlePointerEventL() if not a long tap
+	if (!iLongTapDetected)
+		{
+		CCoeControl::HandlePointerEventL(aPointerEvent);
+		}
 	}
 
 
@@ -362,7 +370,7 @@ void CPodcastListView::PointerEventL(const TPointerEvent& aPointerEvent)
 void CPodcastListView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
 {
 	DP("CPodcastListView::HandleLongTapEventL BEGIN");
-	
+	iListContainer->SetLongTapDetected(ETrue);
 	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
 	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
 			iListContainer->Listbox()->Model()->NumberOfItems()) - KListboxDefaultHeight;
