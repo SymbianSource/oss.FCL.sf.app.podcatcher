@@ -174,13 +174,27 @@ void CPodcastFeedView::DoActivateL(const TVwsViewId& aPrevViewId,
 	                                  TUid aCustomMessageId,
 	                                  const TDesC8& aCustomMessage)
 	{
-	UpdateToolbar();
-	
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
 
-	if (iFirstActivateAfterLaunch)
+	if (aPrevViewId.iViewUid == KUidPodcastShowsViewID)
 		{
-		iFirstActivateAfterLaunch = EFalse;
+		// back key from shows view
+		iViewingShows = EFalse;
+		}
+	
+	if (iViewingShows)
+		{
+		// go to shows view
+		AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
+		} 
+	else 
+		{
+		UpdateToolbar();
+
+		if (iFirstActivateAfterLaunch)
+			{
+			iFirstActivateAfterLaunch = EFalse;
+			}
 		}
 	}
 
@@ -212,7 +226,7 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 				{
 				iPodcastModel.ActiveShowList().Reset();
 				iPodcastModel.SetActiveFeedInfo((*sortedItems)[index]);			
-
+				iViewingShows = ETrue;
 				AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
 				}
 			}

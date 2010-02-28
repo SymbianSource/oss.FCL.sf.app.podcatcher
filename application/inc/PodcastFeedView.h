@@ -117,6 +117,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 		CPodcastFeedViewUpdater* iUpdater;
 		TBool iFirstActivateAfterLaunch;
 		TOpmlState iOpmlState;
+		TBool iViewingShows;
 };
 
 #endif // PODCASTFEEDVIEWH
