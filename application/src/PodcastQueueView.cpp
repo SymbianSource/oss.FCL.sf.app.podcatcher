@@ -285,6 +285,9 @@ void CPodcastQueueView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 	{
 	switch (aEventType)
 		{
+#ifndef SYMBIAN1_UI
+		case EEventItemClicked:
+#endif
 		case EEventEnterKeyPressed:		
 		case EEventItemActioned:
 		case EEventItemDoubleClicked:
@@ -570,12 +573,14 @@ void CPodcastQueueView::UpdateToolbar(TBool aVisible)
 		if (iListContainer->IsVisible()) {
 			toolbar->SetToolbarVisibility(aVisible);
 		}
-		toolbar->HideItem(EPodcastRemoveDownload, EFalse, ETrue);
 		toolbar->HideItem(EPodcastRemoveAllDownloads, EFalse, ETrue);
-		toolbar->SetItemDimmed(EPodcastRemoveDownload, itemCnt == 0, ETrue);
 		toolbar->SetItemDimmed(EPodcastRemoveAllDownloads, itemCnt == 0, ETrue);
 		toolbar->HideItem(EPodcastSuspendDownloads,iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);
 		toolbar->HideItem(EPodcastResumeDownloads,!iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);	
+#ifdef SYMBIAN1_UI
+		toolbar->HideItem(EPodcastRemoveDownload, EFalse, ETrue);
+		toolbar->SetItemDimmed(EPodcastRemoveDownload, itemCnt == 0, ETrue);		
+#endif
 	}
 }
 

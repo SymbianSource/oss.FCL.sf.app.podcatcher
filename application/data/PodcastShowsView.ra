@@ -98,8 +98,9 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
                            }  
                         };
                     };
-                },
-        TBAR_CTRL
+                }
+#ifdef SYMBIAN1_UI
+            ,TBAR_CTRL
 			{
 			type = EAknCtButton;
 			id = EPodcastDownloadShow;
@@ -171,6 +172,7 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
 						};
 					};
 				}
+#endif
         };
     }
 

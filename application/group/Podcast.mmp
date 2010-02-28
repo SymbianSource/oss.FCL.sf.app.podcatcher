@@ -15,7 +15,9 @@
  * Description:
  *
  */
- 
+
+MACRO SYMBIAN1_UI
+
 TARGET			Podcast.exe
 TARGETTYPE  	exe
 UID				0x100039CE 0xA0009D00  
