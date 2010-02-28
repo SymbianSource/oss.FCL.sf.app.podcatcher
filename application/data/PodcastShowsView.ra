@@ -180,17 +180,13 @@ RESOURCE STYLUS_POPUP_MENU r_showview_popup_menu
 	{
 		items =
 		{
-/*			STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_view_show_play_cmd;
-					command = EPodcastPlay; 
-				},*/
 			STYLUS_POPUP_MENU_ITEM
 				{
 					txt = STRING_r_view_show_info_cmd;
 					command = EPodcastShowInfo;
-				},
-			STYLUS_POPUP_MENU_ITEM
+				}
+#ifndef SYMBIAN1_UI
+			,STYLUS_POPUP_MENU_ITEM
 				{
 					txt = STRING_r_view_mark_as_unplayed_cmd_short;
 					command = EPodcastMarkAsUnplayed;
@@ -210,6 +206,7 @@ RESOURCE STYLUS_POPUP_MENU r_showview_popup_menu
 					txt = STRING_r_view_delete_show_cmd;
 					command = EPodcastDeleteShow;
 				}
+#endif
 		};
 	}
 
