@@ -808,14 +808,27 @@ TBool CShowEngine::DBUpdateShow(CShowInfo& aItem)
 	{
 	DP1("CShowEngine::DBUpdateShow, title='%S'", &aItem.Title());
 
+	HBufC* titleBuf = HBufC::NewLC(KMaxLineLength);
+	TPtr titlePtr(titleBuf->Des());
+	titlePtr.Copy(aItem.Title());
+	PodcastUtils::SQLEncode(titlePtr);
+
+	HBufC* descBuf = HBufC::NewLC(KMaxLineLength);
+	TPtr descPtr(descBuf->Des());
+	descPtr.Copy(aItem.Description());
+	PodcastUtils::SQLEncode(descPtr);
+
 	_LIT(KSqlStatement, "update shows set url=\"%S\", title=\"%S\", description=\"%S\", filename=\"%S\", position=\"%Lu\","
 			"playtime=\"%u\", playstate=\"%u\", downloadstate=\"%u\", feeduid=\"%u\", showsize=\"%u\", trackno=\"%u\","
 			"pubdate=\"%Lu\", showtype=\"%d\", lasterror=\"%d\" where uid=\"%u\"");
-	iSqlBuffer.Format(KSqlStatement, &aItem.Url(), &aItem.Title(), &aItem.Description(),
+	iSqlBuffer.Format(KSqlStatement, &aItem.Url(), &titlePtr, &descPtr,
 			&aItem.FileName(), aItem.Position().Int64(), aItem.PlayTime(),
 			aItem.PlayState(), aItem.DownloadState(), aItem.FeedUid(),
 			aItem.ShowSize(), aItem.TrackNo(), aItem.PubDate().Int64(),
 			aItem.ShowType(), aItem.LastError(), aItem.Uid());
+
+	CleanupStack::PopAndDestroy(descBuf);
+	CleanupStack::PopAndDestroy(titleBuf);
 
 	sqlite3_stmt *st;
 
