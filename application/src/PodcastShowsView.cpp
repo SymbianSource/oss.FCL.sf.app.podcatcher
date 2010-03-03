@@ -511,8 +511,8 @@ void CPodcastShowsView::UpdateListboxItemsL()
 				for (TInt loop = 0; loop< len; loop++)
 					{					
 					UpdateShowItemDataL(fItems[loop], loop);
-					//iListContainer->Listbox()->DrawItem(loop);
 					}
+				iListContainer->Listbox()->DrawNow();
 				}
 			else
 				{
