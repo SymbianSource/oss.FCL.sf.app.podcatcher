@@ -619,7 +619,7 @@ void CPodcastShowsView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPan
 		}
 }
 	
-void CPodcastShowsView::ImageOperationCompleteL(TInt aError)
+void CPodcastShowsView::ImageOperationCompleteL(TInt aError, TUint /*aHandle*/)
 	{
 	iLastImageHandlerError = aError;
 	if(iSetTitlebarImage)

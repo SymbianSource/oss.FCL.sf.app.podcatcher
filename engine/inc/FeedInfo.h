@@ -76,7 +76,7 @@ class CFeedInfo : public CBase, public MImageHandlerCallback
 	private:
 		CFeedInfo();
 		void ConstructL();
-		void ImageOperationCompleteL(TInt aError);
+		void ImageOperationCompleteL(TInt aError, TUint aHandle);
 	private:
 		HBufC* iUrl;
 		HBufC* iTitle;

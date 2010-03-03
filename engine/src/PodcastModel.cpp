@@ -435,7 +435,7 @@ EXPORT_C TBool CPodcastModel::IsFirstStartup()
 	}
 
 
-void CPodcastModel::ImageOperationCompleteL(TInt /*aError*/)
+void CPodcastModel::ImageOperationCompleteL(TInt /*aError*/, TUint /*aHandle*/)
 	{
 	
 	}

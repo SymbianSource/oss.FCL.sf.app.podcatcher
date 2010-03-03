@@ -109,7 +109,7 @@ private:
 	 * @param aError Error code given by the CImageHandler or 0 (zero) if the
 	 *   image was loaded successfully.
 	 */
-	virtual void ImageOperationCompleteL(TInt aError);
+	virtual void ImageOperationCompleteL(TInt aError, TUint aHandle);
 	void HandleSetShowPlayed(TBool aPlayed);
 	void HandleDeleteShow();
 	void UpdateViewTitleL();

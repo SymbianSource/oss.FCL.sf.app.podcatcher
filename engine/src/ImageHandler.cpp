@@ -17,6 +17,7 @@
 */
 
 #include "ImageHandler.h"
+#include "debug.h"
 
 // =============================================================================
 // CImageHandler, a utility class for loading images.
@@ -121,8 +122,11 @@ EXPORT_C void CImageHandler::LoadFileAndScaleL(CFbsBitmap* aScaledBitmap,
 								      const TFileName& aFileName,
                                       const TSize &aSize,
                                       MImageHandlerCallback& aCallback,
+                                      TUint aHandle,
                                       TInt aSelectedFrame)
-    {        
+    {
+    DP1("CImageHandler::LoadFileAndScaleL, iCallbackQueue.Count()=%d", iCallbackQue.Count());
+
     if(!IsActive())
     	{
     	__ASSERT_ALWAYS(!IsActive(),User::Invariant());
@@ -130,16 +134,26 @@ EXPORT_C void CImageHandler::LoadFileAndScaleL(CFbsBitmap* aScaledBitmap,
     	iScaledBitmap = aScaledBitmap;
     	iScaledBitmap->Reset();
     	iScaledBitmap->Create(aSize, EColor16M);
-    	iCallback = &aCallback; 
+    	iCallback = &aCallback;
+    	iHandle = aHandle;
     	LoadFileL(aFileName, aSelectedFrame);
     	}
     else
     	{
+    	for (int i=0;i<iCallbackQue.Count();i++)
+    		{
+    		if (iCallbackQue[i].iFileName.Compare(aFileName) == 0)
+    			{
+				User::Leave(KErrAlreadyExists);
+    			}
+    		}
+    	
     	TImageStruct imageStruct;
     	imageStruct.iCallBack = &aCallback;
     	imageStruct.iScaledImage = aScaledBitmap;
     	imageStruct.iScaledSize = aSize;    
     	imageStruct.iFileName = aFileName;
+    	imageStruct.iHandle = aHandle;
     	iCallbackQue.Append(imageStruct);
     	}
     }
@@ -179,6 +193,7 @@ const TFrameInfo& CImageHandler::FrameInfo() const
 //
 void CImageHandler::RunL()
     {
+    DP1("CImageHandler::RunL(), iCallbackQueue.Count()=%d", iCallbackQue.Count());
     if ((! iStatus.Int()) && (iSize.iWidth != 0) && (iSize.iHeight != 0))
         {
         ScaleL();
@@ -187,7 +202,7 @@ void CImageHandler::RunL()
     else
         {
         // Invoke callback.
-        iCallback->ImageOperationCompleteL(iStatus.Int());        
+        iCallback->ImageOperationCompleteL(iStatus.Int(), iHandle);        
         if(iCallbackQue.Count())
         	{
         	TInt loaderror = KErrNotFound;
@@ -195,7 +210,7 @@ void CImageHandler::RunL()
         		{
         		TImageStruct imageStruct= iCallbackQue[0];
         		iCallbackQue.Remove(0);
-        		TRAP(loaderror, LoadFileAndScaleL(imageStruct.iScaledImage, imageStruct.iFileName, imageStruct.iScaledSize, *imageStruct.iCallBack));
+        		TRAP(loaderror, LoadFileAndScaleL(imageStruct.iScaledImage, imageStruct.iFileName, imageStruct.iScaledSize, *imageStruct.iCallBack, imageStruct.iHandle));
         		}
         	}
         }

@@ -162,6 +162,7 @@ private:
     COpmlParser* iOpmlParser;
 	RFeedInfoArray iSearchResults;
 	TBool iAutoUpdatedInitiator;
+	TBool iCancelRequested;
 };
 #endif /*FEEDENGINE_H_*/
 

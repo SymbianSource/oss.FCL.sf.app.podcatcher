@@ -43,7 +43,7 @@ public:
     * @param aError Error code given by the CImageHandler or 0 (zero) if the
     *   image was loaded successfully.
     */
-    virtual void ImageOperationCompleteL(TInt aError) = 0;
+    virtual void ImageOperationCompleteL(TInt aError, TUint aHandle) = 0;
     };
 
 // ============================================================================
@@ -54,6 +54,7 @@ public:
 	TSize iScaledSize;
 	MImageHandlerCallback* iCallBack;
 	TFileName iFileName;
+	TUint iHandle;
 	};
 /**
 *  CImageHandler
@@ -104,6 +105,7 @@ class CImageHandler : public CActive
 							   const TFileName& aFileName,
                                const TSize &aSize,
                                MImageHandlerCallback& aCallback,
+                               TUint aHandle,
                                TInt aSelectedFrame = 0);
 
         /**
@@ -176,7 +178,10 @@ class CImageHandler : public CActive
 
         /** target size for scaled image */
         TSize                   iSize;
-        RArray<TImageStruct> iCallbackQue;      
+        RArray<TImageStruct> iCallbackQue;  
+        
+        /* Handle passed back to caller */
+        TUint iHandle;
     };
 
 #endif
