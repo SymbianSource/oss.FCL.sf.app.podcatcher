@@ -1171,19 +1171,20 @@ void CShowEngine::DownloadNextShowL()
 	const TInt count = DBGetDownloadsCount();
 	DP("CShowEngine::DownloadNextShow\tTrying to start new download");DP1("CShowEngine::DownloadNextShow\tShows in download queue %d", count);
 
-	// Inform the observers
-	NotifyDownloadQueueUpdatedL();
-
 	if (count > 0)
 		{
 		if (iPodcastModel.SettingsEngine().DownloadSuspended())
 			{
 			DP("CShowEngine::DownloadNextShow\tDownload process is suspended, ABORTING");
+			// Inform the observers
+			NotifyDownloadQueueUpdatedL();
 			return;
 			}
 		else if (iShowClient->IsActive())
 			{
 			DP("CShowEngine::DownloadNextShow\tDownload process is already active.");
+			// Inform the observers
+			NotifyDownloadQueueUpdatedL();
 			return;
 			}
 		else
@@ -1201,6 +1202,10 @@ void CShowEngine::DownloadNextShowL()
 				info->SetLastError(KErrNone);
 				DBUpdateShow(*info);
 				iShowDownloading = info;
+				// Inform the observers
+				// important to do this after we change download state
+				NotifyDownloadQueueUpdatedL();
+
 				TRAPD(error,getOk = GetShowL(info));
 				if (error != KErrNone || !getOk)
 					{
@@ -1224,6 +1229,8 @@ void CShowEngine::DownloadNextShowL()
 		}
 	else
 		{
+		// Inform the observers
+		NotifyDownloadQueueUpdatedL();
 		iShowDownloading = NULL;DP("CShowEngine::DownloadNextShow\tNothing to download");
 		}
 	DP("CShowEngine::DownloadNextShowL END");

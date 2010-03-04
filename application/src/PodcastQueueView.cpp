@@ -305,29 +305,32 @@ void CPodcastQueueView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 void CPodcastQueueView::GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex)
 	{
 	TBool dlStop = iPodcastModel.SettingsEngine().DownloadSuspended();
-	TUint showDownloadingUid = iPodcastModel.ShowEngine().ShowDownloading() ? iPodcastModel.ShowEngine().ShowDownloading()->Uid() : 0;
-	
-	if (showDownloadingUid == aShowInfo->Uid())
+
+	switch (aShowInfo->DownloadState())
 		{
-		aIconIndex = dlStop ? ESuspendedShowIcon : EDownloadingShowIcon;		
-		}
-	else
-		{
-		switch (aShowInfo->DownloadState())
-			{
-			case EQueued:
-				aIconIndex = dlStop ? ESuspendedShowIcon : EQuedShowIcon;
-				break;
-			case EDownloading:
-				aIconIndex = dlStop ? ESuspendedShowIcon : EDownloadingShowIcon;		
-				break;
-			case EFailedDownload:
-				aIconIndex = EFailedShowIcon;
-				break;
-			default:
-				DP("Wrong download state for queue view!");
-				break;
+		case EDownloaded:
+			if (aShowInfo->PlayState() == ENeverPlayed) {
+				aIconIndex = EDownloadedNewShowIcon;
+			} else {
+				aIconIndex = EDownloadedShowIcon;
 			}
+			break;
+		case ENotDownloaded:
+			if (aShowInfo->PlayState() == ENeverPlayed) {
+				aIconIndex = ENewShowIcon;
+			} else {
+				aIconIndex = EShowIcon;
+			}
+			break;
+		case EQueued:
+			aIconIndex = dlStop ? ESuspendedShowIcon : EQuedShowIcon;
+			break;
+		case EDownloading:
+			aIconIndex = dlStop ? ESuspendedShowIcon : EDownloadingShowIcon;		
+			break;
+		case EFailedDownload:
+			aIconIndex = EFailedShowIcon;
+			break;
 		}
 	}
 
