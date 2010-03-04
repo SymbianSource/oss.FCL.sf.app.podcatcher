@@ -234,23 +234,27 @@ void CPodcastQueueView::ShowDownloadUpdatedL(TInt aBytesOfCurrentDownload, TInt 
 
 void CPodcastQueueView::ShowDownloadFinishedL(TUint /*aShowUid*/, TInt aError)
 	{
-	iProgressAdded = EFalse;
-
-	iPodcastModel.GetShowsDownloadingL();
-	UpdateListboxItemsL();
-	UpdateToolbar();
-	
-	switch(aError)
+	if (iListContainer->IsVisible()) 
 		{
-		case KErrCouldNotConnect:
+	
+		iProgressAdded = EFalse;
+	
+		iPodcastModel.GetShowsDownloadingL();
+		UpdateListboxItemsL();
+		UpdateToolbar();
+		
+		switch(aError)
 			{
-			TBuf<KMaxMessageLength> message;
-			iEikonEnv->ReadResourceL(message, R_PODCAST_CONNECTION_ERROR);
-			ShowErrorMessage(message);
+			case KErrCouldNotConnect:
+				{
+				TBuf<KMaxMessageLength> message;
+				iEikonEnv->ReadResourceL(message, R_PODCAST_CONNECTION_ERROR);
+				ShowErrorMessage(message);
+				}
+				break;
+			default: // Do nothing
+				break;
 			}
-			break;
-		default: // Do nothing
-			break;
 		}
 	}
 

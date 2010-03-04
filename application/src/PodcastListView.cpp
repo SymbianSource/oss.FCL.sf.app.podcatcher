@@ -261,8 +261,6 @@ void CPodcastListView::DoActivateL(const TVwsViewId& /*aPrevViewId */,
 		
 		AppUi()->AddToStackL(*this, iListContainer);
 		iListContainer->MakeVisible(ETrue);
-		UpdateListboxItemsL();		
-		iListContainer->DrawNow();
 	}
 	DP("CPodcastListView::DoActivateL() END");
 

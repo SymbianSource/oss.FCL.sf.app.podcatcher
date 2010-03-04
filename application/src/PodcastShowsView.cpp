@@ -570,6 +570,7 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 		case EPodcastDownloadShow:
 			{
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
+			
 			if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
 				{
 				iPodcastModel.ShowEngine().AddDownloadL(*iPodcastModel.ActiveShowList()[index]);

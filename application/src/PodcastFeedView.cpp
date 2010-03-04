@@ -189,6 +189,7 @@ void CPodcastFeedView::DoActivateL(const TVwsViewId& aPrevViewId,
 		} 
 	else 
 		{
+		UpdateListboxItemsL();		
 		UpdateToolbar();
 
 		if (iFirstActivateAfterLaunch)
