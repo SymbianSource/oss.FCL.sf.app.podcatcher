@@ -94,7 +94,7 @@ rls_string STRING_r_edit_feed_title "Edit feed"
 
 rls_string STRING_r_add_feed_prompt "Enter search terms or feed URL"
 rls_string STRING_r_edit_feed_prompt "Feed URL"
-rls_string STRING_r_add_feed_title_prompt "Feed Title"
+rls_string STRING_r_add_feed_title_prompt "Feed title"
 
 rls_string STRING_r_remove_feed_title "Remove feed"
 rls_string STRING_r_remove_feed_prompt "Remove feed '%S'?"
