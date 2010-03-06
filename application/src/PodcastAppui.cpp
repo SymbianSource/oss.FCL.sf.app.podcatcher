@@ -202,7 +202,7 @@ void CPodcastAppUi::NaviShowTabGroupL()
 	iNaviPane->PushL(*iNaviTabGroup);
 	iNaviStyle = ENaviTabGroup;
 
-	UpdateQueueTab(iPodcastModel->ShowEngine().GetNumDownloadingShows());
+	UpdateQueueTabL(iPodcastModel->ShowEngine().GetNumDownloadingShows());
 	}
 
 void CPodcastAppUi::TabChangedL (TInt aIndex)
@@ -236,12 +236,12 @@ void CPodcastAppUi::SetActiveTab(TInt aIndex) {
 		}
 }
 
-void CPodcastAppUi::HandleTimeout(const CTimeout& /*aId*/, TInt /*aError*/)
+void CPodcastAppUi::HandleTimeoutL(const CTimeout& /*aId*/, TInt /*aError*/)
 	{
-	iFeedView->CheckResumeDownload();
+	iFeedView->CheckResumeDownloadL();
 	}
 
-void CPodcastAppUi::UpdateQueueTab(TInt aQueueLength)
+void CPodcastAppUi::UpdateQueueTabL(TInt aQueueLength)
 	{
 	if (iNaviStyle == ENaviTabGroup)
 		{
@@ -264,7 +264,7 @@ void CPodcastAppUi::UpdateQueueTab(TInt aQueueLength)
 		}
 	}
 
-void CPodcastAppUi::TabLeft()
+void CPodcastAppUi::TabLeftL()
 	{
 	if (iNaviStyle == ENaviTabGroup) 
 		{
@@ -277,7 +277,7 @@ void CPodcastAppUi::TabLeft()
 		}
 	}
 
-void CPodcastAppUi::TabRight()
+void CPodcastAppUi::TabRightL()
 	{
 	if (iNaviStyle == ENaviTabGroup) 
 		{

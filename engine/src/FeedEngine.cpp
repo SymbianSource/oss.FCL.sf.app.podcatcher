@@ -422,7 +422,7 @@ TBool CFeedEngine::DBRemoveFeed(TUint aUid)
 	return EFalse;	
 	}
 
-TBool CFeedEngine::DBUpdateFeed(const CFeedInfo &aItem)
+TBool CFeedEngine::DBUpdateFeedL(const CFeedInfo &aItem)
 	{
 	DP2("CFeedEngine::DBUpdateFeed, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 	
@@ -512,7 +512,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 				time.HomeTime();
 				iActiveFeed->SetLastUpdated(time);
 				iActiveFeed->SetLastError(aError);
-				NotifyFeedUpdateComplete(aError);
+				NotifyFeedUpdateCompleteL(aError);
 				}
 			break;
 		case EUpdatingFeed: 
@@ -579,7 +579,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 				}break;
 			}
 		
-			NotifyFeedUpdateComplete(aError);
+			NotifyFeedUpdateCompleteL(aError);
 	
 			// we will wait until the image has been downloaded to start the next feed update.
 			if (iClientState == EIdle)
@@ -592,7 +592,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 			// change client state to not updating
 			iClientState = EIdle;
 	
-			NotifyFeedUpdateComplete(aError);
+			NotifyFeedUpdateCompleteL(aError);
 			UpdateNextFeedL();
 			}break;
 		case ESearching: 
@@ -612,7 +612,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 				}
 			else
 				{
-				NotifyOpmlParsingComplete(aError, 0);
+				NotifyOpmlParsingCompleteL(aError, 0);
 				}
 			
 			BaflUtils::DeleteFile(iPodcastModel.FsSession(), iSearchResultsFileName);
@@ -621,10 +621,10 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 	DP("CFeedEngine::CompleteL END");
 	}
 
-void CFeedEngine::NotifyFeedUpdateComplete(TInt aError)
+void CFeedEngine::NotifyFeedUpdateCompleteL(TInt aError)
 	{
 	DP("CFeedEngine::NotifyFeedUpdateComplete");
-	DBUpdateFeed(*iActiveFeed);
+	DBUpdateFeedL(*iActiveFeed);
 	for (TInt i=0;i<iObservers.Count();i++) 
 		{
 		TRAP_IGNORE(iObservers[i]->FeedDownloadFinishedL(iAutoUpdatedInitiator?MFeedEngineObserver::EFeedAutoUpdate:MFeedEngineObserver::EFeedManualUpdate, iActiveFeed->Uid(), aError));
@@ -1005,9 +1005,9 @@ CFeedInfo* CFeedEngine::DBGetFeedInfoByUidL(TUint aFeedUid)
 	return feedInfo;
 }
 
-EXPORT_C void CFeedEngine::UpdateFeed(CFeedInfo *aItem)
+EXPORT_C void CFeedEngine::UpdateFeedL(CFeedInfo *aItem)
 	{
-	DBUpdateFeed(*aItem);
+	DBUpdateFeedL(*aItem);
 	}
 
 EXPORT_C void CFeedEngine::SearchForFeedL(TDesC& aSearchString)
@@ -1063,12 +1063,12 @@ EXPORT_C const RFeedInfoArray& CFeedEngine::GetSearchResults()
 	}
 
 
-EXPORT_C void CFeedEngine::OpmlParsingComplete(TInt aError, TUint aNumFeedsAdded)
+EXPORT_C void CFeedEngine::OpmlParsingCompleteL(TInt aError, TUint aNumFeedsAdded)
 	{
-	NotifyOpmlParsingComplete(aError, aNumFeedsAdded);
+	NotifyOpmlParsingCompleteL(aError, aNumFeedsAdded);
 	}
 
-void CFeedEngine::NotifyOpmlParsingComplete(TInt aError, TUint aNumFeedsAdded)
+void CFeedEngine::NotifyOpmlParsingCompleteL(TInt aError, TUint aNumFeedsAdded)
 	{
 	for (TInt i=0;i<iObservers.Count();i++) 
 		{
