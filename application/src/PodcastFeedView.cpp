@@ -189,6 +189,7 @@ void CPodcastFeedView::DoActivateL(const TVwsViewId& aPrevViewId,
 		} 
 	else 
 		{
+		UpdateListboxItemsL();		
 		UpdateToolbar();
 
 		if (iFirstActivateAfterLaunch)
@@ -371,6 +372,11 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 				aFeedInfo.LastUpdated().FormatL(updatedDate, KDateFormatShort());
 				}
 			}
+		
+		if(aFeedInfo.LastError() != KErrNone)
+			{
+			GetFeedErrorText(unplayedShows, aFeedInfo.LastError());
+			}
 		}
 	CArrayPtr<CGulIcon>* icons = iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->IconArray();
 	
@@ -395,16 +401,11 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 			if(BaflUtils::FileExists(iPodcastModel.FsSession(), aFeedInfo.ImageFileName()))
 			{
 			// If this fails, no reason to worry
-			TRAP_IGNORE(iPodcastModel.ImageHandler().LoadFileAndScaleL(aFeedInfo.FeedIcon(), aFeedInfo.ImageFileName(), TSize(64,56), *this));
+			TRAP_IGNORE(iPodcastModel.ImageHandler().LoadFileAndScaleL(aFeedInfo.FeedIcon(), aFeedInfo.ImageFileName(), TSize(64,56), *this, aFeedInfo.Uid()));
 			}
 		}
 	}
 	
-	if(aFeedInfo.LastError() != KErrNone)
-		{
-		GetFeedErrorText(unplayedShows, aFeedInfo.LastError());
-		}
-		
 	if (unplayedShows.Length() > 0) {
 		unplayedShows.Insert(0,_L(", "));
 	}
@@ -412,10 +413,10 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 	iListboxFormatbuffer.Format(KFeedFormat(), iconIndex, &(aFeedInfo.Title()), &updatedDate,  &unplayedShows);
 	}
 
-void CPodcastFeedView::ImageOperationCompleteL(TInt aError)
+void CPodcastFeedView::ImageOperationCompleteL(TInt aError, TUint aHandle)
 	{
 	if (aError == KErrNone) {
-		UpdateListboxItemsL();
+	UpdateFeedInfoStatusL(aHandle, EFalse);
 	}
 	}
 

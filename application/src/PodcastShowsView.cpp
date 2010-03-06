@@ -245,9 +245,23 @@ void CPodcastShowsView::ShowDownloadUpdatedL(TInt aBytesOfCurrentDownload, TInt 
 		}		
 	}
 
-void CPodcastShowsView::ShowDownloadFinishedL(TUint /*aShowUid*/, TInt aError)
+void CPodcastShowsView::ShowDownloadFinishedL(TUint aShowUid, TInt aError)
 	{
 	iProgressAdded = EFalse;
+	CShowInfo *info = NULL;
+	RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
+	
+	for (TInt i=0;i<fItems.Count();i++)
+		{
+		if (fItems[i]->Uid() == aShowUid)
+			{
+			info = fItems[i];
+			}
+		}
+	
+	if (info == NULL) {
+		return;
+	}
 	
 	switch(aError)
 		{
@@ -336,40 +350,32 @@ void CPodcastShowsView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 void CPodcastShowsView::GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex)
 	{
 	TBool dlStop = iPodcastModel.SettingsEngine().DownloadSuspended();
-	TUint showDownloadingUid = iPodcastModel.ShowEngine().ShowDownloading() ? iPodcastModel.ShowEngine().ShowDownloading()->Uid() : 0;
-	
-	if (showDownloadingUid == aShowInfo->Uid())
+
+	switch (aShowInfo->DownloadState())
 		{
-		aIconIndex = dlStop ? ESuspendedShowIcon : EDownloadingShowIcon;		
-		}
-	else
-		{
-		switch (aShowInfo->DownloadState())
-			{
-			case EDownloaded:
-				if (aShowInfo->PlayState() == ENeverPlayed) {
-					aIconIndex = EDownloadedNewShowIcon;
-				} else {
-					aIconIndex = EDownloadedShowIcon;
-				}
-				break;
-			case ENotDownloaded:
-				if (aShowInfo->PlayState() == ENeverPlayed) {
-					aIconIndex = ENewShowIcon;
-				} else {
-					aIconIndex = EShowIcon;
-				}
-				break;
-			case EQueued:
-				aIconIndex = dlStop ? ESuspendedShowIcon : EQuedShowIcon;
-				break;
-			case EDownloading:
-				aIconIndex = dlStop ? ESuspendedShowIcon : EDownloadingShowIcon;		
-				break;
-			case EFailedDownload:
-				aIconIndex = EFailedShowIcon;
-				break;
+		case EDownloaded:
+			if (aShowInfo->PlayState() == ENeverPlayed) {
+				aIconIndex = EDownloadedNewShowIcon;
+			} else {
+				aIconIndex = EDownloadedShowIcon;
 			}
+			break;
+		case ENotDownloaded:
+			if (aShowInfo->PlayState() == ENeverPlayed) {
+				aIconIndex = ENewShowIcon;
+			} else {
+				aIconIndex = EShowIcon;
+			}
+			break;
+		case EQueued:
+			aIconIndex = dlStop ? ESuspendedShowIcon : EQuedShowIcon;
+			break;
+		case EDownloading:
+			aIconIndex = dlStop ? ESuspendedShowIcon : EDownloadingShowIcon;		
+			break;
+		case EFailedDownload:
+			aIconIndex = EFailedShowIcon;
+			break;
 		}
 	}
 	
@@ -509,10 +515,10 @@ void CPodcastShowsView::UpdateListboxItemsL()
 			if (allUidsMatch && len > 0)
 				{
 				for (TInt loop = 0; loop< len; loop++)
-					{					
+					{
 					UpdateShowItemDataL(fItems[loop], loop);
-					//iListContainer->Listbox()->DrawItem(loop);
 					}
+				iListContainer->Listbox()->DrawNow();
 				}
 			else
 				{
@@ -570,6 +576,7 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 		case EPodcastDownloadShow:
 			{
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
+			
 			if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
 				{
 				iPodcastModel.ShowEngine().AddDownloadL(*iPodcastModel.ActiveShowList()[index]);
@@ -619,7 +626,7 @@ void CPodcastShowsView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPan
 		}
 }
 	
-void CPodcastShowsView::ImageOperationCompleteL(TInt aError)
+void CPodcastShowsView::ImageOperationCompleteL(TInt aError, TUint /*aHandle*/)
 	{
 	iLastImageHandlerError = aError;
 	if(iSetTitlebarImage)
@@ -813,6 +820,7 @@ void CPodcastShowsView::HandleDeleteShowL()
 void CPodcastShowsView::DownloadQueueUpdatedL(TInt aDownloadingShows, TInt aQueuedShows)
 	{
 	((CPodcastAppUi*)AppUi())->UpdateQueueTabL(aDownloadingShows+aQueuedShows);
+	UpdateListboxItemsL();
 	}
 
 void CPodcastShowsView::FeedUpdateAllCompleteL(TFeedState /*aState*/)

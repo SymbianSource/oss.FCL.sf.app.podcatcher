@@ -234,23 +234,27 @@ void CPodcastQueueView::ShowDownloadUpdatedL(TInt aBytesOfCurrentDownload, TInt 
 
 void CPodcastQueueView::ShowDownloadFinishedL(TUint /*aShowUid*/, TInt aError)
 	{
-	iProgressAdded = EFalse;
-
-	iPodcastModel.GetShowsDownloadingL();
-	UpdateListboxItemsL();
-	UpdateToolbar();
-	
-	switch(aError)
+	if (iListContainer->IsVisible()) 
 		{
-		case KErrCouldNotConnect:
+	
+		iProgressAdded = EFalse;
+	
+		iPodcastModel.GetShowsDownloadingL();
+		UpdateListboxItemsL();
+		UpdateToolbar();
+		
+		switch(aError)
 			{
-			TBuf<KMaxMessageLength> message;
-			iEikonEnv->ReadResourceL(message, R_PODCAST_CONNECTION_ERROR);
-			ShowErrorMessageL(message);
+			case KErrCouldNotConnect:
+				{
+				TBuf<KMaxMessageLength> message;
+				iEikonEnv->ReadResourceL(message, R_PODCAST_CONNECTION_ERROR);
+				ShowErrorMessageL(message);
+				}
+				break;
+			default: // Do nothing
+				break;
 			}
-			break;
-		default: // Do nothing
-			break;
 		}
 	}
 
@@ -301,29 +305,32 @@ void CPodcastQueueView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 void CPodcastQueueView::GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex)
 	{
 	TBool dlStop = iPodcastModel.SettingsEngine().DownloadSuspended();
-	TUint showDownloadingUid = iPodcastModel.ShowEngine().ShowDownloading() ? iPodcastModel.ShowEngine().ShowDownloading()->Uid() : 0;
-	
-	if (showDownloadingUid == aShowInfo->Uid())
+
+	switch (aShowInfo->DownloadState())
 		{
-		aIconIndex = dlStop ? ESuspendedShowIcon : EDownloadingShowIcon;		
-		}
-	else
-		{
-		switch (aShowInfo->DownloadState())
-			{
-			case EQueued:
-				aIconIndex = dlStop ? ESuspendedShowIcon : EQuedShowIcon;
-				break;
-			case EDownloading:
-				aIconIndex = dlStop ? ESuspendedShowIcon : EDownloadingShowIcon;		
-				break;
-			case EFailedDownload:
-				aIconIndex = EFailedShowIcon;
-				break;
-			default:
-				DP("Wrong download state for queue view!");
-				break;
+		case EDownloaded:
+			if (aShowInfo->PlayState() == ENeverPlayed) {
+				aIconIndex = EDownloadedNewShowIcon;
+			} else {
+				aIconIndex = EDownloadedShowIcon;
 			}
+			break;
+		case ENotDownloaded:
+			if (aShowInfo->PlayState() == ENeverPlayed) {
+				aIconIndex = ENewShowIcon;
+			} else {
+				aIconIndex = EShowIcon;
+			}
+			break;
+		case EQueued:
+			aIconIndex = dlStop ? ESuspendedShowIcon : EQuedShowIcon;
+			break;
+		case EDownloading:
+			aIconIndex = dlStop ? ESuspendedShowIcon : EDownloadingShowIcon;		
+			break;
+		case EFailedDownload:
+			aIconIndex = EFailedShowIcon;
+			break;
 		}
 	}
 

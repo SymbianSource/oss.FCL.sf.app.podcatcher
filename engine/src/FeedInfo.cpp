@@ -229,7 +229,7 @@ EXPORT_C void CFeedInfo::SetFeedIcon(CFbsBitmap* aBitmapToClone)
 	iFeedIcon->Duplicate(aBitmapToClone->Handle());
 	}
 
-void CFeedInfo::ImageOperationCompleteL(TInt /*aError*/)
+void CFeedInfo::ImageOperationCompleteL(TInt /*aError*/, TUint /*aHandle*/)
 	{
 	
 	}
