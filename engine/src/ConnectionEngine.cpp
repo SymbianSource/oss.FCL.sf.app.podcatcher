@@ -64,7 +64,7 @@ void CConnectionEngine::RunL()
 		}
 	
 	iConnectionState = iStatus.Int() == KErrNone?CConnectionEngine::EConnected:CConnectionEngine::ENotConnected;
-	ReportConnection( iStatus.Int() );
+	ReportConnectionL( iStatus.Int() );
 	}
 
 void CConnectionEngine::DoCancel()
@@ -272,7 +272,7 @@ RSocketServ& CConnectionEngine::SockServ()
 	}
 
 
-void CConnectionEngine::ReportConnection(TInt aError)
+void CConnectionEngine::ReportConnectionL(TInt aError)
 	{
 	TInt noObservers = iObserverArray.Count();
 	while(noObservers)

@@ -39,7 +39,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
         static CPodcastFeedView* NewLC(CPodcastModel& aPodcastModel);
         ~CPodcastFeedView();
         void UpdateItemL(TInt aIndex);
-		void CheckResumeDownload();
+		void CheckResumeDownloadL();
 		void UpdateToolbar(TBool aVisible=ETrue);
 
 	protected:

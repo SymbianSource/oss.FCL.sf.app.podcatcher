@@ -110,8 +110,8 @@ private:
 	 *   image was loaded successfully.
 	 */
 	virtual void ImageOperationCompleteL(TInt aError, TUint aHandle);
-	void HandleSetShowPlayed(TBool aPlayed);
-	void HandleDeleteShow();
+	void HandleSetShowPlayedL(TBool aPlayed);
+	void HandleDeleteShowL();
 	void UpdateViewTitleL();
 	void CreateIconsL();
 	void GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode);

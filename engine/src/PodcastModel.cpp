@@ -408,12 +408,12 @@ EXPORT_C void CPodcastModel::GetShowsByFeedL(TUint aFeedUid)
 	iShowEngine->GetShowsByFeedL(iActiveShowList, aFeedUid);
 	}
 
-EXPORT_C void CPodcastModel::MarkSelectionPlayed()
+EXPORT_C void CPodcastModel::MarkSelectionPlayedL()
 	{
 	for (int i=0;i<iActiveShowList.Count();i++) {
 		if(iActiveShowList[i]->PlayState() != EPlayed) {
 			iActiveShowList[i]->SetPlayState(EPlayed);
-			iShowEngine->UpdateShow(*iActiveShowList[i]);
+			iShowEngine->UpdateShowL(*iActiveShowList[i]);
 		}
 	}
 	}

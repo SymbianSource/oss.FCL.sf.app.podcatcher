@@ -269,7 +269,7 @@ void CPodcastFeedView::FeedDownloadFinishedL(TFeedState aState,TUint aFeedUid, T
 				{
 				TBuf<KMaxMessageLength> message;
 				iEikonEnv->ReadResourceL(message, R_PODCAST_CONNECTION_ERROR);
-				ShowErrorMessage(message);
+				ShowErrorMessageL(message);
 				}
 			}
 			break;
@@ -552,7 +552,7 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 				{
 				TBuf<KMaxMessageLength> message;
 				iEikonEnv->ReadResourceL(message, R_EXIT_SHOWS_DOWNLOADING);
-				if(ShowQueryMessage(message))
+				if(ShowQueryMessageL(message))
 					{
 					// pass it on to AppUi, which will exit for us
 					CPodcastListView::HandleCommandL(aCommand);
@@ -570,7 +570,7 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 			break;
 		}
 	
-	iListContainer->SetLongTapDetected(EFalse); // in case we got here by long tapping
+	iListContainer->SetLongTapDetectedL(EFalse); // in case we got here by long tapping
 	UpdateToolbar();
 	}
 
@@ -631,7 +631,7 @@ void CPodcastFeedView::HandleAddFeedL()
 				// ask if users wants to update it now
 				TBuf<KMaxMessageLength> message;
 				iEikonEnv->ReadResourceL(message, R_ADD_FEED_SUCCESS);
-				if(ShowQueryMessage(message))
+				if(ShowQueryMessageL(message))
 					{
 					CFeedInfo *info = iPodcastModel.FeedEngine().GetFeedInfoByUid(newFeedInfo->Uid());
 					
@@ -645,7 +645,7 @@ void CPodcastFeedView::HandleAddFeedL()
 				{
 				TBuf<KMaxMessageLength> message;
 				iEikonEnv->ReadResourceL(message, R_ADD_FEED_EXISTS);
-				ShowErrorMessage(message);
+				ShowErrorMessageL(message);
 				}		
 			
 			CleanupStack::PopAndDestroy(newFeedInfo);
@@ -676,7 +676,7 @@ void CPodcastFeedView::HandleEditFeedL()
 				iEikonEnv->ReadResourceL(dlgMessage, R_ADD_FEED_REPLACE);
 
 				// Ask the user if it is OK to remove all shows
-				if ( ShowQueryMessage(dlgMessage))
+				if ( ShowQueryMessageL(dlgMessage))
 					{
 					PodcastUtils::FixProtocolsL(url);
 					
@@ -703,7 +703,7 @@ void CPodcastFeedView::HandleEditFeedL()
 						// the feed existed. Object deleted in AddFeed.	
 						TBuf<KMaxMessageLength> dlgMessage;
 						iEikonEnv->ReadResourceL(dlgMessage, R_ADD_FEED_EXISTS);
-						ShowErrorMessage(dlgMessage);
+						ShowErrorMessageL(dlgMessage);
 					}
 					CleanupStack::PopAndDestroy(temp);
 				}
@@ -713,7 +713,7 @@ void CPodcastFeedView::HandleEditFeedL()
 				{
 					info->SetTitleL(title);
 					info->SetCustomTitle();	
-					iPodcastModel.FeedEngine().UpdateFeed(info);
+					iPodcastModel.FeedEngine().UpdateFeedL(info);
 					UpdateListboxItemsL();
 				}
 			}
@@ -734,7 +734,7 @@ void CPodcastFeedView::HandleRemoveFeedL()
 			TBuf<KMaxMessageLength> message;
 			iEikonEnv->ReadResourceL(templ, R_PODCAST_REMOVE_FEED_PROMPT);
 			message.Format(templ, &info->Title());					
-			if(ShowQueryMessage(message))
+			if(ShowQueryMessageL(message))
 				{
 				iPodcastModel.FeedEngine().RemoveFeedL(iItemIdArray[index]);
 				iItemArray->Delete(index);
@@ -798,7 +798,7 @@ void CPodcastFeedView::HandleImportFeedsL()
 				if (err != KErrNone) {
 					TBuf<KMaxMessageLength> message;
 					iEikonEnv->ReadResourceL(message, R_IMPORT_FEED_FAILURE);
-					ShowErrorMessage(message);
+					ShowErrorMessageL(message);
 					}
 				}
 				
@@ -854,13 +854,13 @@ void CPodcastFeedView::HandleExportFeedsL()
 					TBuf<KMaxMessageLength> templ;
 					iEikonEnv->ReadResourceL(templ, R_EXPORT_FEED_SUCCESS);
 					message.Format(templ, numFeeds);
-					ShowOkMessage(message);
+					ShowOkMessageL(message);
 					} 
 				else 
 					{
 					TBuf<KMaxMessageLength> message;
 					iEikonEnv->ReadResourceL(message, R_EXPORT_FEED_FAILURE);
-					ShowErrorMessage(message);
+					ShowErrorMessageL(message);
 					}
 				}
 			CleanupStack::PopAndDestroy(fileDlg);
@@ -870,7 +870,7 @@ void CPodcastFeedView::HandleExportFeedsL()
 	CleanupStack::PopAndDestroy(memDlg);									
 	}
 
-void CPodcastFeedView::CheckResumeDownload()
+void CPodcastFeedView::CheckResumeDownloadL()
 	{
 	// if there are shows queued for downloading, ask if we should resume now
 	RShowInfoArray showsDownloading;
@@ -881,7 +881,7 @@ void CPodcastFeedView::CheckResumeDownload()
 		TBuf<KMaxMessageLength> msg;
 		iEikonEnv->ReadResourceL(msg, R_PODCAST_ENABLE_DOWNLOADS_PROMPT);
 	
-		if (ShowQueryMessage(msg))
+		if (ShowQueryMessageL(msg))
 			{
 			// need to suspend downloads before ResumeDownloadL will work :)
 			iPodcastModel.SettingsEngine().SetDownloadSuspended(ETrue);
@@ -909,7 +909,7 @@ void CPodcastFeedView::OpmlParsingComplete(TInt aError, TUint aNumFeedsImported)
 			{
 			TBuf<KMaxMessageLength> message;
 			iEikonEnv->ReadResourceL(message, R_PODCAST_CONNECTION_ERROR);
-			ShowErrorMessage(message);
+			ShowErrorMessageL(message);
 			}
 			break;
 		case KErrNone: 
@@ -929,7 +929,7 @@ void CPodcastFeedView::OpmlParsingComplete(TInt aError, TUint aNumFeedsImported)
 				iEikonEnv->ReadResourceL(templ, R_IMPORT_FEED_SUCCESS);
 				message.Format(templ, aNumFeedsImported);
 				
-				if(ShowQueryMessage(message))
+				if(ShowQueryMessageL(message))
 					{
 					HandleCommandL(EPodcastUpdateAllFeeds);
 					}
@@ -937,11 +937,12 @@ void CPodcastFeedView::OpmlParsingComplete(TInt aError, TUint aNumFeedsImported)
 				break;
 			case EOpmlSearching:
 				delete iWaitDialog;
+				iWaitDialog = NULL;
 				if (iPodcastModel.FeedEngine().GetSearchResults().Count() == 0)
 					{
 					TBuf<KMaxMessageLength> message;
 					iEikonEnv->ReadResourceL(message, R_SEARCH_NORESULTS);
-					ShowErrorMessage(message);
+					ShowErrorMessageL(message);
 					}
 				else
 					{
@@ -975,7 +976,7 @@ void CPodcastFeedView::HandleLongTapEventL( const TPoint& aPenEventLocation, con
 		return; // we don't allow feed manipulation while update is running
 	}
 
-	iListContainer->SetLongTapDetected(ETrue);
+	iListContainer->SetLongTapDetectedL(ETrue);
 
 	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
 	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
