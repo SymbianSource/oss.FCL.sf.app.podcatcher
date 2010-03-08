@@ -24,7 +24,7 @@
 #include <in_sock.h>
 #include <connpref.h>
 #include <commdbconnpref.h>
-#include <comms-infras/cs_mobility_apiext.h>
+#include <comms-infras/es_mobility_apiext.h>
 
 // Using connection manager settings UI
 #include <cmapplicationsettingsui.h>

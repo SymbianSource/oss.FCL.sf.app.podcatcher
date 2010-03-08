@@ -90,11 +90,8 @@ void CPodcastFeedView::ConstructL()
 	SetEmptyTextL(R_PODCAST_NO_FEEDS);
 	
 	// Load svg.-image and mask with a single call
-		AknIconUtils::CreateIconL(bitmap,
-		                          mask,
-		                          iEikonEnv->EikAppUi()->Application()->BitmapStoreName(),
-		                          EMbmPodcastFeed,
-		                          EMbmPodcastFeed_mask);
+	AknIconUtils::CreateIconL(bitmap, mask, iEikonEnv->EikAppUi()->Application()->BitmapStoreName(),
+			EMbmPodcastFeed, EMbmPodcastFeed_mask);
 	    
 	/*bitmap = iEikonEnv->CreateBitmapL(KAsterisk,EMbmPodcastFeed_40x40);
 	 * */
@@ -216,11 +213,10 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 			DP("PEN DOWN");
 			break;
 			
-//#ifndef SYMBIAN1_UI
+#ifndef SYMBIAN1_UI
 	case EEventItemClicked:
 		DP("SINGLE TAP");
-		break;
-//#endif
+#endif
 	case EEventEnterKeyPressed:
 	case EEventItemDoubleClicked:
 	case EEventItemActioned:

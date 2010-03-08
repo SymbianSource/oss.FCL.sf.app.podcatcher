@@ -17,8 +17,7 @@
  */
  
 PRJ_PLATFORMS
-GCCE
-WINSCW
+DEFAULT
 
 PRJ_MMPFILES
 
@@ -28,9 +27,26 @@ PRJ_MMPFILES
 
 PRJ_MMPFILES
 ..\engine\group\engine.mmp
-
-gnumakefile ..\application\group\icons.mk
 ..\application\group\Podcast.mmp
+
+PRJ_EXTENSIONS
+
+START EXTENSION s60/mifconv
+OPTION TARGETFILE Podcast.mif
+OPTION HEADERFILE Podcast.mbg
+OPTION SOURCEDIR ../application/data/images
+OPTION SOURCES \
+    -c16,1 podcatcher_64px\
+    -c16,1 Audio\
+    -c16,1 Audio_new\
+    -c16,1 Audio_queued\
+    -c16,1 Audio_downloading\
+    -c16,1 Audio_downloaded\
+    -c16,1 Audio_downloaded_new\
+    -c16,1 Audio_failed\
+    -c16,1 Audio_suspended\
+    -c16,1 Feed
+END
 
 PRJ_EXPORTS
 ..\engine\config\defaultfeeds.xml \epoc32\winscw\c\private\A0009D00\defaultfeeds.xml

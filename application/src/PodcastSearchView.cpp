@@ -154,6 +154,9 @@ void CPodcastSearchView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListB
 	DP("CPodcastSearchView::HandleListBoxEventL BEGIN");
 	switch(aEventType)
 	{
+#ifndef SYMBIAN1_UI
+	case EEventItemClicked:
+#endif
 	case EEventEnterKeyPressed:
 	case EEventItemDoubleClicked:
 	case EEventItemActioned:
