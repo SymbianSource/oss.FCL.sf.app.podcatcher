@@ -326,8 +326,10 @@ void CPodcastShowsView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 				
 				switch (showInfo->DownloadState()) {
 				case ENotDownloaded:
+				case EFailedDownload:
 					HandleCommandL(EPodcastDownloadShow);
 					break;
+				case EDownloading:
 				case EQueued:
 					AppUi()->ActivateLocalViewL(KUidPodcastQueueViewID,  TUid::Uid(0), KNullDesC8());
 					((CPodcastAppUi*)AppUi())->SetActiveTab(KTabIdQueue);

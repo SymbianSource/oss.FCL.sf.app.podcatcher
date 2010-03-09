@@ -16,96 +16,37 @@
  *
  */
 
-// list view commands
-rls_string STRING_r_listbox_listview_cmd_close_debug "Close (debug)"
-rls_string STRING_r_listbox_listview_cmd_close_debug_shorttext "Close"
+// Menu items
 
-// Menu commands, view filtering and navigation
-rls_string STRING_r_view_cmd "View"
-
-// Navigation to shows view
-rls_string STRING_r_view_main_cmd "Main"
-rls_string STRING_r_view_new_shows_cmd "Unplayed"
-rls_string STRING_r_view_about_cmd "About"
-
-// Navigation to feeds
-rls_string STRING_r_view_feeds_cmd "Feeds"
-rls_string STRING_r_view_remove_download_short_cmd "Remove"
-rls_string STRING_r_view_remove_download_cmd "Remove Download"
-
-// Actions for feeds
-rls_string STRING_r_view_add_feed_cmd "Add Feed"
-rls_string STRING_r_view_add_feed_cmd_short "Add"
-rls_string STRING_r_view_edit_feed_cmd "Edit Feed"
-rls_string STRING_r_view_edit_feed_cmd_short "Edit"
-
-rls_string STRING_r_view_delete_feed_cmd "Remove Feed"
-rls_string STRING_r_view_delete_feed_cmd_short "Remove"
-rls_string STRING_r_view_delete_played_cmd "Delete All Played"
-rls_string STRING_r_update_feed_cmd "Update Feed"
-rls_string STRING_r_update_feed_short_cmd "Update"
-rls_string STRING_r_update_all_feeds_cmd "Update All"
-rls_string STRING_r_update_all_feeds_short_cmd "Upd. All"
-
-rls_string STRING_r_podcast_feeds_update_message "Updating..."
-rls_string STRING_r_podcast_feeds_update_error "Update failed!"
-
-// Actions for shows
-rls_string STRING_r_view_download_show_cmd "Get"
-rls_string STRING_r_view_delete_show_cmd "Delete"
-rls_string STRING_r_view_delete_shows_cmd "Delete All"
-rls_string STRING_r_view_stop_downloads_cmd "Suspend Downloading"
-rls_string STRING_r_view_resume_downloads_cmd "Resume Downloading"
-rls_string STRING_r_view_mark_all_played_cmd "Mark all old"
-rls_string STRING_r_view_show_unplayed_cmd "Show Unplayed Only"
-rls_string STRING_r_view_show_info_cmd "Info"
-rls_string STRING_r_view_show_play_cmd "Play"
-// Common actions
 rls_string STRING_r_settings_cmd "Settings"
+rls_string STRING_r_view_mark_all_played_cmd "Mark all old"
+rls_string STRING_r_exit_cmd "Exit"
+rls_string STRING_r_view_help "Help"
+rls_string STRING_r_view_about_cmd "About"
+rls_string STRING_r_view_import_export_feeds_cmd "Import/export feeds"
+rls_string STRING_r_view_import_feeds_cmd "Import feeds"
+rls_string STRING_r_view_export_feeds_cmd "Export feeds"
 
-// Categories (strings max 20 character long)
-rls_string STRING_r_category_all "All Shows"
-rls_string STRING_r_category_new "Unplayed"
-rls_string STRING_r_category_dled "Shows on Phone"
-rls_string STRING_r_category_pending "Downloader"
+// CBA buttons
+rls_string STRING_r_cba_options "Options"
+rls_string STRING_r_cba_hide "Hide"
+rls_string STRING_r_cba_cancel "Cancel"
 
-// View titles
-rls_string STRING_r_view_feeds_title "Feeds"
+// Tab titles
+rls_string STRING_r_tabgroup_feeds "Feeds"
+rls_string STRING_r_tabgroup_queue "Queue"
+rls_string STRING_r_tabgroup_queue_counter "Queue (%d)"
 
-// Shows view status strings
-rls_string STRING_r_podcast_shows_title_format "%d Unplayed, %d Total"
-rls_string STRING_r_podcast_shows_title_download "%d Queued"
-rls_string STRING_r_podcast_shows_downloads_suspended "%d Queued (Suspended)"
-rls_string STRING_r_podcast_shows_no_items "No items"
-
-// Feeds view status strings
-rls_string STRING_r_podcast_feeds_title_format "%d Feeds"
-rls_string STRING_r_podcast_feeds_status_format "%d new"
-rls_string STRING_r_podcast_shows_never_updated "Never"
-rls_string STRING_r_podcast_feeds_is_updating "Updating..."
-rls_string STRING_r_podcast_no_feeds "(no feeds)"
-
-// DIALOG string
-rls_string STRING_r_about_title "About"
-
-rls_string STRING_r_add_feed_title "Add feed"
-rls_string STRING_r_edit_feed_title "Edit feed"
-
+// Question dialogs
 rls_string STRING_r_add_feed_prompt "Enter search terms or feed URL"
 rls_string STRING_r_edit_feed_prompt "Feed URL"
-rls_string STRING_r_add_feed_title_prompt "Feed Title"
-
-rls_string STRING_r_remove_feed_title "Remove feed"
+rls_string STRING_r_add_feed_title_prompt "Feed title"
 rls_string STRING_r_remove_feed_prompt "Remove feed '%S'?"
-
-rls_string STRING_r_enable_downloads_title "Resume downloading"
 rls_string STRING_r_enable_downloads_prompt "There are shows in the download queue. Do you want to download now?"
-
-rls_string STRING_r_update_new_feed_title "Update feed"
 rls_string STRING_r_update_new_feed_prompt "Do you want to update the feed now?"
-
-rls_string STRING_r_delete_show_title "Delete Show"
 rls_string STRING_r_delete_show_prompt "Delete show '%S'?"
+rls_string STRING_r_podcast_connection_error "Connection failed. Check connection settings."
+rls_string STRING_r_exit_shows_downloading "Shows are being downloaded. Exit anyway?"
 
 // Settings view
 rls_string STRING_r_podcast_settings_title "Settings"
@@ -115,7 +56,7 @@ rls_string STRING_r_podcast_setting_autodownload "Automatic download"
 rls_string STRING_r_podcast_setting_connection "Connection"
 rls_string STRING_r_podcast_setting_default "Use default"
 rls_string STRING_r_podcast_setting_alwaysask "Always ask"
-rls_string STRING_r_podcast_setting_useiap "Select Access point"
+rls_string STRING_r_podcast_setting_useiap "Select access point"
 rls_string STRING_r_podcast_setting_iaplist "Access points"
 
 // Choicelist for autodownload
@@ -125,93 +66,72 @@ rls_string STRING_podcast_autoupdate_option3 "Four times a day"
 rls_string STRING_podcast_autoupdate_option4 "Twice a day"
 rls_string STRING_podcast_autoupdate_option5 "Daily"
 
-// Latest strings here
-
-rls_string STRING_r_view_import_export_feeds_cmd "Import/export feeds" // Import feeds cmd in feedview
-
-rls_string STRING_r_view_import_feeds_cmd "Import feeds" // Import feeds cmd in feedview
-rls_string STRING_r_view_import_feeds_cmd_short "Import"
-
+// Feed import/export
 rls_string STRING_r_view_import_feeds_title "Select OPML file"
-
-rls_string STRING_r_view_feeds_status "%d Feeds" // Used in base view listbox for feeds status text max 32 chars
-
-rls_string STRING_r_cancel_update_all_feeds_cmd "Cancel update"
-rls_string STRING_r_cancel_update_all_feeds_short_cmd "Cancel"
-
-rls_string STRING_r_suspend_download_cmd "Suspend" // String used for cmd to suspend current download rather than removing it from the que.
-rls_string STRING_r_view_resume_short_dls_cmd "Resume" // Short download cmd
-rls_string STRING_r_view_onphone_status "%d Unplayed, %d Total" // Used in base view listbox status for shows on phone text max 32 chars
-rls_string STRING_r_view_onphone_status_unknown "Unknown" // Used for unknown status event
-
-rls_string STRING_r_view_remove_all_downloads_cmd "Remove All"
-rls_string STRING_r_view_remove_all_downloads_cmd_short "Clear"
-
-rls_string STRING_r_podcast_subtitle ""
-
-rls_string STRING_r_add_feed_exists "A feed with this URL already exists" // shown when adding or changing a feed to a URL that already exists
-rls_string STRING_r_add_feed_exists_title "Duplicate Feed" // title of error dialogs when adding feeds
-
-rls_string STRING_r_add_feed_replace "All existing shows in this feed will be deleted! Continue?" // shown when changing an existing feed URL
-rls_string STRING_r_add_feed_replace_title "Warning" // title to dialog
-rls_string STRING_r_view_export_feeds_cmd "Export feeds" // Export feeds cmd in feedview
-rls_string STRING_r_view_export_feeds_cmd_short "Export"
-
-rls_string STRING_r_catchup_feed "Mark all shows as played?" // shown when first updating a new feed
-rls_string STRING_r_catchup_feed_title "First Update" // title to dialog
-
-rls_string STRING_r_on "On"
-rls_string STRING_r_off "Off"
-
 rls_string STRING_r_enter_filename "Enter file name"
 rls_string STRING_r_view_export_feeds_title "Select folder"
 rls_string STRING_r_view_export_feeds_softkey "Select"
-
-rls_string STRING_r_playview_tab_info "Info"
-rls_string STRING_r_playview_tab_play "Play"
-rls_string STRING_r_exit_cmd "Exit"
-rls_string STRING_r_cba_options "Options"
-rls_string STRING_r_cba_hide "Hide"
-
-rls_string STRING_r_tabgroup_feeds "Feeds"
-rls_string STRING_r_tabgroup_queue "Queue"
-rls_string STRING_r_tabgroup_queue_counter "Queue (%d)"
-rls_string STRING_r_tabgroup_shows "Shows"
-
-rls_string STRING_r_podcast_empty_queue "(queue empty)"
-rls_string STRING_r_podcast_empty_list "(no shows)"
-rls_string STRING_r_podcast_empty_search "(no search results)"
-rls_string STRING_r_podcast_empty_list_updating "(updating...)"
-
-rls_string STRING_r_view_help "Help"
-rls_string STRING_r_view_mark_as_played_cmd_short "Mark old"
-rls_string STRING_r_view_mark_as_unplayed_cmd_short "Mark new"
-rls_string STRING_r_view_more_options "More actions"
-
-rls_string STRING_r_search "Search"
-rls_string STRING_r_search_help "Search for podcasts"
-rls_string STRING_r_search_title "Enter search terms"
-
-rls_string STRING_add_feed_title "Add feed"
-rls_string STRING_add_feed_query "Add feed '%S'?"
-rls_string STRING_add_feed_success "Feed added. Update now?"
-rls_string STRING_add_feed_error "Could not add feed"
-
 rls_string STRING_import_feed_success "%d feeds imported. Update all feeds now?"
 rls_string STRING_import_feed_failure "Feed import failed"
 rls_string STRING_export_feed_success "%d feeds exported"
 rls_string STRING_export_feed_failure "Feed export failed"
-
-rls_string STRING_r_clear_query "Clear download queue?"
-rls_string STRING_r_search_noresults "No search results"
-rls_string STRING_r_cba_search "Search"
-rls_string STRING_r_searching "Searching..."
 rls_string STRING_r_importing "Importing..."
 rls_string STRING_r_exporting "Exporting..."
 
-rls_string STRING_r_cba_cancel "Cancel"
+// Listbox empty strings
+rls_string STRING_r_podcast_empty_queue "(queue empty)"
+rls_string STRING_r_podcast_empty_list "(no shows)"
+rls_string STRING_r_podcast_no_feeds "(no feeds)"
+rls_string STRING_r_podcast_empty_search "(no search results)"
+rls_string STRING_r_podcast_empty_list_updating "(updating...)"
 
-rls_string STRING_r_podcast_connection_error "Connection failed. Check connection settings."
-rls_string STRING_r_exit_shows_downloading "Shows are being downloaded. Exit anyway?"
+// Feed view
 
+rls_string STRING_r_add_feed_title "Add feed"
+rls_string STRING_r_edit_feed_title "Edit feed"
+rls_string STRING_r_cancel_update_all_feeds_cmd "Cancel update"
+rls_string STRING_r_cancel_update_all_feeds_short_cmd "Cancel"
+rls_string STRING_r_podcast_feeds_status_format "%d new"
+rls_string STRING_r_podcast_shows_never_updated "Never"
+rls_string STRING_r_view_add_feed_cmd "Add feed"
+rls_string STRING_r_view_add_feed_cmd_short "Add"
+rls_string STRING_r_view_edit_feed_cmd "Edit feed"
+rls_string STRING_r_view_edit_feed_cmd_short "Edit"
+rls_string STRING_r_view_delete_feed_cmd "Remove feed"
+rls_string STRING_r_view_delete_feed_cmd_short "Remove"
+rls_string STRING_r_update_feed_cmd "Update feed"
+rls_string STRING_r_update_feed_short_cmd "Update"
+rls_string STRING_r_update_all_feeds_cmd "Update all"
+rls_string STRING_r_update_all_feeds_short_cmd "Update"
+rls_string STRING_r_podcast_feeds_is_updating "Updating..."
+
+// Add/edit feed
+rls_string STRING_add_feed_query "Add feed '%S'?"
+rls_string STRING_add_feed_success "Feed added. Update now?"
+rls_string STRING_add_feed_error "Could not add feed"
+rls_string STRING_r_add_feed_replace "All existing shows in this feed will be deleted! Continue?" // shown when changing an existing feed URL
+rls_string STRING_r_add_feed_exists "A feed with this URL already exists" // shown when adding or changing a feed to a URL that already exists
+
+// Feed searching
+
+rls_string STRING_r_search_noresults "No search results"
+rls_string STRING_r_searching "Searching..."
 rls_string STRING_r_search_results "Search results"
+
+// Show view
+
+rls_string STRING_r_view_mark_as_played_cmd_short "Mark old"
+rls_string STRING_r_view_mark_as_unplayed_cmd_short "Mark new"
+rls_string STRING_r_view_download_show_cmd "Get"
+rls_string STRING_r_view_delete_show_cmd "Delete"
+rls_string STRING_r_view_show_info_cmd "Info"
+
+// Download queue operations
+rls_string STRING_r_suspend_download_cmd "Suspend"
+rls_string STRING_r_view_resume_short_dls_cmd "Resume"
+rls_string STRING_r_view_stop_downloads_cmd "Suspend downloading"
+rls_string STRING_r_view_resume_downloads_cmd "Resume downloading"
+rls_string STRING_r_view_remove_all_downloads_cmd_short "Clear"
+rls_string STRING_r_clear_query "Clear download queue?"
+rls_string STRING_r_view_remove_download_short_cmd "Remove"
+rls_string STRING_r_view_remove_download_cmd "Remove Download"
