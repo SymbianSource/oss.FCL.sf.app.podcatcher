@@ -200,7 +200,7 @@ void CPodcastQueueView::DoActivateL(const TVwsViewId& aPrevViewId,
 	DP("CPodcastQueueView::DoActivateL BEGIN");
 	
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
-	iPreviousView = TVwsViewId(KUidPodcast, KUidPodcastFeedViewID);
+	iPreviousView = aPrevViewId;
 	
 	UpdateFeedUpdateStateL();
 	UpdateToolbar();

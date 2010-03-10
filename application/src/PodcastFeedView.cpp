@@ -182,13 +182,6 @@ void CPodcastFeedView::DoActivateL(const TVwsViewId& aPrevViewId,
 		iViewingShows = EFalse;
 		}
 	
-	if (iViewingShows)
-		{
-		// go to shows view
-		AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
-		} 
-	else 
-		{
 		UpdateListboxItemsL();		
 		UpdateToolbar();
 
@@ -196,7 +189,6 @@ void CPodcastFeedView::DoActivateL(const TVwsViewId& aPrevViewId,
 			{
 			iFirstActivateAfterLaunch = EFalse;
 			}
-		}
 	}
 
 void CPodcastFeedView::DoDeactivate()
@@ -989,3 +981,8 @@ void CPodcastFeedView::HandleLongTapEventL( const TPoint& aPenEventLocation, con
     }
 	DP("CPodcastListView::HandleLongTapEventL END");
 }
+
+TBool CPodcastFeedView::ViewingShows()
+	{
+	return iViewingShows;
+	}
