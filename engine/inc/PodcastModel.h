@@ -36,7 +36,6 @@
 //#define DONT_SORT_SQL
 class RCmManager;
 class CFeedEngine;
-class CSoundEngine;
 class CShowEngine;
 class CSettingsEngine;
 class CCommsDatabase;
@@ -60,7 +59,6 @@ public:
 	IMPORT_C ~CPodcastModel();
 	IMPORT_C CFeedEngine& FeedEngine();
 	IMPORT_C CShowEngine& ShowEngine();
-	IMPORT_C CSoundEngine& SoundEngine();
 	IMPORT_C CSettingsEngine& SettingsEngine();
 	IMPORT_C CConnectionEngine& ConnectionEngine();
 	IMPORT_C CShowInfo* PlayingPodcast();
@@ -108,7 +106,6 @@ private:
    
    CFeedEngine* iFeedEngine;
    CShowEngine* iShowEngine;
-   CSoundEngine* iSoundEngine;
    CSettingsEngine *iSettingsEngine;
    CConnectionEngine* iConnectionEngine;
    RShowInfoArray iActiveShowList;

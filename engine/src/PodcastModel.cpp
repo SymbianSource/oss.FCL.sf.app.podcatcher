@@ -19,7 +19,6 @@
 #include <commdb.h>
 #include "PodcastModel.h"
 #include "FeedEngine.h"
-#include "SoundEngine.h"
 #include "SettingsEngine.h"
 #include "ShowEngine.h"
 #include "connectionengine.h"
@@ -45,7 +44,6 @@ CPodcastModel::~CPodcastModel()
 {
 	
 	delete iFeedEngine;
-	delete iSoundEngine;
 	delete iSettingsEngine;
 	delete iShowEngine;
 
@@ -89,7 +87,6 @@ void CPodcastModel::ConstructL()
 	iFeedEngine = CFeedEngine::NewL(*this);
 	iShowEngine = CShowEngine::NewL(*this);
 
-	iSoundEngine = CSoundEngine::NewL(*this);	
 	DP("CPodcastModel::ConstructL END");
 }
 
@@ -199,11 +196,6 @@ EXPORT_C CShowEngine& CPodcastModel::ShowEngine()
 	return *iShowEngine;
 }
 
-EXPORT_C CSoundEngine& CPodcastModel::SoundEngine()
-{
-	return *iSoundEngine;
-}
-
 EXPORT_C CSettingsEngine& CPodcastModel::SettingsEngine()
 {
 	return *iSettingsEngine;
@@ -216,40 +208,8 @@ EXPORT_C CConnectionEngine& CPodcastModel::ConnectionEngine()
 
 EXPORT_C void CPodcastModel::PlayPausePodcastL(CShowInfo* aPodcast, TBool aPlayOnInit) 
 	{
-	
-	// special treatment if this podcast is already active
-	if (iPlayingPodcast->Uid() == aPodcast->Uid() && SoundEngine().State() > ESoundEngineOpening ) {
-		if (aPodcast->PlayState() == EPlaying) {
-			SoundEngine().Pause();
-			aPodcast->SetPosition(iSoundEngine->Position());
-			aPodcast->SetPlayState(EPlayed);
-			aPodcast->SetPlayState(EPlayed);
-		} else {
-			iSoundEngine->Play();
-		}
-	} else {
-		// switching file, so save position
-		iSoundEngine->Pause();
-		if (iPlayingPodcast != NULL) {
-			iPlayingPodcast->SetPosition(iSoundEngine->Position());
-		}
-		
-		iSoundEngine->Stop(EFalse);
-
-		// we play video podcasts through the external player
-		if(aPodcast != NULL && aPodcast->ShowType() != EVideoPodcast) {
-			DP1("Starting: %S", &(aPodcast->FileName()));
-			TRAPD( error, iSoundEngine->OpenFileL(aPodcast->FileName(), aPlayOnInit) );
-			if (error != KErrNone) {
-				DP1("Error: %d", error);
-			} else {
-				iSoundEngine->SetPosition(aPodcast->Position().Int64() / 1000000);
-			}
-		}
-
-		iPlayingPodcast = aPodcast;		
+	// TODO: interact with MPX
 	}
-}
 
 EXPORT_C CFeedInfo* CPodcastModel::ActiveFeedInfo()
 {
