@@ -311,6 +311,10 @@ void CPodcastListView::HandleCommandL(TInt aCommand)
 	}
 }
 
+TBool CPodcastListView::IsVisible()
+	{
+	return iListContainer->IsVisible();
+	}
 
 void CPodcastListView::RunAboutDialogL()
 {
