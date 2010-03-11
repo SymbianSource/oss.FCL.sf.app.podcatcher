@@ -173,4 +173,5 @@ EXPORTS
 	?Url@CFeedInfo@@QBEABVTDesC16@@XZ @ 172 NONAME ; class TDesC16 const & CFeedInfo::Url(void) const
 	?Url@CShowInfo@@QBEABVTDesC16@@XZ @ 173 NONAME ; class TDesC16 const & CShowInfo::Url(void) const
 	?XMLEncode@PodcastUtils@@SAXAAVTDes16@@@Z @ 174 NONAME ; void PodcastUtils::XMLEncode(class TDes16 &)
+	?AddObserver@CConnectionEngine@@QAEXPAVMConnectionObserver@@@Z @ 175 NONAME ; void CConnectionEngine::AddObserver(class MConnectionObserver *)
 

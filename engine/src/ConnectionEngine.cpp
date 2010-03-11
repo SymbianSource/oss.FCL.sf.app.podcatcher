@@ -261,7 +261,7 @@ CConnectionEngine::TConnectionState CConnectionEngine::ConnectionState()
 	return iConnectionState;
 	}
 
-void CConnectionEngine::AddObserver(MConnectionObserver* aObserver)
+EXPORT_C void CConnectionEngine::AddObserver(MConnectionObserver* aObserver)
 	{
 	iObserverArray.Append(aObserver);
 	}

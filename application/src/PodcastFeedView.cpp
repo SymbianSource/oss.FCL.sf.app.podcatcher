@@ -398,7 +398,7 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 			aFeedInfo.SetFeedIconIndex(iconIndex);
 			}
 		else {
-			if(BaflUtils::FileExists(iPodcastModel.FsSession(), aFeedInfo.ImageFileName()))
+			if(BaflUtils::FileExists(iEikonEnv->FsSession(), aFeedInfo.ImageFileName()))
 			{
 			// If this fails, no reason to worry
 			TRAP_IGNORE(iPodcastModel.ImageHandler().LoadFileAndScaleL(aFeedInfo.FeedIcon(), aFeedInfo.ImageFileName(), TSize(64,56), *this, aFeedInfo.Uid()));
