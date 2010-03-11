@@ -559,6 +559,7 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			CPodcastListView::HandleCommandL(aCommand);
 			break;
 		}
+	iListContainer->SetLongTapDetected(EFalse); // in case we got here by long tapping
 	UpdateToolbar();
 	}
 	
