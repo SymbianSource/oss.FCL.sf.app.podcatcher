@@ -29,6 +29,7 @@
 #include <akntoolbarextension.h>
 #include <aknquerydialog.h>
 #include <barsread.h>
+#include <akntitle.h>
 
 const TInt KDefaultGran = 5;
 
@@ -262,6 +263,11 @@ void CPodcastListView::DoActivateL(const TVwsViewId& /*aPrevViewId */,
 		AppUi()->AddToStackL(*this, iListContainer);
 		iListContainer->MakeVisible(ETrue);
 	}
+	
+	CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
+		      ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
+	titlePane->SetTextToDefaultL();
+
 	DP("CPodcastListView::DoActivateL() END");
 
 }
@@ -296,10 +302,9 @@ void CPodcastListView::HandleCommandL(TInt aCommand)
 	case EAknSoftkeyBack:
 		{
 		AppUi()->ActivateViewL(iPreviousView);
-		if (iPreviousView.iViewUid == KUidPodcastFeedViewID) {
-			((CPodcastAppUi*)AppUi())->SetActiveTab(KTabIdFeeds);
+		((CPodcastAppUi*)AppUi())->SetActiveTab(KTabIdFeeds);
 		}
-		}break;
+		break;
 	case EPodcastSettings:
 		AppUi()->ActivateLocalViewL(KUidPodcastSettingsViewID);
 		break;

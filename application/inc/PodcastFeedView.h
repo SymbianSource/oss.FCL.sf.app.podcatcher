@@ -41,6 +41,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
         void UpdateItemL(TInt aIndex);
 		void CheckResumeDownload();
 		void UpdateToolbar(TBool aVisible=ETrue);
+		TBool ViewingShows();
 
 	protected:
 	    void ConstructL();

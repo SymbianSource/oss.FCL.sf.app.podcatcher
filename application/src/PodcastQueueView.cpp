@@ -25,7 +25,6 @@
 #include "imagehandler.h"
 #include "PodcastShowsView.h"
 
-#include <akntitle.h>
 #include <podcast.rsg>
 #include <podcast.mbg>
 #include <gulicon.h>
@@ -200,7 +199,7 @@ void CPodcastQueueView::DoActivateL(const TVwsViewId& aPrevViewId,
 	DP("CPodcastQueueView::DoActivateL BEGIN");
 	
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
-	iPreviousView = TVwsViewId(KUidPodcast, KUidPodcastFeedViewID);
+	iPreviousView = aPrevViewId;
 	
 	UpdateFeedUpdateStateL();
 	UpdateToolbar();

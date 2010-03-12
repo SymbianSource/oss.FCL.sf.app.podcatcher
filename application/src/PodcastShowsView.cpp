@@ -203,12 +203,11 @@ void CPodcastShowsView::DoActivateL(const TVwsViewId& aPrevViewId,
 		TUid aCustomMessageId, const TDesC8& aCustomMessage)
 	{
 	DP("CPodcastShowsView::DoActivateL BEGIN");
-	
-	UpdateViewTitleL();
-	
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
+	
 	iPreviousView = TVwsViewId(KUidPodcast, KUidPodcastFeedViewID);
 	
+	UpdateViewTitleL();
 	UpdateFeedUpdateStateL();
 	UpdateToolbar();
 	DP("CPodcastShowsView::DoActivateL END");
@@ -216,12 +215,6 @@ void CPodcastShowsView::DoActivateL(const TVwsViewId& aPrevViewId,
 
 void CPodcastShowsView::DoDeactivate()
 	{
-	CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
-		     ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
-	
-//	titlePane->SetSmallPicture(NULL, NULL, ETrue);
-	titlePane->SetPicture(NULL, NULL);
-	titlePane->SetTextToDefaultL();
 	CPodcastListView::DoDeactivate();
 	}
 
@@ -628,30 +621,6 @@ void CPodcastShowsView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPan
 		}
 }
 	
-void CPodcastShowsView::ImageOperationCompleteL(TInt aError, TUint /*aHandle*/)
-	{
-	iLastImageHandlerError = aError;
-	if(iSetTitlebarImage)
-		{
-		iSetTitlebarImage = EFalse;
-		if(aError == KErrNone)
-			{
-			CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
-						 ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
-			titlePane->SetSmallPicture(iPodcastModel.ImageHandler().ScaledBitmap(), NULL, ETrue);
-			}
-		else
-			{
-			iPodcastModel.ImageHandler().ScaledBitmap();
-			}
-			
-		}
-	else
-		{
-		CActiveScheduler::Stop();
-		}
-	}
-	
 void CPodcastShowsView::DisplayShowInfoDialogL()
 	{
 	TInt index = iListContainer->Listbox()->CurrentItemIndex();
@@ -855,7 +824,6 @@ void CPodcastShowsView::UpdateViewTitleL()
 			}
 		else
 			{
-			titlePane->SetPicture(NULL, NULL);
 			titlePane->SetTextToDefaultL();
 			}
 		

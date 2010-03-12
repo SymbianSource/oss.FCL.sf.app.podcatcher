@@ -216,14 +216,25 @@ void CPodcastAppUi::TabChangedL (TInt aIndex)
 		{
 		TUid newview = TUid::Uid(0);
 		TUid messageUid = TUid::Uid(0);
-		
-		if (aIndex == KTabIdFeeds) {
-			newview = KUidPodcastFeedViewID;
-		} else if (aIndex == KTabIdQueue) {
+		if (aIndex == KTabIdFeeds) 
+			{
+			if (iFeedView->ViewingShows())
+				{
+				newview = KUidPodcastShowsViewID;
+				}
+			else
+				{
+				newview = KUidPodcastFeedViewID;
+				} 
+			} 
+		else if (aIndex == KTabIdQueue)
+			{
 			newview = KUidPodcastQueueViewID;
-		} else {
+			} 
+		else 
+			{
 			User::Leave(KErrTooBig);
-		}
+			}
 		
 		if(newview.iUid != 0)
 			{			

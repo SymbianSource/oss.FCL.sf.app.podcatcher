@@ -37,7 +37,6 @@
 #include <pathinfo.h> 
 #include <f32file.h>
 #include <akntoolbarextension.h>
-#include <akntitle.h>
 
 const TInt KMaxFeedNameLength = 100;
 const TInt KDefaultGran = 5;
@@ -128,23 +127,16 @@ void CPodcastSearchView::DoActivateL(const TVwsViewId& aPrevViewId,
 	                                  TUid aCustomMessageId,
 	                                  const TDesC8& aCustomMessage)
 {
-	UpdateToolbar();
-	
-	 CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
-		      ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
-
-    ((CPodcastAppUi*)AppUi())->NaviSetTextL(R_SEARCH_RESULTS);
-
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
 	iPreviousView = TVwsViewId(KUidPodcast, KUidPodcastFeedViewID);
+	
+    ((CPodcastAppUi*)AppUi())->NaviSetTextL(R_SEARCH_RESULTS);
+	UpdateToolbar();
 }
 
 void CPodcastSearchView::DoDeactivate()
 {
 	CPodcastListView::DoDeactivate();
-	CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
-		     ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
-	titlePane->SetTextToDefaultL();
 	((CPodcastAppUi*)AppUi())->NaviShowTabGroupL();
 }
 
