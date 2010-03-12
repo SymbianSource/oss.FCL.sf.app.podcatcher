@@ -208,11 +208,9 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 			DP("PEN DOWN");
 			break;
 			
-//#ifndef SYMBIAN1_UI
+#ifndef SYMBIAN1_UI
 	case EEventItemClicked:
-		DP("SINGLE TAP");
-		break;
-//#endif
+#endif
 	case EEventEnterKeyPressed:
 	case EEventItemDoubleClicked:
 	case EEventItemActioned:
