@@ -24,7 +24,6 @@
 #include "SettingsEngine.h"
 #include <e32hashtab.h>
 #include <httperr.h>
-#include "SoundEngine.h"
 #include "debug.h"
 #include "PodcastUtils.h"
 
@@ -1065,11 +1064,6 @@ EXPORT_C void CShowEngine::DeletePlayedShowsL(RShowInfoArray &aShowInfoArray)
 		if (aShowInfoArray[i]->PlayState() == EPlayed
 				&& aShowInfoArray[i]->FileName().Length() > 0)
 			{
-			if (CompareShowsByUid(*(iPodcastModel.PlayingPodcast()), *(aShowInfoArray[i]))
-					&& iPodcastModel.SoundEngine().State() != ESoundEngineNotInitialized)
-				{
-				iPodcastModel.SoundEngine().Stop();
-				}
 			BaflUtils::DeleteFile(iPodcastModel.FsSession(), aShowInfoArray[i]->FileName());
 			aShowInfoArray[i]->SetDownloadState(ENotDownloaded);
 			DBUpdateShowL(*aShowInfoArray[i]);

@@ -511,6 +511,7 @@ void CPodcastSettingsView::DoActivateL(const TVwsViewId& aPrevViewId,
 		{
 		iNaviPane->PushL(*iNaviDecorator);
 		}
+
 	DP("CPodcastSettingsView::DoActivateL END");
 }
 

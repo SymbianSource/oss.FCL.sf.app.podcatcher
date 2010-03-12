@@ -87,7 +87,8 @@ public MProgressDialogCallback, public MKeyEventListener
     public: 
         ~CPodcastListView();
 		virtual void UpdateToolbar(TBool aVisible=ETrue) = 0;
-
+		TBool IsVisible();
+		
 	protected:
 	    void ConstructL();
 		CPodcastListView();	

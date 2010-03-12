@@ -137,9 +137,8 @@ void CPodcastAppUi::HandleCommandL( TInt aCommand )
 			break;
         	}
 	case EPodcastHelp:
-        	{
-        	CArrayFix<TCoeHelpContext>* buf = CPodcastAppUi::AppHelpContextL();		
-        	HlpLauncher::LaunchHelpApplicationL(iEikonEnv->WsSession(), buf);
+        	{	
+        	HlpLauncher::LaunchHelpApplicationL(iEikonEnv->WsSession(), HelpContextL());
         	}
         	break;      	
         default:
@@ -152,11 +151,15 @@ CArrayFix<TCoeHelpContext>* CPodcastAppUi::HelpContextL() const
     CArrayFixFlat<TCoeHelpContext>* array = 
                 new(ELeave)CArrayFixFlat<TCoeHelpContext>(1);
     CleanupStack::PushL(array);
-    // todo: view detection doesn't seem to work
-    if (ViewShown(KUidPodcastSearchViewID)) {
-		array->AppendL(TCoeHelpContext(KUidPodcast,KContextSettings));
+    
+    if (iFeedView->IsVisible()) {
+		array->AppendL(TCoeHelpContext(KUidPodcast,KContextFeedsView));
+    } else if (iShowsView->IsVisible()) {
+		array->AppendL(TCoeHelpContext(KUidPodcast,KContextShowsView));
+    } else if (iQueueView->IsVisible()) {
+		array->AppendL(TCoeHelpContext(KUidPodcast,KContextDownloadQueue));
     } else {
-		array->AppendL(TCoeHelpContext(KUidPodcast,KContextApplication));
+		array->AppendL(TCoeHelpContext(KUidPodcast,KContextSettings));
     }
 	
     CleanupStack::Pop(array);
@@ -217,14 +220,25 @@ void CPodcastAppUi::TabChangedL (TInt aIndex)
 		{
 		TUid newview = TUid::Uid(0);
 		TUid messageUid = TUid::Uid(0);
-		
-		if (aIndex == KTabIdFeeds) {
-			newview = KUidPodcastFeedViewID;
-		} else if (aIndex == KTabIdQueue) {
+		if (aIndex == KTabIdFeeds) 
+			{
+			if (iFeedView->ViewingShows())
+				{
+				newview = KUidPodcastShowsViewID;
+				}
+			else
+				{
+				newview = KUidPodcastFeedViewID;
+				}
+			} 
+		else if (aIndex == KTabIdQueue)
+			{
 			newview = KUidPodcastQueueViewID;
-		} else {
+			} 
+		else 
+			{
 			User::Leave(KErrTooBig);
-		}
+			}
 		
 		if(newview.iUid != 0)
 			{			
