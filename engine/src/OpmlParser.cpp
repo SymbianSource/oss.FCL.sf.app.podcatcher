@@ -73,7 +73,7 @@ void COpmlParser::OnStartDocumentL(const RDocumentParameters& aDocParam, TInt /*
 
 void COpmlParser::OnEndDocumentL(TInt aErrorCode)
 	{
-	iFeedEngine.OpmlParsingComplete(aErrorCode, iNumFeedsAdded);
+	iFeedEngine.OpmlParsingCompleteL(aErrorCode, iNumFeedsAdded);
 	//DP("OnEndDocumentL()");
 	}
 
@@ -152,7 +152,8 @@ void COpmlParser::OnStartElementL(const RTagInfo& aElement, const RAttributeArra
 				iFeedEngine.AddSearchResultL(newFeed);
 				CleanupStack::Pop(newFeed);
 			} else {
-				if(iFeedEngine.AddFeedL(*newFeed))
+				TRAPD(err, iFeedEngine.AddFeedL(*newFeed))
+				if (err == KErrNone)
 					{
 					iNumFeedsAdded++;
 					}
@@ -229,7 +230,7 @@ void COpmlParser::OnProcessingInstructionL(const TDesC8& /*aTarget*/, const TDes
 void COpmlParser::OnError(TInt aErrorCode)
 	{
 	DP1("COpmlParser::OnError %d", aErrorCode);
-	iFeedEngine.OpmlParsingComplete(aErrorCode, iNumFeedsAdded);
+	iFeedEngine.OpmlParsingCompleteL(aErrorCode, iNumFeedsAdded);
 	}
 
 TAny* COpmlParser::GetExtendedInterface(const TInt32 /*aUid*/)

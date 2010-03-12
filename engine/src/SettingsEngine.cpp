@@ -19,7 +19,6 @@
 #include <bautils.h>
 #include <s32file.h>
 #include "SettingsEngine.h"
-#include "SoundEngine.h"
 #include "FeedEngine.h"
 #include "ShowEngine.h"
 

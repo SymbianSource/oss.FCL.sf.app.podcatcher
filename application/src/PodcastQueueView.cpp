@@ -248,7 +248,7 @@ void CPodcastQueueView::ShowDownloadFinishedL(TUint /*aShowUid*/, TInt aError)
 				{
 				TBuf<KMaxMessageLength> message;
 				iEikonEnv->ReadResourceL(message, R_PODCAST_CONNECTION_ERROR);
-				ShowErrorMessage(message);
+				ShowErrorMessageL(message);
 				}
 				break;
 			default: // Do nothing
@@ -516,9 +516,9 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			TBuf<KMaxMessageLength> msg;
 			iEikonEnv->ReadResourceL(msg, R_CLEAR_QUERY);
 												
-			if(ShowQueryMessage(msg))
+			if(ShowQueryMessageL(msg))
 				{
-				iPodcastModel.ShowEngine().RemoveAllDownloads();
+				iPodcastModel.ShowEngine().RemoveAllDownloadsL();
 				UpdateListboxItemsL();
 				}
 			}
@@ -558,7 +558,7 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			CPodcastListView::HandleCommandL(aCommand);
 			break;
 		}
-	iListContainer->SetLongTapDetected(EFalse); // in case we got here by long tapping
+	iListContainer->SetLongTapDetectedL(EFalse); // in case we got here by long tapping
 	UpdateToolbar();
 	}
 	

@@ -58,6 +58,9 @@ rls_string STRING_r_podcast_setting_default "Use default"
 rls_string STRING_r_podcast_setting_alwaysask "Always ask"
 rls_string STRING_r_podcast_setting_useiap "Select access point"
 rls_string STRING_r_podcast_setting_iaplist "Access points"
+rls_string STRING_r_on "On"
+rls_string STRING_r_off "Off"
+
 
 // Choicelist for autodownload
 rls_string STRING_podcast_autoupdate_option1 "Off"

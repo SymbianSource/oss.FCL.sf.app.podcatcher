@@ -101,8 +101,8 @@ protected:
 private:
 	void GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex);
 	void DisplayShowInfoDialogL();
-	void HandleSetShowPlayed(TBool aPlayed);
-	void HandleDeleteShow();
+	void HandleSetShowPlayedL(TBool aPlayed);
+	void HandleDeleteShowL();
 	void UpdateViewTitleL();
 	void CreateIconsL();
 	void GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode);

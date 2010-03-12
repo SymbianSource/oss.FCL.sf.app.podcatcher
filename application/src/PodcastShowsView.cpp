@@ -262,7 +262,7 @@ void CPodcastShowsView::ShowDownloadFinishedL(TUint aShowUid, TInt aError)
 			{
 			TBuf<KMaxMessageLength> message;
 			iEikonEnv->ReadResourceL(message, R_PODCAST_CONNECTION_ERROR);
-			ShowErrorMessage(message);
+			ShowErrorMessageL(message);
 			}
 			break;
 		default:
@@ -556,17 +556,17 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 	switch (aCommand)
 		{
 		case EPodcastMarkAsPlayed:
-			HandleSetShowPlayed(ETrue);
+			HandleSetShowPlayedL(ETrue);
 			break;
 		case EPodcastMarkAsUnplayed:
-			HandleSetShowPlayed(EFalse);
+			HandleSetShowPlayedL(EFalse);
 			break;
 		case EPodcastMarkAllPlayed:
-			iPodcastModel.MarkSelectionPlayed();
+			iPodcastModel.MarkSelectionPlayedL();
 			UpdateListboxItemsL();
 			break;
 		case EPodcastDeleteShow:
-			HandleDeleteShow();
+			HandleDeleteShowL();
 			break;
 		case EPodcastDownloadShow:
 			{
@@ -607,7 +607,7 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 			CPodcastListView::HandleCommandL(aCommand);
 			break;
 		}
-	iListContainer->SetLongTapDetected(EFalse);
+	iListContainer->SetLongTapDetectedL(EFalse);
 
 	UpdateToolbar();
 	}
@@ -717,7 +717,7 @@ void CPodcastShowsView::HandleLongTapEventL( const TPoint& aPenEventLocation, co
 {
 	DP("CPodcastShowsView::HandleLongTapEventL BEGIN");
 
-	iListContainer->SetLongTapDetected(ETrue);
+	iListContainer->SetLongTapDetectedL(ETrue);
 
 	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
 	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
@@ -746,7 +746,7 @@ void CPodcastShowsView::HandleLongTapEventL( const TPoint& aPenEventLocation, co
 	DP("CPodcastShowsView::HandleLongTapEventL END");
 }
 
-void CPodcastShowsView::HandleSetShowPlayed(TBool aPlayed)
+void CPodcastShowsView::HandleSetShowPlayedL(TBool aPlayed)
 	{
 
 	TInt index = iListContainer->Listbox()->CurrentItemIndex();
@@ -755,13 +755,13 @@ void CPodcastShowsView::HandleSetShowPlayed(TBool aPlayed)
 		{
 		CShowInfo *info = iPodcastModel.ActiveShowList()[index];
 		info->SetPlayState(aPlayed ? EPlayed : ENeverPlayed);
-		iPodcastModel.ShowEngine().UpdateShow(*info);
+		iPodcastModel.ShowEngine().UpdateShowL(*info);
 		UpdateShowItemDataL(iPodcastModel.ActiveShowList()[index], index, 0);
 		iListContainer->Listbox()->DrawItem(index);					
 		}
 	}
 
-void CPodcastShowsView::HandleDeleteShow()
+void CPodcastShowsView::HandleDeleteShowL()
 	{
 	TInt index = iListContainer->Listbox()->CurrentItemIndex();
 
@@ -772,7 +772,7 @@ void CPodcastShowsView::HandleDeleteShow()
 		TBuf<KMaxMessageLength> templ;
 		iEikonEnv->ReadResourceL(templ, R_PODCAST_DELETE_SHOW_PROMPT);
 		msg.Format(templ, &(info->Title()));
-		if (ShowQueryMessage(msg))
+		if (ShowQueryMessageL(msg))
 			{
 			iPodcastModel.ShowEngine().DeleteShowL(iPodcastModel.ActiveShowList()[index]->Uid());
 			
@@ -780,7 +780,7 @@ void CPodcastShowsView::HandleDeleteShow()
 			
 			info->SetDownloadState(ENotDownloaded);
 			info->SetPlayState(EPlayed);
-			iPodcastModel.ShowEngine().UpdateShow(*info);
+			iPodcastModel.ShowEngine().UpdateShowL(*info);
 			
 			UpdateShowItemDataL(iPodcastModel.ActiveShowList()[index], index, 0);
 			iListContainer->Listbox()->DrawItem(index);					
@@ -790,7 +790,7 @@ void CPodcastShowsView::HandleDeleteShow()
 
 void CPodcastShowsView::DownloadQueueUpdatedL(TInt aDownloadingShows, TInt aQueuedShows)
 	{
-	((CPodcastAppUi*)AppUi())->UpdateQueueTab(aDownloadingShows+aQueuedShows);
+	((CPodcastAppUi*)AppUi())->UpdateQueueTabL(aDownloadingShows+aQueuedShows);
 	UpdateListboxItemsL();
 	}
 

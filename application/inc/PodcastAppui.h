@@ -58,7 +58,7 @@ class CTimeout;
 class MTimeoutObserver
 {
 public:
-    virtual void HandleTimeout(const CTimeout& aId, TInt aError)=0;
+    virtual void HandleTimeoutL(const CTimeout& aId, TInt aError)=0;
 protected:
     virtual ~MTimeoutObserver() {}
 };
@@ -99,7 +99,7 @@ protected:
     void RunL()
     	{
     	    TInt r=iStatus.Int();
-    	    iObserver.HandleTimeout(*this, r);
+    	    iObserver.HandleTimeoutL(*this, r);
     	}
 
 protected:
@@ -115,9 +115,9 @@ class CPodcastAppUi : public CAknViewAppUi, public MAknTabObserver,
        ~CPodcastAppUi();
 
        void SetActiveTab(TInt aIndex);
-       void UpdateQueueTab(TInt aQueueLength);
-       void TabLeft();
-       void TabRight();
+       void UpdateQueueTabL(TInt aQueueLength);
+       void TabLeftL();
+       void TabRightL();
        void NaviSetTextL(TInt aResourceId);
        void NaviShowTabGroupL();
        
@@ -128,7 +128,7 @@ class CPodcastAppUi : public CAknViewAppUi, public MAknTabObserver,
         CArrayFix<TCoeHelpContext>* HelpContextL() const;
         void HandleCommandL(TInt aCommand);
     protected:
-    	void HandleTimeout(const CTimeout& aId, TInt aError);
+    	void HandleTimeoutL(const CTimeout& aId, TInt aError);
 
     protected:
     	// from MConnectionObserver

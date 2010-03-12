@@ -231,7 +231,7 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 								
 				iEikonEnv->ReadResourceL(templ, R_ADD_FEED_QUERY);
 				message.Format(templ, &newInfo->Title());
-				if(ShowQueryMessage(message)) {
+				if(ShowQueryMessageL(message)) {
 					TBool added = iPodcastModel.FeedEngine().AddFeedL(*newInfo);
 					
 					if (added)
@@ -239,7 +239,7 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 						// ask if user wants to update it now
 						TBuf<KMaxMessageLength> message;
 						iEikonEnv->ReadResourceL(message, R_ADD_FEED_SUCCESS);
-						if(ShowQueryMessage(message))
+						if(ShowQueryMessageL(message))
 							{
 							CFeedInfo *info = iPodcastModel.FeedEngine().GetFeedInfoByUid(newInfo->Uid());
 							
@@ -253,7 +253,7 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 						{
 						TBuf<KMaxMessageLength> message;
 						iEikonEnv->ReadResourceL(message, R_ADD_FEED_EXISTS);
-						ShowErrorMessage(message);
+						ShowErrorMessageL(message);
 						}		
 				}
 				}
