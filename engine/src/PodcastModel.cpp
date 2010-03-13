@@ -239,6 +239,7 @@ void CPodcastModel::SetActiveShowList(RShowInfoArray& aShowArray)
 
 sqlite3* CPodcastModel::DB()
 {
+	DP("CPodcastModel::DB BEGIN");
 	if (iDB == NULL) {		
 		TFileName dbFileName;
 		iFsSession.PrivatePath(dbFileName);
@@ -256,7 +257,8 @@ sqlite3* CPodcastModel::DB()
 		
 		TBuf8<KMaxFileName> filename8;
 		filename8.Copy(dbFileName);
-		int rc = rc = sqlite3_open((const char*) filename8.PtrZ(), &iDB);
+		DP("Before sqlite3_open");
+		int rc = sqlite3_open((const char*) filename8.PtrZ(), &iDB);
 		if( rc != SQLITE_OK){
 			DP("Error loading DB");
 			User::Panic(_L("Podcatcher"), 10);
@@ -264,6 +266,7 @@ sqlite3* CPodcastModel::DB()
 
 
 	}
+	DP("CPodcastModel::DB END");
 	return iDB;
 }
 

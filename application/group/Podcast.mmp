@@ -16,7 +16,7 @@
  *
  */
 
-//MACRO SYMBIAN1_UI
+MACRO SYMBIAN1_UI
 
 TARGET			Podcast.exe
 TARGETTYPE  	exe

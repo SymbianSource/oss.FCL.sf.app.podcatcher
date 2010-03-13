@@ -131,6 +131,8 @@ void CPodcastSearchView::DoActivateL(const TVwsViewId& aPrevViewId,
 	iPreviousView = TVwsViewId(KUidPodcast, KUidPodcastFeedViewID);
 	
     ((CPodcastAppUi*)AppUi())->NaviSetTextL(R_SEARCH_RESULTS);
+    
+	UpdateListboxItemsL();
 	UpdateToolbar();
 }
 
@@ -269,8 +271,7 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 void CPodcastSearchView::OpmlParsingComplete(TInt /*aError*/, TUint /*aNumFeedsImported*/)
 	{
 	DP("CPodcastSearchView::OpmlParsingComplete BEGIN");
-	UpdateListboxItemsL();
-	UpdateToolbar();
+
 	DP("CPodcastSearchView::OpmlParsingComplete END");
 	}
 
