@@ -652,8 +652,12 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 	
 		toolbar->HideItem(EPodcastUpdateFeed, updatingState, ETrue ); 
 		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !updatingState, ETrue );
-
-#ifdef SYMBIAN1_UI
+#ifndef SYMBIAN1_UI
+		// there seems to be drawing bugs in the toolbar if there is only
+		// one or two buttons defined in the resource, so we have download
+		// there but always hidden
+		toolbar->HideItem(EPodcastDownloadShow, ETrue, ETrue );
+#else SYMBIAN1_UI
 		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
 		TInt itemCnt = fItems.Count();
 	

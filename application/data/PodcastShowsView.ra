@@ -98,9 +98,10 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
                            }  
                         };
                     };
-                }
-#ifdef SYMBIAN1_UI
-            ,TBAR_CTRL
+                },
+// we keep the download toolbar button in S^3, but always disable it
+// because there are drawing issues with only one item in the toolbar
+            TBAR_CTRL
 			{
 			type = EAknCtButton;
 			id = EPodcastDownloadShow;
@@ -117,7 +118,9 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
 						}  
 					};
 				};
-			},		
+			}
+#ifdef SYMBIAN1_UI                
+        ,		
 		TBAR_CTRL
 			{
 			type = EAknCtButton;
