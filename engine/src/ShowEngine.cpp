@@ -1080,6 +1080,13 @@ EXPORT_C void CShowEngine::DeleteAllShowsByFeedL(TUint aFeedUid, TBool aDeleteFi
 
 	for (TInt i = count - 1; i >= 0; i--)
 		{
+		if (iShowDownloading && iShowDownloading->Uid() == array[i]->Uid())
+			{
+			// trying to delete the active download
+			RemoveDownloadL(iShowDownloading->Uid());
+			}
+		
+		// delete downloaded file
 		if (array[i]->FileName().Length() > 0)
 			{
 			if (aDeleteFiles)
@@ -1089,7 +1096,15 @@ EXPORT_C void CShowEngine::DeleteAllShowsByFeedL(TUint aFeedUid, TBool aDeleteFi
 			}
 		}
 	array.ResetAndDestroy();
+	
+	// delete all shows from DB
 	DBDeleteAllShowsByFeed(aFeedUid);
+
+	// this will clear out deleted shows from the download queue
+	DBGetAllDownloadsL(array);
+	array.ResetAndDestroy();
+
+	NotifyDownloadQueueUpdatedL();
 	}
 
 EXPORT_C void CShowEngine::DeleteOldShowsByFeed(TUint aFeedUid)

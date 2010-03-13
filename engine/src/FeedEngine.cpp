@@ -368,7 +368,7 @@ EXPORT_C void CFeedEngine::RemoveFeedL(TUint aUid)
 		if (iSortedFeeds[i]->Uid() == aUid) 
 			{
 			iPodcastModel.ShowEngine().DeleteAllShowsByFeedL(aUid);
-					
+
 			CFeedInfo* feedToRemove = iSortedFeeds[i];
 			
 			//delete the image file if it exists
