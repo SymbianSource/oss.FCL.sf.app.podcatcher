@@ -60,7 +60,7 @@ class CFeedInfo : public CBase, public MImageHandlerCallback
 		IMPORT_C TUint Uid() const;
 
 		IMPORT_C const TDesC& ImageFileName() const;
-		IMPORT_C void SetImageFileNameL(const TDesC &aFileName);
+		IMPORT_C void SetImageFileNameL(const TDesC &aFileName, CPodcastModel* aPodcastModel);
 			
 		IMPORT_C void SetCustomTitle();
 		IMPORT_C TBool CustomTitle() const;

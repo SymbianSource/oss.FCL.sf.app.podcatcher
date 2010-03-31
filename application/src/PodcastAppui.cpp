@@ -127,8 +127,8 @@ void CPodcastAppUi::HandleCommandL( TInt aCommand )
             }
         case EEikCmdExit:
         	{
-			TApaTask task(CEikonEnv::Static()->WsSession());
-			task.SetWgId(CEikonEnv::Static()->RootWin().Identifier());
+			TApaTask task(iEikonEnv->WsSession());
+			task.SetWgId(iEikonEnv->RootWin().Identifier());
 			task.SendToBackground(); 
 			break;
         	}
