@@ -127,6 +127,7 @@ CPodcastFeedView::~CPodcastFeedView()
 	delete iNeverUpdated;
 	delete iStylusPopupMenu;
 	delete iUpdater;
+	iFeedIdForIconArray.Close();
     }
 
 void CPodcastFeedView::UpdateItemL(TInt aIndex)
@@ -378,8 +379,8 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 			}
 		}
 	CArrayPtr<CGulIcon>* icons = iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->IconArray();
-
-	if(aFeedInfo.FeedIcon() != NULL && 
+	iconIndex = iFeedIdForIconArray.Find(aFeedInfo.Uid());
+	if(iconIndex == KErrNotFound && aFeedInfo.FeedIcon() != NULL && 
 			aFeedInfo.FeedIcon()->SizeInPixels().iHeight > 0 &&
 			aFeedInfo.FeedIcon()->SizeInPixels().iWidth > 0)
 		{
@@ -389,14 +390,14 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		CleanupStack::PushL(bmpCopy);
 		bmpCopy->Duplicate(aFeedInfo.FeedIcon()->Handle());
 		icons->AppendL( CGulIcon::NewL(bmpCopy, NULL));
+		iFeedIdForIconArray.Append(aFeedInfo.Uid());
 		CleanupStack::Pop(bmpCopy);			
 		iconIndex = icons->Count()-1;
-		}
+		}	
 	else 
 		{
-		iconIndex = 0;
-		}
-
+		iconIndex++;
+		}	
 
 	if (unplayedShows.Length() > 0) {
 		unplayedShows.Insert(0,_L(", "));
