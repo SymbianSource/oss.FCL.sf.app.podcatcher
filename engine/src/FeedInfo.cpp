@@ -50,8 +50,8 @@ EXPORT_C CFeedInfo* CFeedInfo::CopyL() const
 	copy->SetLinkL(Link());
 	copy->SetBuildDate(BuildDate());
 	copy->SetLastUpdated(LastUpdated());
-	copy->SetImageFileNameL(ImageFileName());
 	copy->iFeedIcon->Duplicate(iFeedIcon->Handle());
+	copy->SetImageFileNameL(ImageFileName());
 	if(CustomTitle())
 		{
 		copy->SetCustomTitle();
@@ -205,7 +205,7 @@ EXPORT_C void CFeedInfo::SetImageFileNameL(const TDesC& aFileName)
 	cacheFileName = parser.DriveAndPath();
 	cacheFileName.Append(parser.Name());
 	cacheFileName.Append(KMbmExtension());
-	if( BaflUtils::FileExists(CEikonEnv::Static()->FsSession(), cacheFileName) )
+	if( iFeedIcon->SizeInPixels() == TSize(0,0) && BaflUtils::FileExists(CEikonEnv::Static()->FsSession(), cacheFileName) )
 		{
 		iFeedIcon = CEikonEnv::Static()->CreateBitmapL(cacheFileName, 0);
 		}	
@@ -251,11 +251,7 @@ void CFeedInfo::ImageOperationCompleteL(TInt aError, TUint /*aHandle*/)
 		TParsePtrC parser(*iImageFileName);
 		cacheFileName = parser.DriveAndPath();
 		cacheFileName.Append(parser.Name());
-		cacheFileName.Append(KMbmExtension());
-		if( !BaflUtils::FileExists(CEikonEnv::Static()->FsSession(), cacheFileName) )
-			{
-			iFeedIcon->Save(cacheFileName);
-			}
-			
+		cacheFileName.Append(KMbmExtension());		
+		iFeedIcon->Save(cacheFileName);					
 		}
 	}
