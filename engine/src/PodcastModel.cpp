@@ -78,7 +78,7 @@ void CPodcastModel::ConstructL()
 	iIapNameArray = new (ELeave) CDesCArrayFlat(KDefaultGranu);
 	iSNAPNameArray = new (ELeave) CDesCArrayFlat(KDefaultGranu);
 	iCmManager.OpenL();
-	iImageHandler = CImageHandler::NewL(FsSession());
+	iImageHandler = CImageHandler::NewL(FsSession(), *this);
 	
 	UpdateIAPListL();
 	UpdateSNAPListL();
@@ -437,7 +437,7 @@ EXPORT_C TBool CPodcastModel::IsFirstStartup()
 	}
 
 
-void CPodcastModel::ImageOperationCompleteL(TInt /*aError*/, TUint /*aHandle*/)
+void CPodcastModel::ImageOperationCompleteL(TInt /*aError*/, TUint /*aHandle*/, CPodcastModel& /*aPodcastModel*/)
 	{
 	
 	}

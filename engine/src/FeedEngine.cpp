@@ -647,6 +647,15 @@ void CFeedEngine::NotifyFeedUpdateComplete(TInt aError)
 		}
 	}
 
+void CFeedEngine::NotifyFeedUpdateComplete(TInt aFeedUid, TInt aError)
+	{
+	DP("CFeedEngine::NotifyFeedUpdateComplete");	
+	for (TInt i=0;i<iObservers.Count();i++) 
+		{
+		TRAP_IGNORE(iObservers[i]->FeedDownloadFinishedL(MFeedEngineObserver::EFeedAutoUpdate, aFeedUid, aError));
+		}
+	}
+
 void CFeedEngine::Disconnected(CHttpClient* /*aClient*/)
 	{
 	}

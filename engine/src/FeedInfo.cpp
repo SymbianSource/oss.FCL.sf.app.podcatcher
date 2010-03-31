@@ -17,6 +17,8 @@
 */
 
 #include "FeedInfo.h"
+#include "FeedEngine.h"
+#include "PodcastModel.h"
 #include <e32hashtab.h>
 #include <fbs.h>
 #include <bautils.h>
@@ -209,7 +211,7 @@ EXPORT_C void CFeedInfo::SetImageFileNameL(const TDesC& aFileName)
 		{
 		iFeedIcon = CEikonEnv::Static()->CreateBitmapL(cacheFileName, 0);
 		}	
-	}
+	} 
 
 EXPORT_C TBool CFeedInfo::CustomTitle() const
 	{
@@ -241,9 +243,8 @@ EXPORT_C void CFeedInfo::SetFeedIcon(CFbsBitmap* aBitmapToClone)
 	iFeedIcon->Duplicate(aBitmapToClone->Handle());
 	}
 
-void CFeedInfo::ImageOperationCompleteL(TInt aError, TUint /*aHandle*/)
-	{
-		
+void CFeedInfo::ImageOperationCompleteL(TInt aError, TUint /*aHandle*/, CPodcastModel& aPodcastModel)
+	{		
 	if (aError == KErrNone && iImageFileName && iFeedIcon)
 		{
 		TFileName cacheFileName;
@@ -253,5 +254,6 @@ void CFeedInfo::ImageOperationCompleteL(TInt aError, TUint /*aHandle*/)
 		cacheFileName.Append(parser.Name());
 		cacheFileName.Append(KMbmExtension());		
 		iFeedIcon->Save(cacheFileName);					
+		aPodcastModel.FeedEngine().NotifyFeedUpdateComplete(this->iUid, KErrNone);
 		}
 	}

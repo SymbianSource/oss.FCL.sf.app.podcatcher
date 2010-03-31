@@ -95,7 +95,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 		void DialogDismissedL(TInt aButtonId); 
 
 		// from MImageHandlerCallback
-		void ImageOperationCompleteL(TInt aError, TUint aHandle);
+		void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel);
 		
 		void HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& aPenEventScreenLocation);
 

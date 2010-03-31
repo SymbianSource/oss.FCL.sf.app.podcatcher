@@ -22,6 +22,7 @@
 #include <f32file.h>
 #include <ImageConversion.h>
 #include <BitmapTransforms.h>
+class CPodcastModel;
 
 /**
  * Listener interface that can be used to listen for image loading operation
@@ -42,8 +43,10 @@ public:
     * Called by CImageHandler when an image has been loaded.
     * @param aError Error code given by the CImageHandler or 0 (zero) if the
     *   image was loaded successfully.
+    * @param image handle
+    * @param reference to podcast model
     */
-    virtual void ImageOperationCompleteL(TInt aError, TUint aHandle) = 0;
+    virtual void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel) = 0;
     };
 
 // ============================================================================
@@ -65,27 +68,22 @@ class CImageHandler : public CActive
     public: // Constructors and destructor
        /**
         * Factory method that constructs a CImageHandler by using the NewLC method
-        * and then cleans the cleanup stack.
-        * @param aBitmap Bitmap where the image data is loaded to.
-        * @param aScaledBitmap Bitmap where the scaled image data is loaded to.
+        * and then cleans the cleanup stack.               
         * @param aFs File server reference that is used to load the image data.
-        * @param aCallback Listener interface implementation that is notified
+        * @param Reference to podcast model
         *  when an image has been loaded.
         * @return pointer to created CImageHandler-object
         */
-        IMPORT_C static CImageHandler* NewL(RFs& aFs);
+        IMPORT_C static CImageHandler* NewL(RFs& aFs,CPodcastModel& aPodcastModel);
 
        /**
         * Factory method that constructs a CImageHandler and leaves it to the
         * cleanup stack.
-        * @param aBitmap Bitmap where the image data is loaded to.
-        * @param aScaledBitmap Bitmap where the scaled image data is loaded to.
         * @param aFs File server reference that is used to load the image data.
-        * @param aCallback Listener interface implementation that is notified
-        *  when an image has been loaded.
+        * @param Reference to podcast model
         * @return pointer to created CImageHandler-object
         */
-        IMPORT_C static CImageHandler* NewLC(RFs& aFs);
+        IMPORT_C static CImageHandler* NewLC(RFs& aFs,CPodcastModel& aPodcastModel);
        /**
         * Desctructor. Destroys the CImageDecoder used by the image handler.
         */
@@ -142,13 +140,12 @@ class CImageHandler : public CActive
     protected:
         /**
          * C++ default constructor. Just stores the given parameters to
-         * corresponding attributes.      
-         * @param aScaledBitmap Bitmap where the scaled image data is loaded to.
+         * corresponding attributes.              
          * @param aFs File server reference that is used to load the image data.
-         * @param aCallback Listener interface implementation that is notified
+         * @param Reference to podcast model
          *  when an image has been loaded.
          */
-        CImageHandler(RFs& aFs);
+        CImageHandler(RFs& aFs, CPodcastModel& aPodcastModel);
         /**
          * 2nd phase constructor. Adds this object to the active scheduler.
          */
@@ -182,6 +179,9 @@ class CImageHandler : public CActive
         
         /* Handle passed back to caller */
         TUint iHandle;
+        
+        /** Reference to the podcast model used for callbacks to be able to notify*/
+        CPodcastModel& iPodcastModel;
     };
 
 #endif

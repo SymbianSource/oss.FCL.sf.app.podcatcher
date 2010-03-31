@@ -378,28 +378,26 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 			}
 		}
 	CArrayPtr<CGulIcon>* icons = iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->IconArray();
-	
-	/*if (aFeedInfo.FeedIconIndex() != -1) {
-		iconIndex = aFeedInfo.FeedIconIndex();
-	} else*/ {
-		if(aFeedInfo.FeedIcon() != NULL && 
-				aFeedInfo.FeedIcon()->SizeInPixels().iHeight > 0 &&
-				aFeedInfo.FeedIcon()->SizeInPixels().iWidth > 0)
-			{
-			// Hopefully temporary haxx to prevent double delete. I would prefer if
-			// this could be solved with a little better design.
-			CFbsBitmap* bmpCopy = new (ELeave) CFbsBitmap;
-			CleanupStack::PushL(bmpCopy);
-			bmpCopy->Duplicate(aFeedInfo.FeedIcon()->Handle());
-			icons->AppendL( CGulIcon::NewL(bmpCopy, NULL));
-			CleanupStack::Pop(bmpCopy);						
-			}
-		else {
-		
+
+	if(aFeedInfo.FeedIcon() != NULL && 
+			aFeedInfo.FeedIcon()->SizeInPixels().iHeight > 0 &&
+			aFeedInfo.FeedIcon()->SizeInPixels().iWidth > 0)
+		{
+		// Hopefully temporary haxx to prevent double delete. I would prefer if
+		// this could be solved with a little better design.
+		CFbsBitmap* bmpCopy = new (ELeave) CFbsBitmap;
+		CleanupStack::PushL(bmpCopy);
+		bmpCopy->Duplicate(aFeedInfo.FeedIcon()->Handle());
+		icons->AppendL( CGulIcon::NewL(bmpCopy, NULL));
+		CleanupStack::Pop(bmpCopy);			
+		iconIndex = icons->Count()-1;
+		}
+	else 
+		{
 		iconIndex = 0;
 		}
-	}
-	
+
+
 	if (unplayedShows.Length() > 0) {
 		unplayedShows.Insert(0,_L(", "));
 	}
@@ -407,11 +405,11 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 	iListboxFormatbuffer.Format(KFeedFormat(), iconIndex, &(aFeedInfo.Title()), &updatedDate,  &unplayedShows);
 	}
 
-void CPodcastFeedView::ImageOperationCompleteL(TInt aError, TUint aHandle)
+void CPodcastFeedView::ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& /*aPodcastModel*/)
 	{
 	if (aError == KErrNone) {
-	UpdateFeedInfoStatusL(aHandle, EFalse);
-	}
+		UpdateFeedInfoStatusL(aHandle, EFalse);
+		}
 	}
 
 void CPodcastFeedView::UpdateFeedInfoDataL(CFeedInfo* aFeedInfo, TInt aIndex, TBool aIsUpdating )
