@@ -105,7 +105,6 @@ void CPodcastFeedView::ConstructL()
 	// Append the feed icon to icon array
 	icons->AppendL( CGulIcon::NewL( bitmap, mask ) );
 	CleanupStack::Pop(2); // bitmap, mask
-	
 	iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL( icons );
 	CleanupStack::Pop(icons); // icons
 
@@ -380,9 +379,9 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		}
 	CArrayPtr<CGulIcon>* icons = iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->IconArray();
 	
-	if (aFeedInfo.FeedIconIndex() != -1) {
+	/*if (aFeedInfo.FeedIconIndex() != -1) {
 		iconIndex = aFeedInfo.FeedIconIndex();
-	} else {
+	} else*/ {
 		if(aFeedInfo.FeedIcon() != NULL && 
 				aFeedInfo.FeedIcon()->SizeInPixels().iHeight > 0 &&
 				aFeedInfo.FeedIcon()->SizeInPixels().iWidth > 0)
@@ -393,16 +392,11 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 			CleanupStack::PushL(bmpCopy);
 			bmpCopy->Duplicate(aFeedInfo.FeedIcon()->Handle());
 			icons->AppendL( CGulIcon::NewL(bmpCopy, NULL));
-			CleanupStack::Pop(bmpCopy);
-			iconIndex = icons->Count()-1;
-			aFeedInfo.SetFeedIconIndex(iconIndex);
+			CleanupStack::Pop(bmpCopy);						
 			}
 		else {
-			if(BaflUtils::FileExists(iEikonEnv->FsSession(), aFeedInfo.ImageFileName()))
-			{
-			// If this fails, no reason to worry
-			TRAP_IGNORE(iPodcastModel.ImageHandler().LoadFileAndScaleL(aFeedInfo.FeedIcon(), aFeedInfo.ImageFileName(), TSize(64,56), *this, aFeedInfo.Uid()));
-			}
+		
+		iconIndex = 0;
 		}
 	}
 	

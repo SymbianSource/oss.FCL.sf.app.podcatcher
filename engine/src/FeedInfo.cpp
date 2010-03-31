@@ -19,6 +19,9 @@
 #include "FeedInfo.h"
 #include <e32hashtab.h>
 #include <fbs.h>
+#include <bautils.h>
+#include <eikenv.h>
+_LIT(KMbmExtension, ".mbm");
 
 EXPORT_C CFeedInfo* CFeedInfo::NewL()
 	{
@@ -55,14 +58,13 @@ EXPORT_C CFeedInfo* CFeedInfo::CopyL() const
 		}
 	
 	copy->SetLastError(LastError());
-	copy->SetFeedIconIndex(FeedIconIndex());
+
 	CleanupStack::Pop(copy);
 	return copy;
 	}
 CFeedInfo::CFeedInfo()
 	{
 	iCustomTitle = EFalse;
-	iFeedIconIndex = -1;
 	}
 
 EXPORT_C CFeedInfo::~CFeedInfo()
@@ -191,12 +193,22 @@ EXPORT_C const TDesC& CFeedInfo::ImageFileName() const
 
 EXPORT_C void CFeedInfo::SetImageFileNameL(const TDesC& aFileName)
 	{
+	TFileName cacheFileName;
+	
 	if (iImageFileName)
 		{
 		delete iImageFileName;
 		iImageFileName = NULL;
 		}
-	iImageFileName = aFileName.AllocL();	
+	iImageFileName = aFileName.AllocL();
+	TParsePtrC parser(*iImageFileName);
+	cacheFileName = parser.DriveAndPath();
+	cacheFileName.Append(parser.Name());
+	cacheFileName.Append(KMbmExtension());
+	if( BaflUtils::FileExists(CEikonEnv::Static()->FsSession(), cacheFileName) )
+		{
+		iFeedIcon = CEikonEnv::Static()->CreateBitmapL(cacheFileName, 0);
+		}	
 	}
 
 EXPORT_C TBool CFeedInfo::CustomTitle() const
@@ -229,17 +241,21 @@ EXPORT_C void CFeedInfo::SetFeedIcon(CFbsBitmap* aBitmapToClone)
 	iFeedIcon->Duplicate(aBitmapToClone->Handle());
 	}
 
-void CFeedInfo::ImageOperationCompleteL(TInt /*aError*/, TUint /*aHandle*/)
+void CFeedInfo::ImageOperationCompleteL(TInt aError, TUint /*aHandle*/)
 	{
+		
+	if (aError == KErrNone && iImageFileName && iFeedIcon)
+		{
+		TFileName cacheFileName;
 	
-	}
-
-EXPORT_C TInt CFeedInfo::FeedIconIndex() const
-	{
-	return iFeedIconIndex;
-	}
-
-EXPORT_C void CFeedInfo::SetFeedIconIndex(TInt aIndex)
-	{
-	iFeedIconIndex = aIndex;
+		TParsePtrC parser(*iImageFileName);
+		cacheFileName = parser.DriveAndPath();
+		cacheFileName.Append(parser.Name());
+		cacheFileName.Append(KMbmExtension());
+		if( !BaflUtils::FileExists(CEikonEnv::Static()->FsSession(), cacheFileName) )
+			{
+			iFeedIcon->Save(cacheFileName);
+			}
+			
+		}
 	}

@@ -281,13 +281,15 @@ sqlite3* CPodcastModel::DB()
 {
 	if (iDB == NULL) {		
 		TFileName dbFileName;
-		iFsSession.PrivatePath(dbFileName);
+		dbFileName.Copy(iSettingsEngine->PrivatePath());
+		//iFsSession.PrivatePath(dbFileName);
 		dbFileName.Append(KDBFileName);
 		DP1("DB is at %S", &dbFileName);
 
 		if (!BaflUtils::FileExists(iFsSession, dbFileName)) {
 			TFileName dbTemplate;
-			iFsSession.PrivatePath(dbTemplate);
+			dbTemplate.Copy(iSettingsEngine->PrivatePath());
+			//iFsSession.PrivatePath(dbTemplate);
 			dbTemplate.Append(KDBTemplateFileName);
 			DP1("No DB found, copying template from %S", &dbTemplate);
 			BaflUtils::CopyFile(iFsSession, dbTemplate,dbFileName);

@@ -71,8 +71,8 @@ class CFeedInfo : public CBase, public MImageHandlerCallback
 		IMPORT_C CFbsBitmap* FeedIcon() const;
 		IMPORT_C void SetFeedIcon(CFbsBitmap* aBitmapToClone);
 		
-		IMPORT_C TInt FeedIconIndex() const;
-		IMPORT_C void SetFeedIconIndex(TInt aIndex);
+	//	IMPORT_C TInt FeedIconIndex() const;
+//		IMPORT_C void SetFeedIconIndex(TInt aIndex);
 	private:
 		CFeedInfo();
 		void ConstructL();
@@ -90,7 +90,6 @@ class CFeedInfo : public CBase, public MImageHandlerCallback
 		TBool iCustomTitle;
 		TInt   iLastError;
 		CFbsBitmap* iFeedIcon;	
-		TInt iFeedIconIndex;
 	};
 
 typedef RPointerArray<CFeedInfo> RFeedInfoArray;

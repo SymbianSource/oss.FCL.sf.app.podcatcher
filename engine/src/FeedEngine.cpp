@@ -599,7 +599,15 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 			{
 			// change client state to not updating
 			iClientState = EIdle;
-	
+			if(aError == KErrNone)
+				{
+				if( BaflUtils::FileExists(CEikonEnv::Static()->FsSession(), iActiveFeed->ImageFileName() ))
+					{
+						// If this fails, no reason to worry
+					TRAP_IGNORE(iPodcastModel.ImageHandler().LoadFileAndScaleL(iActiveFeed->FeedIcon(), iActiveFeed->ImageFileName(), TSize(64,56), *iActiveFeed, iActiveFeed->Uid()));
+					}				
+				}
+			
 			NotifyFeedUpdateComplete(aError);
 			UpdateNextFeedL();
 			}break;
