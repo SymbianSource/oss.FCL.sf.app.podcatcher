@@ -103,6 +103,9 @@ private:
 	void DisplayShowInfoDialogL();
 	void HandleSetShowPlayedL(TBool aPlayed);
 	void HandleDeleteShowL();
+	void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel) {}
+	void HandleSetShowPlayed(TBool aPlayed);
+	void HandleDeleteShow();
 	void UpdateViewTitleL();
 	void CreateIconsL();
 	void GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode);
@@ -111,6 +114,8 @@ private:
 	
 	CPodcastModel& iPodcastModel;
 	TBool iProgressAdded;	
+	TInt iLastImageHandlerError;
+	TBool iSetTitlebarImage;
 	};
 
 #endif // PODCASTSHOWSVIEWH

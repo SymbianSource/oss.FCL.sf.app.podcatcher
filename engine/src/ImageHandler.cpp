@@ -31,12 +31,13 @@
 // might leave.
 // -----------------------------------------------------------------------------
 //
-CImageHandler::CImageHandler( RFs& aFs )
+CImageHandler::CImageHandler( RFs& aFs, CPodcastModel& aPodcastModel )
     : CActive(CActive::EPriorityStandard)
     , iDecoder(NULL)
     , iScaler(NULL)
     , iFs(aFs)
     , iSize(0,0)
+    , iPodcastModel(aPodcastModel)
     {
     }
 
@@ -56,9 +57,9 @@ void CImageHandler::ConstructL()
 // Two-phased constructor.
 // -----------------------------------------------------------------------------
 //
-EXPORT_C CImageHandler* CImageHandler::NewL(RFs& aFs)
+EXPORT_C CImageHandler* CImageHandler::NewL(RFs& aFs, CPodcastModel& aPodcastModel)
     {
-    CImageHandler* self = NewLC(aFs);
+    CImageHandler* self = NewLC(aFs, aPodcastModel);
     CleanupStack::Pop();
     return self;
     }
@@ -68,9 +69,9 @@ EXPORT_C CImageHandler* CImageHandler::NewL(RFs& aFs)
 // Two-phased constructor.
 // -----------------------------------------------------------------------------
 //
-EXPORT_C CImageHandler* CImageHandler::NewLC(RFs& aFs)
+EXPORT_C CImageHandler* CImageHandler::NewLC(RFs& aFs, CPodcastModel& aPodcastModel)
     {
-    CImageHandler* self = new (ELeave) CImageHandler(aFs);
+    CImageHandler* self = new (ELeave) CImageHandler(aFs, aPodcastModel);
     CleanupStack::PushL( self );
     self->ConstructL();
 
@@ -202,7 +203,7 @@ void CImageHandler::RunL()
     else
         {
         // Invoke callback.
-        iCallback->ImageOperationCompleteL(iStatus.Int(), iHandle);        
+        iCallback->ImageOperationCompleteL(iStatus.Int(), iHandle, iPodcastModel);        
         if(iCallbackQue.Count())
         	{
         	TInt loaderror = KErrNotFound;

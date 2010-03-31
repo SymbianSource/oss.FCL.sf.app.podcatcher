@@ -95,6 +95,7 @@ public:
 	IMPORT_C const RFeedInfoArray& GetSearchResults();
 
 	IMPORT_C void OpmlParsingCompleteL(TInt aError, TUint aNumFeedsAdded);
+	void NotifyFeedUpdateComplete(TInt aFeedUid, TInt aError);
 protected:
 	
 	static TInt CompareFeedsByTitle(const CFeedInfo &a, const CFeedInfo &b);
@@ -117,7 +118,6 @@ private:
 	void GetFeedImageL(CFeedInfo *aFeedInfo);
 	
 	void UpdateNextFeedL();
-	void NotifyFeedUpdateCompleteL(TInt aError);
 	void NotifyOpmlParsingCompleteL(TInt aError, TUint aNumFeedsAdded);
 
 	

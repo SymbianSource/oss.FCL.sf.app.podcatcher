@@ -76,7 +76,7 @@ void CPodcastModel::ConstructL()
 	iIapNameArray = new (ELeave) CDesCArrayFlat(KDefaultGranu);
 	iSNAPNameArray = new (ELeave) CDesCArrayFlat(KDefaultGranu);
 	iCmManager.OpenL();
-	iImageHandler = CImageHandler::NewL(FsSession());
+	iImageHandler = CImageHandler::NewL(FsSession(), *this);
 	
 	UpdateIAPListL();
 	UpdateSNAPListL();
@@ -242,13 +242,15 @@ sqlite3* CPodcastModel::DB()
 	DP("CPodcastModel::DB BEGIN");
 	if (iDB == NULL) {		
 		TFileName dbFileName;
-		iFsSession.PrivatePath(dbFileName);
+		dbFileName.Copy(iSettingsEngine->PrivatePath());
+		//iFsSession.PrivatePath(dbFileName);
 		dbFileName.Append(KDBFileName);
 		DP1("DB is at %S", &dbFileName);
 
 		if (!BaflUtils::FileExists(iFsSession, dbFileName)) {
 			TFileName dbTemplate;
-			iFsSession.PrivatePath(dbTemplate);
+			dbTemplate.Copy(iSettingsEngine->PrivatePath());
+			//iFsSession.PrivatePath(dbTemplate);
 			dbTemplate.Append(KDBTemplateFileName);
 			DP1("No DB found, copying template from %S", &dbTemplate);
 			BaflUtils::CopyFile(iFsSession, dbTemplate,dbFileName);
@@ -398,7 +400,7 @@ EXPORT_C TBool CPodcastModel::IsFirstStartup()
 	}
 
 
-void CPodcastModel::ImageOperationCompleteL(TInt /*aError*/, TUint /*aHandle*/)
+void CPodcastModel::ImageOperationCompleteL(TInt /*aError*/, TUint /*aHandle*/, CPodcastModel& /*aPodcastModel*/)
 	{
 	
 	}

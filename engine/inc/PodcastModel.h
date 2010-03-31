@@ -100,7 +100,7 @@ protected:
 	CPodcastModel();
 	void ConstructL();
 	// From ImageHandler
-	void ImageOperationCompleteL(TInt aError, TUint aHandle);
+	void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel);
 private:	
    CShowInfo* iPlayingPodcast;
    

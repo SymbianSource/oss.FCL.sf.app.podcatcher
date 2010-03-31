@@ -22,9 +22,9 @@ WINSCW
 
 PRJ_MMPFILES
 
-#ifdef SQLITE_INCLUDED
+//#ifdef SQLITE_INCLUDED
 ..\engine\sqlite\group\sqlite.mmp
-#endif
+//#endif
 
 PRJ_MMPFILES
 ..\engine\group\engine.mmp

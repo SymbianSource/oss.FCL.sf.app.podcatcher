@@ -74,3 +74,5 @@ LIBRARY cmmanager.lib
 LIBRARY fbscli.lib
 LIBRARY imageconversion.lib 
 LIBRARY bitmaptransforms.lib 
+LIBRARY eikcore.lib 
+//staticlibrary sqlite_podcatcher.lib

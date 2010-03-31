@@ -517,7 +517,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 				time.HomeTime();
 				iActiveFeed->SetLastUpdated(time);
 				iActiveFeed->SetLastError(aError);
-				NotifyFeedUpdateCompleteL(aError);
+				NotifyFeedUpdateComplete(iActiveFeed->Uid(), aError);
 				}
 			break;
 		case EUpdatingFeed: 
@@ -587,8 +587,8 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 				}break;
 			}
 		
-			NotifyFeedUpdateCompleteL(aError);
-	
+			NotifyFeedUpdateComplete(iActiveFeed->Uid(), aError);
+
 			// we will wait until the image has been downloaded to start the next feed update.
 			if (iClientState == EIdle)
 				{
@@ -599,8 +599,16 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 			{
 			// change client state to not updating
 			iClientState = EIdle;
-	
-			NotifyFeedUpdateCompleteL(aError);
+			if(aError == KErrNone)
+				{
+				if( BaflUtils::FileExists(CEikonEnv::Static()->FsSession(), iActiveFeed->ImageFileName() ))
+					{
+						// If this fails, no reason to worry
+					TRAP_IGNORE(iPodcastModel.ImageHandler().LoadFileAndScaleL(iActiveFeed->FeedIcon(), iActiveFeed->ImageFileName(), TSize(64,56), *iActiveFeed, iActiveFeed->Uid()));
+					}				
+				}
+			
+			NotifyFeedUpdateComplete(iActiveFeed->Uid(), aError);
 			UpdateNextFeedL();
 			}break;
 		case ESearching: 
@@ -629,13 +637,12 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 	DP("CFeedEngine::CompleteL END");
 	}
 
-void CFeedEngine::NotifyFeedUpdateCompleteL(TInt aError)
+void CFeedEngine::NotifyFeedUpdateComplete(TInt aFeedUid, TInt aError)
 	{
-	DP("CFeedEngine::NotifyFeedUpdateComplete");
-	DBUpdateFeedL(*iActiveFeed);
+	DP("CFeedEngine::NotifyFeedUpdateComplete");	
 	for (TInt i=0;i<iObservers.Count();i++) 
 		{
-		TRAP_IGNORE(iObservers[i]->FeedDownloadFinishedL(iAutoUpdatedInitiator?MFeedEngineObserver::EFeedAutoUpdate:MFeedEngineObserver::EFeedManualUpdate, iActiveFeed->Uid(), aError));
+		TRAP_IGNORE(iObservers[i]->FeedDownloadFinishedL(MFeedEngineObserver::EFeedAutoUpdate, aFeedUid, aError));
 		}
 	}
 

@@ -105,7 +105,6 @@ void CPodcastFeedView::ConstructL()
 	// Append the feed icon to icon array
 	icons->AppendL( CGulIcon::NewL( bitmap, mask ) );
 	CleanupStack::Pop(2); // bitmap, mask
-	
 	iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL( icons );
 	CleanupStack::Pop(icons); // icons
 
@@ -128,6 +127,7 @@ CPodcastFeedView::~CPodcastFeedView()
 	delete iNeverUpdated;
 	delete iStylusPopupMenu;
 	delete iUpdater;
+	iFeedIdForIconArray.Close();
     }
 
 void CPodcastFeedView::UpdateItemL(TInt aIndex)
@@ -369,33 +369,26 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 			}
 		}
 	CArrayPtr<CGulIcon>* icons = iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->IconArray();
-	
-	if (aFeedInfo.FeedIconIndex() != -1) {
-		iconIndex = aFeedInfo.FeedIconIndex();
-	} else {
-		if(aFeedInfo.FeedIcon() != NULL && 
-				aFeedInfo.FeedIcon()->SizeInPixels().iHeight > 0 &&
-				aFeedInfo.FeedIcon()->SizeInPixels().iWidth > 0)
-			{
-			// Hopefully temporary haxx to prevent double delete. I would prefer if
-			// this could be solved with a little better design.
-			CFbsBitmap* bmpCopy = new (ELeave) CFbsBitmap;
-			CleanupStack::PushL(bmpCopy);
-			bmpCopy->Duplicate(aFeedInfo.FeedIcon()->Handle());
-			icons->AppendL( CGulIcon::NewL(bmpCopy, NULL));
-			CleanupStack::Pop(bmpCopy);
-			iconIndex = icons->Count()-1;
-			aFeedInfo.SetFeedIconIndex(iconIndex);
-			}
-		else {
-			if(BaflUtils::FileExists(iPodcastModel.FsSession(), aFeedInfo.ImageFileName()))
-			{
-			// If this fails, no reason to worry
-			TRAP_IGNORE(iPodcastModel.ImageHandler().LoadFileAndScaleL(aFeedInfo.FeedIcon(), aFeedInfo.ImageFileName(), TSize(64,56), *this, aFeedInfo.Uid()));
-			}
-		}
-	}
-	
+	iconIndex = iFeedIdForIconArray.Find(aFeedInfo.Uid());
+	if(iconIndex == KErrNotFound && aFeedInfo.FeedIcon() != NULL && 
+			aFeedInfo.FeedIcon()->SizeInPixels().iHeight > 0 &&
+			aFeedInfo.FeedIcon()->SizeInPixels().iWidth > 0)
+		{
+		// Hopefully temporary haxx to prevent double delete. I would prefer if
+		// this could be solved with a little better design.
+		CFbsBitmap* bmpCopy = new (ELeave) CFbsBitmap;
+		CleanupStack::PushL(bmpCopy);
+		bmpCopy->Duplicate(aFeedInfo.FeedIcon()->Handle());
+		icons->AppendL( CGulIcon::NewL(bmpCopy, NULL));
+		iFeedIdForIconArray.Append(aFeedInfo.Uid());
+		CleanupStack::Pop(bmpCopy);			
+		iconIndex = icons->Count()-1;
+		}	
+	else 
+		{
+		iconIndex++;
+		}	
+
 	if (unplayedShows.Length() > 0) {
 		unplayedShows.Insert(0,_L(", "));
 	}
@@ -403,11 +396,11 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 	iListboxFormatbuffer.Format(KFeedFormat(), iconIndex, &(aFeedInfo.Title()), &updatedDate,  &unplayedShows);
 	}
 
-void CPodcastFeedView::ImageOperationCompleteL(TInt aError, TUint aHandle)
+void CPodcastFeedView::ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& /*aPodcastModel*/)
 	{
 	if (aError == KErrNone) {
-	UpdateFeedInfoStatusL(aHandle, EFalse);
-	}
+		UpdateFeedInfoStatusL(aHandle, EFalse);
+		}
 	}
 
 void CPodcastFeedView::UpdateFeedInfoDataL(CFeedInfo* aFeedInfo, TInt aIndex, TBool aIsUpdating )
