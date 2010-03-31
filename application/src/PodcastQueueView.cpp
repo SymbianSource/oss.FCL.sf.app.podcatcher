@@ -390,20 +390,11 @@ void CPodcastQueueView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aS
 		aShowInfo.PubDate().FormatL(showDate, KDateFormatShort());
 		}
 
-	if(aShowInfo.LastError() != KErrNone)
-		{
-		TBuf<KSizeBufLen> errorBuffer;
-		iEikonEnv->GetErrorText(errorBuffer, aShowInfo.LastError());
-		iListboxFormatbuffer.Format(KShowErrorFormat(), iconIndex, &aShowInfo.Title(), &errorBuffer);
-		}
-	else	
-		{
-		if (infoSize.Length() > 0) {
-			infoSize.Insert(0,_L(", "));
-		}
-		
-		iListboxFormatbuffer.Format(KShowQueueFormat(), iconIndex, &aShowInfo.Title(), &showDate, &infoSize);
-		}
+	if (infoSize.Length() > 0) {
+		infoSize.Insert(0,_L(", "));
+	}
+	
+	iListboxFormatbuffer.Format(KShowQueueFormat(), iconIndex, &aShowInfo.Title(), &showDate, &infoSize);
 	}
 
 void CPodcastQueueView::UpdateShowItemDataL(CShowInfo* aShowInfo,TInt aIndex, TInt aSizeDownloaded)
