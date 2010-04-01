@@ -594,7 +594,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 				}break;
 			}
 		
-			NotifyFeedUpdateComplete(aError);
+n			NotifyFeedUpdateComplete(aError);
 	
 			// we will wait until the image has been downloaded to start the next feed update.
 			if (iClientState == EIdle)
