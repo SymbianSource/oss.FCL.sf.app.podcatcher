@@ -78,7 +78,7 @@ public:
 
 	void RunFeedTimer();
 	
-	IMPORT_C void UpdateFeed(CFeedInfo *aItem);
+	IMPORT_C void UpdateFeedL(CFeedInfo *aItem);
 	/**
 	 * Returns the current internal state of the feed engine4
 	 */
@@ -94,7 +94,7 @@ public:
 	IMPORT_C void AddSearchResultL(CFeedInfo *item);
 	IMPORT_C const RFeedInfoArray& GetSearchResults();
 
-	IMPORT_C void OpmlParsingComplete(TInt aError, TUint aNumFeedsAdded);
+	IMPORT_C void OpmlParsingCompleteL(TInt aError, TUint aNumFeedsAdded);
 	void NotifyFeedUpdateComplete(TInt aFeedUid, TInt aError);
 protected:
 	
@@ -118,8 +118,7 @@ private:
 	void GetFeedImageL(CFeedInfo *aFeedInfo);
 	
 	void UpdateNextFeedL();
-	void NotifyFeedUpdateComplete(TInt aError);	
-	void NotifyOpmlParsingComplete(TInt aError, TUint aNumFeedsAdded);
+	void NotifyOpmlParsingCompleteL(TInt aError, TUint aNumFeedsAdded);
 
 	
 private:
@@ -128,7 +127,7 @@ private:
 	TBool DBAddFeedL(const CFeedInfo& aTtem);
 	CFeedInfo* DBGetFeedInfoByUidL(TUint aFeedUid);	
 	TUint DBGetFeedCount();
-	TBool DBUpdateFeed(const CFeedInfo& aItem);
+	TBool DBUpdateFeedL(const CFeedInfo& aItem);
 	void DBGetStatsByFeed(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed);
 
 		

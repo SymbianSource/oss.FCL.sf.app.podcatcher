@@ -63,7 +63,7 @@ class CPodcastListContainer : public CCoeControl
 		void ScrollToVisible();
     	void Draw(const TRect& aRect) const;
     	
-    	void SetLongTapDetected(TBool aLongTapDetected);
+    	void SetLongTapDetectedL(TBool aLongTapDetected);
 
     	CEikFormattedCellListBox * iListbox;		
 
@@ -87,7 +87,8 @@ public MProgressDialogCallback, public MKeyEventListener
     public: 
         ~CPodcastListView();
 		virtual void UpdateToolbar(TBool aVisible=ETrue) = 0;
-
+		TBool IsVisible();
+		
 	protected:
 	    void ConstructL();
 		CPodcastListView();	
@@ -133,9 +134,9 @@ public MProgressDialogCallback, public MKeyEventListener
 		
         void RunAboutDialogL();
         void SetEmptyTextL(TInt aResourceId);
-        void ShowOkMessage(TDesC &aText);
-        void ShowErrorMessage(TDesC &aText);
-        TInt ShowQueryMessage(TDesC &aText);
+        void ShowOkMessageL(TDesC &aText);
+        void ShowErrorMessageL(TDesC &aText);
+        TInt ShowQueryMessageL(TDesC &aText);
 		void CloseToolbarExtension();
 		void ShowWaitDialogL(TDesC &aWaitText);
 		void CloseWaitDialog();

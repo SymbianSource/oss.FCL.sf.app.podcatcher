@@ -24,7 +24,6 @@
 #include "SettingsEngine.h"
 #include <e32hashtab.h>
 #include <httperr.h>
-#include "SoundEngine.h"
 #include "debug.h"
 #include "PodcastUtils.h"
 
@@ -115,7 +114,7 @@ EXPORT_C void CShowEngine::ResumeDownloadsL()
 	DP("CShowEngine::ResumeDownloadsL END");
 	}
 
-EXPORT_C void CShowEngine::RemoveAllDownloads()
+EXPORT_C void CShowEngine::RemoveAllDownloadsL()
 	{
 	if (!iPodcastModel.SettingsEngine().DownloadSuspended())
 		{
@@ -145,7 +144,7 @@ EXPORT_C TBool CShowEngine::RemoveDownloadL(TUint aUid)
 	if (info != NULL)
 		{
 		info->SetDownloadState(ENotDownloaded);
-		DBUpdateShow(*info);
+		DBUpdateShowL(*info);
 		delete info;
 		}
 	DBRemoveDownload(aUid);
@@ -231,7 +230,7 @@ EXPORT_C TBool CShowEngine::AddShowL(const CShowInfo& aItem)
 
 	if (showInfo == NULL)
 		{
-		DBAddShow(aItem);
+		DBAddShowL(aItem);
 		return ETrue;
 		}
 	else
@@ -299,7 +298,7 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 					}
 
 				iShowDownloading->SetDownloadState(EDownloaded);
-				DBUpdateShow(*iShowDownloading);
+				DBUpdateShowL(*iShowDownloading);
 				DBRemoveDownload(iShowDownloading->Uid());
 				AddShowToMpxCollection(*iShowDownloading);				
 				NotifyShowFinishedL(aError);
@@ -313,7 +312,7 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 				if(aError >= HTTPStatus::EBadRequest && aError <= HTTPStatus::EBadRequest+200)
 					{
 					iShowDownloading->SetDownloadState(EFailedDownload);
-					DBUpdateShow(*iShowDownloading);
+					DBUpdateShowL(*iShowDownloading);
 					DBRemoveDownload(iShowDownloading->Uid());
 					NotifyShowFinishedL(aError);
 
@@ -323,7 +322,7 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 				else // other kind of error, missing network etc, reque this show
 					{
 					iShowDownloading->SetDownloadState(EQueued);
-					DBUpdateShow(*iShowDownloading);
+					DBUpdateShowL(*iShowDownloading);
 					}
 
 				iDownloadErrors++;
@@ -343,7 +342,7 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 			if(iShowDownloading)
 				{
 				iShowDownloading->SetDownloadState(EQueued);
-				DBUpdateShow(*iShowDownloading);
+				DBUpdateShowL(*iShowDownloading);
 				}
 			iPodcastModel.SettingsEngine().SetDownloadSuspended(ETrue);
 			NotifyShowFinishedL(aError);
@@ -734,7 +733,7 @@ void CShowEngine::DBFillShowInfoFromStmtL(sqlite3_stmt *st, CShowInfo* showInfo)
 	showInfo->SetLastError(lasterror);
 	}
 
-TBool CShowEngine::DBAddShow(const CShowInfo& aItem)
+TBool CShowEngine::DBAddShowL(const CShowInfo& aItem)
 	{
 	DP2("CShowEngine::DBAddShow, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 
@@ -804,7 +803,7 @@ void CShowEngine::DBAddDownload(TUint aUid)
 	sqlite3_finalize(st);
 	}
 
-TBool CShowEngine::DBUpdateShow(CShowInfo& aItem)
+TBool CShowEngine::DBUpdateShowL(CShowInfo& aItem)
 	{
 	DP1("CShowEngine::DBUpdateShow, title='%S'", &aItem.Title());
 
@@ -1058,21 +1057,16 @@ TInt CShowEngine::CompareShowsByTitle(const CShowInfo &a, const CShowInfo &b)
 		}
 	}
 
-EXPORT_C void CShowEngine::DeletePlayedShows(RShowInfoArray &aShowInfoArray)
+EXPORT_C void CShowEngine::DeletePlayedShowsL(RShowInfoArray &aShowInfoArray)
 	{
 	for (TInt i = 0; i < aShowInfoArray.Count(); i++)
 		{
 		if (aShowInfoArray[i]->PlayState() == EPlayed
 				&& aShowInfoArray[i]->FileName().Length() > 0)
 			{
-			if (CompareShowsByUid(*(iPodcastModel.PlayingPodcast()), *(aShowInfoArray[i]))
-					&& iPodcastModel.SoundEngine().State() != ESoundEngineNotInitialized)
-				{
-				iPodcastModel.SoundEngine().Stop();
-				}
 			BaflUtils::DeleteFile(iPodcastModel.FsSession(), aShowInfoArray[i]->FileName());
 			aShowInfoArray[i]->SetDownloadState(ENotDownloaded);
-			DBUpdateShow(*aShowInfoArray[i]);
+			DBUpdateShowL(*aShowInfoArray[i]);
 			}
 		}
 	}
@@ -1086,6 +1080,13 @@ EXPORT_C void CShowEngine::DeleteAllShowsByFeedL(TUint aFeedUid, TBool aDeleteFi
 
 	for (TInt i = count - 1; i >= 0; i--)
 		{
+		if (iShowDownloading && iShowDownloading->Uid() == array[i]->Uid())
+			{
+			// trying to delete the active download
+			RemoveDownloadL(iShowDownloading->Uid());
+			}
+		
+		// delete downloaded file
 		if (array[i]->FileName().Length() > 0)
 			{
 			if (aDeleteFiles)
@@ -1095,7 +1096,15 @@ EXPORT_C void CShowEngine::DeleteAllShowsByFeedL(TUint aFeedUid, TBool aDeleteFi
 			}
 		}
 	array.ResetAndDestroy();
+	
+	// delete all shows from DB
 	DBDeleteAllShowsByFeed(aFeedUid);
+
+	// this will clear out deleted shows from the download queue
+	DBGetAllDownloadsL(array);
+	array.ResetAndDestroy();
+
+	NotifyDownloadQueueUpdatedL();
 	}
 
 EXPORT_C void CShowEngine::DeleteOldShowsByFeed(TUint aFeedUid)
@@ -1116,7 +1125,7 @@ EXPORT_C void CShowEngine::DeleteShowL(TUint aShowUid, TBool aRemoveFile)
 			}
 		
 		info->SetDownloadState(ENotDownloaded);
-		DBUpdateShow(*info);
+		DBUpdateShowL(*info);
 		delete info;
 		}
 	}
@@ -1159,7 +1168,7 @@ EXPORT_C TInt CShowEngine::GetNumDownloadingShows()
 EXPORT_C void CShowEngine::AddDownloadL(CShowInfo& aInfo)
 	{
 	aInfo.SetDownloadState(EQueued);
-	DBUpdateShow(aInfo);
+	DBUpdateShowL(aInfo);
 	DBAddDownload(aInfo.Uid());
 	DownloadNextShowL();
 	}
@@ -1200,7 +1209,7 @@ void CShowEngine::DownloadNextShowL()
 				DP1("CShowEngine::DownloadNextShow\tDownloading: %S", &(info->Title()));
 				info->SetDownloadState(EDownloading);
 				info->SetLastError(KErrNone);
-				DBUpdateShow(*info);
+				DBUpdateShowL(*info);
 				iShowDownloading = info;
 				// Inform the observers
 				// important to do this after we change download state
@@ -1211,7 +1220,7 @@ void CShowEngine::DownloadNextShowL()
 					{
 					info->SetDownloadState(EFailedDownload);
 					DBRemoveDownload(info->Uid());
-					DBUpdateShow(*info);
+					DBUpdateShowL(*info);
 					info = DBGetNextDownloadL();
 					
 					if(info == NULL)
@@ -1271,10 +1280,10 @@ EXPORT_C void CShowEngine::NotifyShowListUpdatedL()
 		}
 	}
 
-void CShowEngine::ReadMetaData(CShowInfo& aShowInfo)
+void CShowEngine::ReadMetaDataL(CShowInfo& aShowInfo)
 	{
 	//DP1("Read %S", &(aShowInfo->Title()));
-	DBUpdateShow(aShowInfo);
+	DBUpdateShowL(aShowInfo);
 	}
 
 void CShowEngine::ReadMetaDataCompleteL()
@@ -1283,9 +1292,9 @@ void CShowEngine::ReadMetaDataCompleteL()
 	MetaDataReader().SetIgnoreTrackNo(EFalse);
 	}
 
-EXPORT_C void CShowEngine::UpdateShow(CShowInfo& aInfo)
+EXPORT_C void CShowEngine::UpdateShowL(CShowInfo& aInfo)
 	{
-	DBUpdateShow(aInfo);
+	DBUpdateShowL(aInfo);
 	}
 
 EXPORT_C CMetaDataReader& CShowEngine::MetaDataReader()

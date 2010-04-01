@@ -37,7 +37,6 @@ SOURCE			HttpEventHandler.cpp
 SOURCE			FeedParser.cpp 
 SOURCE			FeedEngine.cpp 
 SOURCE			ShowInfo.cpp
-SOURCE			SoundEngine.cpp
 SOURCE			FeedInfo.cpp
 SOURCE			FeedTimer.cpp
 SOURCE			ShowEngine.cpp

@@ -25,7 +25,6 @@
 #include "imagehandler.h"
 #include "PodcastShowsView.h"
 
-#include <akntitle.h>
 #include <podcast.rsg>
 #include <podcast.mbg>
 #include <gulicon.h>
@@ -127,12 +126,15 @@ void CPodcastQueueView::ConstructL()
 	
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);
-	
+
+	// no popup options apply to S^1
+#ifndef SYMBIAN1_UI
 	iStylusPopupMenu = CAknStylusPopUpMenu::NewL( this , TPoint(0,0));
 	TResourceReader reader;
 	iCoeEnv->CreateResourceReaderLC(reader,R_QUEUEVIEW_POPUP_MENU);
 	iStylusPopupMenu->ConstructFromResourceL(reader);
 	CleanupStack::PopAndDestroy();
+#endif
 	SetEmptyTextL(R_PODCAST_EMPTY_QUEUE);
 	}
 
@@ -200,7 +202,7 @@ void CPodcastQueueView::DoActivateL(const TVwsViewId& aPrevViewId,
 	DP("CPodcastQueueView::DoActivateL BEGIN");
 	
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
-	iPreviousView = TVwsViewId(KUidPodcast, KUidPodcastFeedViewID);
+	iPreviousView = aPrevViewId;
 	
 	UpdateFeedUpdateStateL();
 	UpdateToolbar();
@@ -249,7 +251,7 @@ void CPodcastQueueView::ShowDownloadFinishedL(TUint /*aShowUid*/, TInt aError)
 				{
 				TBuf<KMaxMessageLength> message;
 				iEikonEnv->ReadResourceL(message, R_PODCAST_CONNECTION_ERROR);
-				ShowErrorMessage(message);
+				ShowErrorMessageL(message);
 				}
 				break;
 			default: // Do nothing
@@ -388,20 +390,11 @@ void CPodcastQueueView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aS
 		aShowInfo.PubDate().FormatL(showDate, KDateFormatShort());
 		}
 
-	if(aShowInfo.LastError() != KErrNone)
-		{
-		TBuf<KSizeBufLen> errorBuffer;
-		iEikonEnv->GetErrorText(errorBuffer, aShowInfo.LastError());
-		iListboxFormatbuffer.Format(KShowErrorFormat(), iconIndex, &aShowInfo.Title(), &errorBuffer);
-		}
-	else	
-		{
-		if (infoSize.Length() > 0) {
-			infoSize.Insert(0,_L(", "));
-		}
-		
-		iListboxFormatbuffer.Format(KShowQueueFormat(), iconIndex, &aShowInfo.Title(), &showDate, &infoSize);
-		}
+	if (infoSize.Length() > 0) {
+		infoSize.Insert(0,_L(", "));
+	}
+	
+	iListboxFormatbuffer.Format(KShowQueueFormat(), iconIndex, &aShowInfo.Title(), &showDate, &infoSize);
 	}
 
 void CPodcastQueueView::UpdateShowItemDataL(CShowInfo* aShowInfo,TInt aIndex, TInt aSizeDownloaded)
@@ -517,9 +510,9 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			TBuf<KMaxMessageLength> msg;
 			iEikonEnv->ReadResourceL(msg, R_CLEAR_QUERY);
 												
-			if(ShowQueryMessage(msg))
+			if(ShowQueryMessageL(msg))
 				{
-				iPodcastModel.ShowEngine().RemoveAllDownloads();
+				iPodcastModel.ShowEngine().RemoveAllDownloadsL();
 				UpdateListboxItemsL();
 				}
 			}
@@ -559,6 +552,7 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			CPodcastListView::HandleCommandL(aCommand);
 			break;
 		}
+	iListContainer->SetLongTapDetectedL(EFalse); // in case we got here by long tapping
 	UpdateToolbar();
 	}
 	

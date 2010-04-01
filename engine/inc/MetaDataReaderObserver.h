@@ -21,7 +21,7 @@
 
 class MMetaDataReaderObserver {
 public:
-	virtual void ReadMetaData(CShowInfo& aShowInfo) = 0;
+	virtual void ReadMetaDataL(CShowInfo& aShowInfo) = 0;
 	virtual void ReadMetaDataCompleteL() = 0;
 };
 
