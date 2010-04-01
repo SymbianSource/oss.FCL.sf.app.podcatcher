@@ -277,7 +277,7 @@ void CFeedEngine::GetFeedImageL(CFeedInfo *aFeedInfo)
 	
 	// complete file path is base dir + rel path
 	filePath.Append(relPath);
-	aFeedInfo->SetImageFileNameL(filePath);
+	aFeedInfo->SetImageFileNameL(filePath, NULL);
 
 	if(iFeedClient->GetL(aFeedInfo->ImageUrl(), filePath, ETrue))
 		{
@@ -916,7 +916,7 @@ void CFeedEngine::DBLoadFeedsL()
 
 			const void *imagefilez = sqlite3_column_text16(st, 4);
 			TPtrC16 imagefile((const TUint16*)imagefilez);
-			feedInfo->SetImageFileNameL(imagefile);
+			feedInfo->SetImageFileNameL(imagefile, &iPodcastModel);
 						
 			const void *linkz = sqlite3_column_text16(st, 5);
 			TPtrC16 link((const TUint16*)linkz);
