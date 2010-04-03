@@ -29,7 +29,7 @@
 #include "debug.h"
 #include "..\help\podcatcher.hlp.hrh"
 #include "PodcastApp.h"
-
+#include <APGWGNAM.H>
 #include <HLPLCH.H>
 #include <avkon.hrh>
 
@@ -127,9 +127,30 @@ void CPodcastAppUi::HandleCommandL( TInt aCommand )
             }
         case EEikCmdExit:
         	{
-			TApaTask task(iEikonEnv->WsSession());
-			task.SetWgId(iEikonEnv->RootWin().Identifier());
-			task.SendToBackground(); 
+        	// we want to prevent red button from closing podcatcher, and
+        	// instead we send it to background
+        	// however, we want to respect the task manager (fast swap) close
+        	// command, so we check if task manager is the focussed window group
+        	
+        	RWsSession& ws = iEikonEnv->WsSession();
+			TInt wgid = ws.GetFocusWindowGroup();
+			CApaWindowGroupName* gn = CApaWindowGroupName::NewLC(ws, wgid);
+			TUid activeAppUid = gn->AppUid();
+			CleanupStack::PopAndDestroy(gn);
+        	
+			const TUid KUidFastSwap = { 0x10207218 };
+			if (activeAppUid == KUidFastSwap)
+				{
+				// closed by task manager
+				Exit();
+				}
+			else
+        		{
+        		// red button pressed
+				TApaTask task(iEikonEnv->WsSession());
+				task.SetWgId(iEikonEnv->RootWin().Identifier());
+				task.SendToBackground(); 
+        		}   		
 			break;
         	}
 	case EPodcastHelp:
