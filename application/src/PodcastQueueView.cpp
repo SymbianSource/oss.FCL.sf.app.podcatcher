@@ -587,6 +587,7 @@ void CPodcastQueueView::UpdateToolbar(TBool aVisible)
 
 void CPodcastQueueView::DownloadQueueUpdatedL(TInt /*aDownloadingShows*/, TInt /*aQueuedShows*/)
 	{
+	UpdateListboxItemsL();
 	}
 
 void CPodcastQueueView::FeedUpdateAllCompleteL(TFeedState /*aState*/)

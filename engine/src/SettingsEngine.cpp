@@ -222,11 +222,8 @@ TFileName CSettingsEngine::ImportFeedsFileName()
 TFileName CSettingsEngine::PrivatePath()
 	{
 	TFileName privatePath;
-#ifdef __WINS__
 	iPodcastModel.FsSession().PrivatePath(privatePath);
-#else	
-	privatePath = _L("e:\\pod\\");
-#endif
+
 	TRAP_IGNORE(BaflUtils::EnsurePathExistsL(iPodcastModel.FsSession(), privatePath));
 	return privatePath;
 	}
