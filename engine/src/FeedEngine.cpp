@@ -148,7 +148,7 @@ EXPORT_C void CFeedEngine::UpdateAllFeedsL(TBool aAutoUpdate)
 	TInt cnt = iSortedFeeds.Count();
 	for (int i=0;i<cnt;i++)
 		{
-		iFeedsUpdating.Append(iSortedFeeds[i]);
+		iFeedsUpdating.Append(iSortedFeeds[i]->Uid());
 		}
 
 	UpdateNextFeedL();
@@ -168,20 +168,31 @@ void CFeedEngine::UpdateNextFeedL()
 	{
 	DP1("UpdateNextFeed. %d feeds left to update", iFeedsUpdating.Count());
 	
+	// reset active feed, will be set again in UpdateFeedL if needed
+	iActiveFeed = NULL;
+	
 	if (iFeedsUpdating.Count() > 0)
 		{
-		CFeedInfo *info = iFeedsUpdating[0];
+		CFeedInfo *info = GetFeedInfoByUid(iFeedsUpdating[0]);
 		iFeedsUpdating.Remove(0);
-		TBool result = EFalse;
-		//DP2("** UpdateNextFeed: %S, ID: %u", &(info->Url()), info->Uid());
-		TRAPD(error, result = UpdateFeedL(info->Uid()));
 		
-		if (error != KErrNone || !result)
+		if (info == NULL)
 			{
-			DP("Error while updating all feeds");
-			for (TInt i=0;i<iObservers.Count();i++) 
+			UpdateNextFeedL();
+			}
+		else
+			{
+			TBool result = EFalse;
+			//DP2("** UpdateNextFeed: %S, ID: %u", &(info->Url()), info->Uid());
+			TRAPD(error, result = UpdateFeedL(info->Uid()));
+			
+			if (error != KErrNone || !result)
 				{
-				TRAP_IGNORE(iObservers[i]->FeedUpdateAllCompleteL(iAutoUpdatedInitiator?MFeedEngineObserver::EFeedAutoUpdate:MFeedEngineObserver::EFeedManualUpdate));
+				DP("Error while updating all feeds");
+				for (TInt i=0;i<iObservers.Count();i++) 
+					{
+					TRAP_IGNORE(iObservers[i]->FeedUpdateAllCompleteL(iAutoUpdatedInitiator?MFeedEngineObserver::EFeedAutoUpdate:MFeedEngineObserver::EFeedManualUpdate));
+					}
 				}
 			}
 		}
@@ -198,6 +209,12 @@ void CFeedEngine::UpdateNextFeedL()
 EXPORT_C TBool CFeedEngine::UpdateFeedL(TUint aFeedUid)
 	{
 	DP("FeedEngine::UpdateFeedL BEGIN");
+	
+	if (iActiveFeed)
+		{
+		User::Leave(KErrInUse);
+		}
+	
 	iActiveFeed = GetFeedInfoByUid(aFeedUid);
 	iCatchupCounter = 0;
 	iCancelRequested = EFalse;
@@ -363,6 +380,11 @@ TBool CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 
 EXPORT_C void CFeedEngine::RemoveFeedL(TUint aUid) 
 	{
+	if (iActiveFeed && iActiveFeed->Uid() == aUid)
+		{
+		User::Leave(KErrInUse);
+		}
+	
 	for (int i=0;i<iSortedFeeds.Count();i++) 
 		{
 		if (iSortedFeeds[i]->Uid() == aUid) 
@@ -510,16 +532,6 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 
 	switch(iClientState)
 		{		
-		default:
-			if(iActiveFeed != NULL)
-				{
-				TTime time;
-				time.HomeTime();
-				iActiveFeed->SetLastUpdated(time);
-				iActiveFeed->SetLastError(aError);
-				NotifyFeedUpdateComplete(iActiveFeed->Uid(), aError);
-				}
-			break;
 		case EUpdatingFeed: 
 		{
 		// Parse the feed. We need to trap this call since it could leave and then
@@ -633,6 +645,9 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 			
 			BaflUtils::DeleteFile(iPodcastModel.FsSession(), iSearchResultsFileName);
 			}break;
+		default:
+			User::Panic(_L("FeedEngine"), KErrUnknown);
+			break;
 		}
 	DP("CFeedEngine::CompleteL END");
 	}
@@ -1020,8 +1035,13 @@ CFeedInfo* CFeedEngine::DBGetFeedInfoByUidL(TUint aFeedUid)
 	return feedInfo;
 }
 
-EXPORT_C void CFeedEngine::UpdateFeedL(CFeedInfo *aItem)
+EXPORT_C void CFeedEngine::UpdateFeedInfoL(CFeedInfo *aItem)
 	{
+	if (iActiveFeed && iActiveFeed->Uid() == aItem->Uid())
+		{
+		User::Leave(KErrInUse);
+		}
+	
 	DBUpdateFeedL(*aItem);
 	}
 

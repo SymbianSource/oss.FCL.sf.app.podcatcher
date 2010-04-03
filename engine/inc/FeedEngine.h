@@ -78,7 +78,7 @@ public:
 
 	void RunFeedTimer();
 	
-	IMPORT_C void UpdateFeedL(CFeedInfo *aItem);
+	IMPORT_C void UpdateFeedInfoL(CFeedInfo *aItem);
 	/**
 	 * Returns the current internal state of the feed engine4
 	 */
@@ -147,7 +147,7 @@ private:
 	CFeedInfo *iActiveFeed;
 	TFileName iUpdatingFeedFileName;
 	TFileName iSearchResultsFileName;
-	RFeedInfoArray iFeedsUpdating;
+	RArray<TUint> iFeedsUpdating;
 	
 	// observers that will receive callbacks, not owning
     RArray<MFeedEngineObserver*> iObservers;

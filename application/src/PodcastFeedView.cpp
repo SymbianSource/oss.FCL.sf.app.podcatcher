@@ -696,7 +696,7 @@ void CPodcastFeedView::HandleEditFeedL()
 				{
 					info->SetTitleL(title);
 					info->SetCustomTitle();	
-					iPodcastModel.FeedEngine().UpdateFeedL(info);
+					iPodcastModel.FeedEngine().UpdateFeedInfoL(info);
 					UpdateListboxItemsL();
 				}
 			}
@@ -954,10 +954,6 @@ void CPodcastFeedView::GetFeedErrorText(TDes &aErrorMessage, TInt aErrorCode)
 void CPodcastFeedView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
 {
 	DP("CPodcastListView::HandleLongTapEventL BEGIN");
-
-	if (iUpdatingAllRunning) {
-		return; // we don't allow feed manipulation while update is running
-	}
 
 	iListContainer->SetLongTapDetectedL(ETrue);
 
