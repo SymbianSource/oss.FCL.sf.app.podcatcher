@@ -27,6 +27,7 @@
 #include "PodcastUtils.h"
 #include <utf.h>
 
+_LIT(KFeedParseStorePath, "feeds\\");
 // Cleanup stack macro for SQLite3
 // TODO Move this to some common place.
 static void Cleanup_sqlite3_finalize_wrapper(TAny* handle)
@@ -66,6 +67,15 @@ void CFeedEngine::ConstructL()
 		if (BaflUtils::FileExists(iPodcastModel.FsSession(), defaultFile)) {
 			ImportFeedsL(defaultFile);
 		}
+	} else {
+		// clean out feeds temp directory
+		TFileName feedTempPath;
+		feedTempPath.Copy (iPodcastModel.SettingsEngine().PrivatePath ());
+		feedTempPath.Append(KFeedParseStorePath);
+		feedTempPath.Append(_L("*"));
+
+		BaflUtils::EnsurePathExistsL(iPodcastModel.FsSession(), feedTempPath);
+		BaflUtils::DeleteFile(iPodcastModel.FsSession(),feedTempPath);
 	}
     
     TFileName importFile = iPodcastModel.SettingsEngine().ImportFeedsFileName();
@@ -229,6 +239,9 @@ EXPORT_C TBool CFeedEngine::UpdateFeedL(TUint aFeedUid)
 	DBUpdateFeedL(*iActiveFeed);
 	
 	iUpdatingFeedFileName.Copy (iPodcastModel.SettingsEngine().PrivatePath ());
+	iUpdatingFeedFileName.Append(KFeedParseStorePath);
+	BaflUtils::EnsurePathExistsL(iPodcastModel.FsSession(), iUpdatingFeedFileName);
+	
 	_LIT(KFileNameFormat, "%lu.xml");
 	iUpdatingFeedFileName.AppendFormat(KFileNameFormat, aFeedUid);
 	
