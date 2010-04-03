@@ -25,8 +25,9 @@
 #include <podcast.rsg>
 #include "SettingsEngine.h"
 
-#include <caknfileselectiondialog.h> 
-#include <caknmemoryselectiondialog.h> 
+//#include <caknfileselectiondialog.h> 
+//#include <caknmemoryselectiondialogmultidrive.h> 
+#include <akncommondialogsdynmem.h> 
 #include <pathinfo.h>
 
 
@@ -289,42 +290,26 @@ public:
 		{
 		DP("EditItemL BEGIN");
 		if (aIndex == 0) {
-			CAknMemorySelectionDialog* memDlg = 
-				CAknMemorySelectionDialog::NewL(ECFDDialogTypeNormal, ETrue);
-			CleanupStack::PushL(memDlg);
-			CAknMemorySelectionDialog::TMemory memory = 
-				CAknMemorySelectionDialog::EPhoneMemory;
-	
-			if (memDlg->ExecuteL(memory))
-				{
-				TFileName importName;
+			TFileName selectedFolder;
+			selectedFolder.Copy(iShowDir);
+			TFileName startFolder;
+			startFolder.Zero();
+			TInt types = AknCommonDialogsDynMem::EMemoryTypePhone | AknCommonDialogsDynMem::EMemoryTypeMMC |AknCommonDialogsDynMem::EMemoryTypeInternalMassStorage| AknCommonDialogsDynMem::EMemoryTypeRemote;
 			
-				if (memory==CAknMemorySelectionDialog::EMemoryCard)
+			HBufC *title = iCoeEnv->AllocReadResourceLC(R_PODCAST_SETTING_DIRECTORY);
+			if (AknCommonDialogsDynMem::RunFolderSelectDlgLD (types, selectedFolder,
+					startFolder, NULL, NULL, *title))
 				{
-					importName = PathInfo:: MemoryCardRootPath();
-				}
-				else
-				{
-					importName = PathInfo:: PhoneMemoryRootPath();
-				}
-	
-				CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeSave, R_PODCAST_SHOWDIR_SELECTOR);
-				HBufC* select = iEikonEnv->AllocReadResourceLC(R_PODCAST_SOFTKEY_SELECT);
-				dlg->SetLeftSoftkeyFileL(*select);
-				CleanupStack::PopAndDestroy(select);
-				CleanupStack::PushL(dlg);
-	
-				dlg->SetDefaultFolderL(importName);
-				
-				if(dlg->ExecuteL(importName))
+				_LIT(KPodcastsDir, "Podcasts");
+				if (selectedFolder.Find(KPodcastsDir) != selectedFolder.Length()-9)
 					{
-					importName.Append(_L("Podcasts"));
-					iShowDir.Copy(importName);
-					LoadSettingsL();
+					// append "Podcasts" if the folder isn't already called this
+					selectedFolder.Append(KPodcastsDir);
 					}
-				CleanupStack::PopAndDestroy(dlg);
+				iShowDir.Copy(selectedFolder);
+				LoadSettingsL();
 				}
-			CleanupStack::PopAndDestroy(memDlg);								
+			CleanupStack::PopAndDestroy(title);
 			}
 		else {
 			CAknSettingItemList::EditItemL(aIndex,aCalledFromMenu);

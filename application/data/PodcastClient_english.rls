@@ -50,7 +50,7 @@ rls_string STRING_r_exit_shows_downloading "Shows are being downloaded. Exit any
 
 // Settings view
 rls_string STRING_r_podcast_settings_title "Settings"
-rls_string STRING_r_podcast_setting_showdir "Podcast directory"
+rls_string STRING_r_podcast_setting_showdir "Podcast folder"
 rls_string STRING_r_podcast_setting_autoupdate "Automatic update"
 rls_string STRING_r_podcast_setting_autodownload "Automatic download"
 rls_string STRING_r_podcast_setting_connection "Connection"
@@ -58,6 +58,7 @@ rls_string STRING_r_podcast_setting_default "Use default"
 rls_string STRING_r_podcast_setting_alwaysask "Always ask"
 rls_string STRING_r_podcast_setting_useiap "Select access point"
 rls_string STRING_r_podcast_setting_iaplist "Access points"
+rls_string STRING_r_podcast_setting_directory "Select folder"
 rls_string STRING_r_on "On"
 rls_string STRING_r_off "Off"
 
