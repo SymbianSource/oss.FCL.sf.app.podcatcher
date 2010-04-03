@@ -247,6 +247,11 @@ EXPORT_C CFbsBitmap* CFeedInfo::FeedIcon() const
 
 EXPORT_C void CFeedInfo::SetFeedIcon(CFbsBitmap* aBitmapToClone)
 	{
+	if (iFeedIcon)
+		{
+		delete iFeedIcon;
+		}
+	
 	iFeedIcon->Duplicate(aBitmapToClone->Handle());
 	}
 

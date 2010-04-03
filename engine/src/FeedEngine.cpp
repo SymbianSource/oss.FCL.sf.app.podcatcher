@@ -216,12 +216,13 @@ EXPORT_C TBool CFeedEngine::UpdateFeedL(TUint aFeedUid)
 		}
 	
 	iActiveFeed = GetFeedInfoByUid(aFeedUid);
-	iCatchupCounter = 0;
+	
 	iCancelRequested = EFalse;
 
 	if (iActiveFeed->LastUpdated() == 0)
 		{
 		iCatchupMode = ETrue;
+		iCatchupCounter = 0;
 		}
 	
 	iActiveFeed->SetLastError(KErrNone);
@@ -534,9 +535,6 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 		{		
 		case EUpdatingFeed: 
 		{
-		// Parse the feed. We need to trap this call since it could leave and then
-		// the whole update chain will be broken
-		// change client state
 		iClientState = EIdle;
 		switch (aError)
 			{
@@ -557,7 +555,10 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 					iActiveFeed->SetLastUpdated(time);
 	
 					if( aError == KErrNone)
-						{			
+						{
+						// Parse the feed. We need to trap this call since it could leave and then
+						// the whole update chain will be broken
+						// change client state
 						TRAPD(parserErr, iParser->ParseFeedL(iUpdatingFeedFileName, iActiveFeed, iPodcastModel.SettingsEngine().MaxListItems()));
 	
 						if(parserErr)
@@ -619,7 +620,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 					TRAP_IGNORE(iPodcastModel.ImageHandler().LoadFileAndScaleL(iActiveFeed->FeedIcon(), iActiveFeed->ImageFileName(), TSize(64,56), *iActiveFeed, iActiveFeed->Uid()));
 					}				
 				}
-			
+			DBUpdateFeedL(*iActiveFeed);
 			NotifyFeedUpdateComplete(iActiveFeed->Uid(), aError);
 			UpdateNextFeedL();
 			}break;

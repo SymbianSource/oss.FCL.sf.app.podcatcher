@@ -301,11 +301,18 @@ public:
 					startFolder, NULL, NULL, *title))
 				{
 				_LIT(KPodcastsDir, "Podcasts");
-				if (selectedFolder.Find(KPodcastsDir) != selectedFolder.Length()-9)
+				TInt pos = selectedFolder.Find(KPodcastsDir);
+				if (pos == KErrNotFound || pos != selectedFolder.Length()-9)
 					{
 					// append "Podcasts" if the folder isn't already called this
 					selectedFolder.Append(KPodcastsDir);
 					}
+				
+				if (selectedFolder[selectedFolder.Length()-1] != '\\')
+					{
+					selectedFolder.Append(_L("\\"));
+					}
+				
 				iShowDir.Copy(selectedFolder);
 				LoadSettingsL();
 				}
