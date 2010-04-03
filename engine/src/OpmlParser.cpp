@@ -96,7 +96,15 @@ void COpmlParser::OnStartElementL(const RTagInfo& aElement, const RAttributeArra
 		if(str.CompareF(KTagOutline) == 0) {
 			iOpmlState = EStateOpmlOutline;
 		}
-		break;
+		
+		// there are two variations on OPML, where the <outline> tags sit either
+		// directly below <body>, or inside a collective <body> <outline>
+		// by checking if the <body> <outline> has arguments, we can support both
+		// by falling through to the nextstate
+		if (aAttributes.Count() == 0)
+			{
+			break;
+			}
 	case EStateOpmlOutline:
 		// <body> <outline> <outline...
 		if(str.CompareF(KTagOutline) == 0) {
