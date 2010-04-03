@@ -29,10 +29,10 @@
 #include <podcast.mbg>
 #include <gulicon.h>
 #include <aknquerydialog.h>
-#include <caknmemoryselectiondialog.h> 
-#include <caknfilenamepromptdialog.h> 
 #include <BAUTILS.H> 
 #include <pathinfo.h> 
+#include <akncommondialogsdynmem.h> 
+
 
 const TInt KMaxFeedNameLength = 100;
 const TInt KMaxUnplayedFeedsLength =64;
@@ -743,114 +743,72 @@ void CPodcastFeedView::HandleUpdateFeedL()
 
 void CPodcastFeedView::HandleImportFeedsL()
 	{
-	CAknMemorySelectionDialog* memDlg = 
-		CAknMemorySelectionDialog::NewL(ECFDDialogTypeNormal, ETrue);
-	CleanupStack::PushL(memDlg);
-	CAknMemorySelectionDialog::TMemory memory = 
-		CAknMemorySelectionDialog::EPhoneMemory;
-
-	if (memDlg->ExecuteL(memory))
-		{
-		TFileName importName;
+	TFileName fileName;
+	fileName.Zero();
+	TFileName startFolder;
+	startFolder.Zero();
+	TInt types = AknCommonDialogsDynMem::EMemoryTypePhone | AknCommonDialogsDynMem::EMemoryTypeMMC |AknCommonDialogsDynMem::EMemoryTypeInternalMassStorage| AknCommonDialogsDynMem::EMemoryTypeRemote;
 	
-		if (memory==CAknMemorySelectionDialog::EMemoryCard)
+	HBufC *title = iCoeEnv->AllocReadResourceLC(R_PODCAST_SELECT_OPML);
+	if (AknCommonDialogsDynMem::RunSelectDlgLD (types, fileName,
+			startFolder, NULL, NULL, *title))
 		{
-			importName = PathInfo:: MemoryCardRootPath();
-		}
-		else
-		{
-			importName = PathInfo:: PhoneMemoryRootPath();
-		}
-
-		CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeNormal, R_PODCAST_IMPORT_PODCAST);
-		CleanupStack::PushL(dlg);
-
-		dlg->SetDefaultFolderL(importName);
 		
-		if(dlg->ExecuteL(importName))
+		if(fileName.Length()>0)
 			{
-			if(importName.Length()>0)
-				{
-				HBufC *waitText = iEikonEnv->AllocReadResourceLC(R_IMPORTING);
-				iOpmlState = EOpmlImporting;
-				ShowWaitDialogL(*waitText);
-				CleanupStack::PopAndDestroy(waitText);	
+			HBufC *waitText = iEikonEnv->AllocReadResourceLC(R_IMPORTING);
+			iOpmlState = EOpmlImporting;
+			ShowWaitDialogL(*waitText);
+			CleanupStack::PopAndDestroy(waitText);	
 
-				TRAPD(err, iPodcastModel.FeedEngine().ImportFeedsL(importName));
-									
-				if (err != KErrNone) {
-					TBuf<KMaxMessageLength> message;
-					iEikonEnv->ReadResourceL(message, R_IMPORT_FEED_FAILURE);
-					ShowErrorMessageL(message);
-					}
+			TRAPD(err, iPodcastModel.FeedEngine().ImportFeedsL(fileName));
+								
+			if (err != KErrNone) {
+				TBuf<KMaxMessageLength> message;
+				iEikonEnv->ReadResourceL(message, R_IMPORT_FEED_FAILURE);
+				ShowErrorMessageL(message);
 				}
-				
 			}
-		CleanupStack::PopAndDestroy(dlg);
+
 		}
-	CleanupStack::PopAndDestroy(memDlg);
+	CleanupStack::PopAndDestroy(title);
 	}
 
 void CPodcastFeedView::HandleExportFeedsL()
 	{
-	CAknMemorySelectionDialog* memDlg = 
-		CAknMemorySelectionDialog::NewL(ECFDDialogTypeSave, ETrue);
-	CleanupStack::PushL(memDlg);
-	CAknMemorySelectionDialog::TMemory memory = 
-		CAknMemorySelectionDialog::EPhoneMemory;
-
-	if (memDlg->ExecuteL(memory))
+	TFileName fileName;
+	fileName.Copy(_L("feeds.opml"));
+	TFileName startFolder;
+	startFolder.Zero();
+	TInt types = AknCommonDialogsDynMem::EMemoryTypePhone | AknCommonDialogsDynMem::EMemoryTypeMMC |AknCommonDialogsDynMem::EMemoryTypeInternalMassStorage| AknCommonDialogsDynMem::EMemoryTypeRemote;
+	
+	HBufC *title = iCoeEnv->AllocReadResourceLC(R_PODCAST_SELECT_FOLDER);
+	if (AknCommonDialogsDynMem::RunSaveDlgLD (types, fileName,
+			startFolder, NULL, NULL, *title))
 		{
-		TFileName pathName;
-		
-		if (memory==CAknMemorySelectionDialog::EMemoryCard)
-		{
-			pathName = PathInfo::MemoryCardRootPath();
-		}
-		else
-		{
-			pathName = PathInfo::PhoneMemoryRootPath();
-		}
-
-		CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeSave, R_PODCAST_EXPORT_FEEDS);
-		CleanupStack::PushL(dlg);
-								
-		if(dlg->ExecuteL(pathName))
-			{
-			CAknFileNamePromptDialog *fileDlg = CAknFileNamePromptDialog::NewL(R_PODCAST_FILENAME_PROMPT_DIALOG);
-			CleanupStack::PushL(fileDlg);
-			fileDlg->SetPathL(pathName);
-			TFileName fileName;
-			if (fileDlg->ExecuteL(fileName) && fileName.Length() > 0)
+			TFileName temp;
+			TRAPD(err, iPodcastModel.FeedEngine().ExportFeedsL(temp));						
+			BaflUtils::CopyFile(iEikonEnv->FsSession(), temp, fileName);
+			BaflUtils::DeleteFile(iEikonEnv->FsSession(),temp);	
+			if (err == KErrNone) 
 				{
-				pathName.Append(fileName);
-				TFileName temp;
-				TRAPD(err, iPodcastModel.FeedEngine().ExportFeedsL(temp));						
-				BaflUtils::CopyFile(iEikonEnv->FsSession(), temp, pathName);
-				BaflUtils::DeleteFile(iEikonEnv->FsSession(),temp);	
-				if (err == KErrNone) 
-					{
-					UpdateListboxItemsL();
-					TInt numFeeds = iPodcastModel.FeedEngine().GetSortedFeeds().Count();
-									
-					TBuf<KMaxMessageLength> message;
-					TBuf<KMaxMessageLength> templ;
-					iEikonEnv->ReadResourceL(templ, R_EXPORT_FEED_SUCCESS);
-					message.Format(templ, numFeeds);
-					ShowOkMessageL(message);
-					} 
-				else 
-					{
-					TBuf<KMaxMessageLength> message;
-					iEikonEnv->ReadResourceL(message, R_EXPORT_FEED_FAILURE);
-					ShowErrorMessageL(message);
-					}
+				UpdateListboxItemsL();
+				TInt numFeeds = iPodcastModel.FeedEngine().GetSortedFeeds().Count();
+								
+				TBuf<KMaxMessageLength> message;
+				TBuf<KMaxMessageLength> templ;
+				iEikonEnv->ReadResourceL(templ, R_EXPORT_FEED_SUCCESS);
+				message.Format(templ, numFeeds);
+				ShowOkMessageL(message);
+				} 
+			else 
+				{
+				TBuf<KMaxMessageLength> message;
+				iEikonEnv->ReadResourceL(message, R_EXPORT_FEED_FAILURE);
+				ShowErrorMessageL(message);
 				}
-			CleanupStack::PopAndDestroy(fileDlg);
-			}
-		CleanupStack::PopAndDestroy(dlg);
-	}
-	CleanupStack::PopAndDestroy(memDlg);									
+		}
+	CleanupStack::PopAndDestroy(title);
 	}
 
 void CPodcastFeedView::CheckResumeDownloadL()
@@ -948,7 +906,39 @@ void CPodcastFeedView::DialogDismissedL(TInt /*aButtonId*/)
 
 void CPodcastFeedView::GetFeedErrorText(TDes &aErrorMessage, TInt aErrorCode)
 	{
-	iEikonEnv->GetErrorText(aErrorMessage, aErrorCode);
+	switch (aErrorCode)
+		{
+		case -1:
+			{
+			HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_INVALID_ADDRESS);
+			aErrorMessage.Copy(*error);
+			CleanupStack::PopAndDestroy(error);
+			}
+			break;
+		case 404:
+			{
+			HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_NOTFOUND);
+			aErrorMessage.Copy(*error);
+			CleanupStack::PopAndDestroy(error);
+			}
+			break;
+		default:
+			{
+			if (aErrorCode > 200)
+				{
+				HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_HTTP);
+				aErrorMessage.Format(*error, aErrorCode);
+				CleanupStack::PopAndDestroy(error);
+				}
+			else
+				{
+				HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_GENERAL);
+				aErrorMessage.Format(*error, aErrorCode);
+				CleanupStack::PopAndDestroy(error);
+				}
+			}
+			break;
+		}
 	}
 
 void CPodcastFeedView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)

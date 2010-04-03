@@ -599,7 +599,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 				iCancelRequested = EFalse;
 				}break;
 			}
-		
+			DBUpdateFeedL(*iActiveFeed);
 			NotifyFeedUpdateComplete(iActiveFeed->Uid(), aError);
 
 			// we will wait until the image has been downloaded to start the next feed update.

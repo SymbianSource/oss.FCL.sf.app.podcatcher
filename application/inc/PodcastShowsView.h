@@ -103,7 +103,7 @@ private:
 	void DisplayShowInfoDialogL();
 	void HandleSetShowPlayedL(TBool aPlayed);
 	void HandleDeleteShowL();
-	void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel) {}
+	void ImageOperationCompleteL(TInt /* aError */, TUint /* aHandle */, CPodcastModel& /* aPodcastModel */) {}
 	void HandleSetShowPlayed(TBool aPlayed);
 	void HandleDeleteShow();
 	void UpdateViewTitleL();

@@ -444,7 +444,39 @@ void CPodcastShowsView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aS
 
 void CPodcastShowsView::GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode)
 	{
-	iEikonEnv->GetErrorText(aErrorMessage, aErrorCode);
+	switch (aErrorCode)
+		{
+		case -1:
+			{
+			HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_INVALID_ADDRESS);
+			aErrorMessage.Copy(*error);
+			CleanupStack::PopAndDestroy(error);
+			}
+			break;
+		case 404:
+			{
+			HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_NOTFOUND);
+			aErrorMessage.Copy(*error);
+			CleanupStack::PopAndDestroy(error);
+			}
+			break;
+		default:
+			{
+			if (aErrorCode > 200)
+				{
+				HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_HTTP);
+				aErrorMessage.Format(*error, aErrorCode);
+				CleanupStack::PopAndDestroy(error);
+				}
+			else
+				{
+				HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_GENERAL);
+				aErrorMessage.Format(*error, aErrorCode);
+				CleanupStack::PopAndDestroy(error);
+				}
+			}
+			break;
+		}
 	}
 
 void CPodcastShowsView::UpdateShowItemDataL(CShowInfo* aShowInfo,TInt aIndex, TInt aSizeDownloaded)

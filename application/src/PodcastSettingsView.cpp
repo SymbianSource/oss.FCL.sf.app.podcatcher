@@ -25,8 +25,6 @@
 #include <podcast.rsg>
 #include "SettingsEngine.h"
 
-//#include <caknfileselectiondialog.h> 
-//#include <caknmemoryselectiondialogmultidrive.h> 
 #include <akncommondialogsdynmem.h> 
 #include <pathinfo.h>
 
@@ -296,7 +294,7 @@ public:
 			startFolder.Zero();
 			TInt types = AknCommonDialogsDynMem::EMemoryTypePhone | AknCommonDialogsDynMem::EMemoryTypeMMC |AknCommonDialogsDynMem::EMemoryTypeInternalMassStorage| AknCommonDialogsDynMem::EMemoryTypeRemote;
 			
-			HBufC *title = iCoeEnv->AllocReadResourceLC(R_PODCAST_SETTING_DIRECTORY);
+			HBufC *title = iCoeEnv->AllocReadResourceLC(R_PODCAST_SELECT_FOLDER);
 			if (AknCommonDialogsDynMem::RunFolderSelectDlgLD (types, selectedFolder,
 					startFolder, NULL, NULL, *title))
 				{

@@ -64,4 +64,10 @@ RESOURCE TBUF r_exporting {buf=STRING_r_exporting;}
 RESOURCE TBUF r_exit_shows_downloading {buf=STRING_r_exit_shows_downloading;}
 RESOURCE TBUF r_search_results {buf=STRING_r_search_results;}
 RESOURCE TBUF r_podcast_no_feeds {buf=STRING_r_podcast_no_feeds;}
-RESOURCE TBUF r_podcast_setting_directory {buf = STRING_r_podcast_setting_directory;}
+RESOURCE TBUF r_podcast_select_folder {buf = STRING_r_podcast_select_folder;}
+RESOURCE TBUF r_podcast_select_opml {buf = STRING_r_view_import_feeds_title;}
+
+RESOURCE TBUF r_error_notfound {buf=STRING_r_error_notfound;}
+RESOURCE TBUF r_error_general {buf=STRING_r_error_general;}
+RESOURCE TBUF r_error_http {buf=STRING_r_error_http;}
+RESOURCE TBUF r_error_invalid_address {buf=STRING_r_error_invalid_address;}
