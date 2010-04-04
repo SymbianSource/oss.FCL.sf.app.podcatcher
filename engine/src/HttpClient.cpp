@@ -14,6 +14,7 @@
 #include "HttpClient.h"
 #include "connectionengine.h"
 #include "settingsengine.h"
+#include "Podcatcher.pan"
 
 const TInt KTempBufferSize = 100;
 
@@ -192,7 +193,7 @@ void  CHttpClient::DoGetAfterConnectL()
 TBool CHttpClient::GetL(const TDesC& aUrl, const TDesC& aFileName,  TBool aSilent) {
 	DP("CHttpClient::Get START");
 	DP2("Getting '%S' to '%S'", &aUrl, &aFileName);	
-	__ASSERT_DEBUG((iIsActive==EFalse), User::Panic(_L("Already active"), -2));
+	__ASSERT_DEBUG((iIsActive==EFalse), Panic(EPodcatcherPanicAlreadyActive));
 	iCurrentURL.Copy(aUrl);	
 		
 	TInt urlError = iUriParser.Parse(iCurrentURL);

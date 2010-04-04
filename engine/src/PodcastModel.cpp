@@ -23,6 +23,7 @@
 #include "ShowEngine.h"
 #include "connectionengine.h"
 #include "podcastutils.h"
+#include "Podcatcher.pan"
 
 #include <cmdestination.h>
 #include <cmmanager.h>
@@ -95,7 +96,7 @@ void CPodcastModel::ConstructL()
 		
 		if (err != KErrNone)
 			{
-			User::Panic(_L("Podcatcher"), 1);
+			Panic(EPodcatcherPanicDB);
 			}
 		
 		}

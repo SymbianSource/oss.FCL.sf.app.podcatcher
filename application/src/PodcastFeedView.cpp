@@ -32,7 +32,7 @@
 #include <BAUTILS.H> 
 #include <pathinfo.h> 
 #include <akncommondialogsdynmem.h> 
-
+#include "Podcatcher.pan"
 
 const TInt KMaxFeedNameLength = 100;
 const TInt KMaxUnplayedFeedsLength =64;
@@ -132,12 +132,11 @@ CPodcastFeedView::~CPodcastFeedView()
 
 void CPodcastFeedView::UpdateItemL(TInt aIndex)
 	{
-	_LIT(KPanicCategory, "CPodcastFeedView::UpdateItemL");
-	__ASSERT_DEBUG(iListContainer->IsVisible(), User::Panic(KPanicCategory, 0));
-	__ASSERT_ALWAYS(iItemIdArray.Count() > aIndex, User::Panic(KPanicCategory, 1));
+	__ASSERT_DEBUG(iListContainer->IsVisible(), Panic(EPodcatcherPanicFeedView));
+	__ASSERT_ALWAYS(iItemIdArray.Count() > aIndex, Panic(EPodcatcherPanicFeedView));
 
 	const RFeedInfoArray& sortedItems = iPodcastModel.FeedEngine().GetSortedFeeds();
-	__ASSERT_ALWAYS(sortedItems.Count() > aIndex, User::Panic(KPanicCategory, 2));
+	__ASSERT_ALWAYS(sortedItems.Count() > aIndex, Panic(EPodcatcherPanicFeedView));
 
 	// Update UID of for the feed at aIndex
 	iItemIdArray[aIndex] = sortedItems[aIndex]->Uid();

@@ -65,8 +65,6 @@ void CPodcastFeedViewUpdater::ConstructL()
 
 void CPodcastFeedViewUpdater::RunL()
 	{
-	_LIT(KPanicCategory, "CPodcastFeedViewUpdater::RunL");
-	__ASSERT_DEBUG(iNextItem < iNbrItems, User::Panic(KPanicCategory, 0));
 	iPodcastFeedView.UpdateItemL(iNextItem++);
 	if (iNextItem < iNbrItems)
 		{

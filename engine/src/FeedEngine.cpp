@@ -26,6 +26,7 @@
 #include "OpmlParser.h"
 #include "PodcastUtils.h"
 #include <utf.h>
+#include "Podcatcher.pan"
 
 _LIT(KFeedParseStorePath, "feeds\\");
 
@@ -655,7 +656,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 			BaflUtils::DeleteFile(iPodcastModel.FsSession(), iSearchResultsFileName);
 			}break;
 		default:
-			User::Panic(_L("FeedEngine"), KErrUnknown);
+			Panic(EPodcatcherPanicFeedEngineState);
 			break;
 		}
 	DP("CFeedEngine::CompleteL END");
