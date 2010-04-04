@@ -120,7 +120,8 @@ class CPodcastAppUi : public CAknViewAppUi, public MAknTabObserver,
        void TabRightL();
        void NaviSetTextL(TInt aResourceId);
        void NaviShowTabGroupL();
-       
+       void GetErrorText(TDes &aErrorMessage, TInt aErrorCode);
+
     private:
         // From MEikMenuObserver
         void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);

@@ -900,39 +900,7 @@ void CPodcastFeedView::DialogDismissedL(TInt /*aButtonId*/)
 
 void CPodcastFeedView::GetFeedErrorText(TDes &aErrorMessage, TInt aErrorCode)
 	{
-	switch (aErrorCode)
-		{
-		case -1:
-			{
-			HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_INVALID_ADDRESS);
-			aErrorMessage.Copy(*error);
-			CleanupStack::PopAndDestroy(error);
-			}
-			break;
-		case 404:
-			{
-			HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_NOTFOUND);
-			aErrorMessage.Copy(*error);
-			CleanupStack::PopAndDestroy(error);
-			}
-			break;
-		default:
-			{
-			if (aErrorCode > 200)
-				{
-				HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_HTTP);
-				aErrorMessage.Format(*error, aErrorCode);
-				CleanupStack::PopAndDestroy(error);
-				}
-			else
-				{
-				HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_GENERAL);
-				aErrorMessage.Format(*error, aErrorCode);
-				CleanupStack::PopAndDestroy(error);
-				}
-			}
-			break;
-		}
+	((CPodcastAppUi*)AppUi())->GetErrorText(aErrorMessage,aErrorCode);
 	}
 
 void CPodcastFeedView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)

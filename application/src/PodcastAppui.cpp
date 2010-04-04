@@ -343,3 +343,47 @@ void CPodcastAppUi::ConnectionSelectionEnd()
 	iQueueView->UpdateToolbar(ETrue);
 	iSearchView->UpdateToolbar(ETrue);
 	}
+
+void CPodcastAppUi::GetErrorText(TDes &aErrorMessage, TInt aErrorCode)
+	{
+	switch (aErrorCode)
+		{
+		case KErrNotFound:
+			{
+			HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_INVALID_ADDRESS);
+			aErrorMessage.Copy(*error);
+			CleanupStack::PopAndDestroy(error);
+			}
+			break;
+		case KErrDiskFull:
+			{
+			HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_DISK_FULL);
+			aErrorMessage.Copy(*error);
+			CleanupStack::PopAndDestroy(error);
+			}
+			break;
+		case 404:
+			{
+			HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_NOTFOUND);
+			aErrorMessage.Copy(*error);
+			CleanupStack::PopAndDestroy(error);
+			}
+			break;
+		default:
+			{
+			if (aErrorCode > 200)
+				{
+				HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_HTTP);
+				aErrorMessage.Format(*error, aErrorCode);
+				CleanupStack::PopAndDestroy(error);
+				}
+			else
+				{
+				HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_GENERAL);
+				aErrorMessage.Format(*error, aErrorCode);
+				CleanupStack::PopAndDestroy(error);
+				}
+			}
+			break;
+		}
+	}

@@ -104,6 +104,7 @@ private:
 	TBool iProgressAdded;	
 	TInt iLastImageHandlerError;
 	TBool iSetTitlebarImage;
+	TBool iEatQueueUpdate;
 	};
 
 #endif // PODCASTSHOWSVIEWH

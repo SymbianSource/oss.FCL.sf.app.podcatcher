@@ -253,7 +253,7 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 	{
 	if (iShowDownloading != NULL)
 		{
-		DP1("CShowEngine::Complete\tDownload of file: %S is complete", &iShowDownloading->FileName());		
+		DP2("CShowEngine::CompleteL file=%S, aError=%d", &iShowDownloading->FileName(), aError);		
 		if(aError != KErrCouldNotConnect)
 			{
 			if(aError == KErrDisconnected && iPodcastModel.SettingsEngine().DownloadSuspended())
@@ -302,12 +302,20 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 					delete iShowDownloading;
 					iShowDownloading = NULL;
 					}
+				else if (aError == KErrDiskFull)
+					{
+					// stop downloading immediately if disk is full
+					iShowDownloading->SetDownloadState(EQueued);
+					DBUpdateShowL(*iShowDownloading);
+					iDownloadErrors = KMaxDownloadErrors;
+					}
 				else // other kind of error, missing network etc, reque this show
 					{
 					iShowDownloading->SetDownloadState(EQueued);
 					DBUpdateShowL(*iShowDownloading);
 					}
 
+				NotifyDownloadQueueUpdatedL();
 				iDownloadErrors++;
 				if (iDownloadErrors > KMaxDownloadErrors)
 					{
@@ -1240,11 +1248,9 @@ void CShowEngine::DownloadNextShowL()
 			}
 		else
 			{
-
 			// Start the download
-			
 			CShowInfo *info = DBGetNextDownloadL();
-			
+			CleanupStack::PushL(info);
 			while(info != NULL)
 				{
 				DP1("CShowEngine::DownloadNextShow\tDownloading: %S", &(info->Title()));
@@ -1262,6 +1268,7 @@ void CShowEngine::DownloadNextShowL()
 					info->SetDownloadState(EFailedDownload);
 					DBRemoveDownloadL(info->Uid());
 					DBUpdateShowL(*info);
+					CleanupStack::PopAndDestroy(info);
 					info = DBGetNextDownloadL();
 					
 					if(info == NULL)
@@ -1269,12 +1276,17 @@ void CShowEngine::DownloadNextShowL()
 						iPodcastModel.SettingsEngine().SetDownloadSuspended(ETrue);
 						iShowDownloading = NULL;
 						}
+					else
+						{
+						CleanupStack::PushL(info);
+						}
 					}				
 				else
 					{
 					break;
 					}
 				}
+			CleanupStack::Pop(info); // lives on as iShowDownloading
 			}
 		}
 	else

@@ -389,11 +389,18 @@ void CPodcastQueueView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aS
 		{
 		aShowInfo.PubDate().FormatL(showDate, KDateFormatShort());
 		}
-
-	if (infoSize.Length() > 0) {
-		infoSize.Insert(0,_L(", "));
-	}
 	
+	if(aShowInfo.LastError() != KErrNone)
+		{
+		((CPodcastAppUi*)AppUi())->GetErrorText(infoSize, aShowInfo.LastError());
+		showDate.Zero();
+		}
+		
+	if (infoSize.Length() > 0 && showDate.Length() > 0)
+		{
+		infoSize.Insert(0,_L(", "));
+		}
+
 	iListboxFormatbuffer.Format(KShowQueueFormat(), iconIndex, &aShowInfo.Title(), &showDate, &infoSize);
 	}
 
@@ -522,6 +529,7 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
 			if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
 				{
+				iEatQueueUpdate = ETrue;
 				TRAPD(err, iPodcastModel.ShowEngine().RemoveDownloadL(iPodcastModel.ActiveShowList()[index]->Uid()));
 				
 				if (err == KErrNone)
@@ -531,10 +539,8 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 					iListContainer->Listbox()->HandleItemRemovalL();
 					iListContainer->Listbox()->SetCurrentItemIndex(index - 1 > 0 ? index - 1 : 0);
 					iListContainer->Listbox()->DrawNow();
-					
-					delete iPodcastModel.ActiveShowList()[index];
-					iPodcastModel.ActiveShowList().Remove(index);
 					}
+				iEatQueueUpdate = EFalse;
 				}
 			}
 			break;
@@ -589,7 +595,8 @@ void CPodcastQueueView::UpdateToolbar(TBool aVisible)
 
 void CPodcastQueueView::DownloadQueueUpdatedL(TInt /*aDownloadingShows*/, TInt /*aQueuedShows*/)
 	{
-	UpdateListboxItemsL();
+	if (!iEatQueueUpdate)
+		UpdateListboxItemsL();
 	}
 
 void CPodcastQueueView::FeedUpdateAllCompleteL(TFeedState /*aState*/)

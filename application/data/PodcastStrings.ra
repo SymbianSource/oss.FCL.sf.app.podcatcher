@@ -73,3 +73,5 @@ RESOURCE TBUF r_error_http {buf=STRING_r_error_http;}
 RESOURCE TBUF r_error_invalid_address {buf=STRING_r_error_invalid_address;}
 
 RESOURCE TBUF r_reset_db_query {buf = STRING_r_podcast_setting_reset_db_query;}
+
+RESOURCE TBUF r_error_disk_full {buf = STRING_r_error_disk_full; }

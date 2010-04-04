@@ -109,6 +109,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 					{
 					DP("The specified filename is not valid!.");
 					iSavingResponseBody = EFalse;
+					iHttpClient->ClientRequestCompleteL(KErrBadName);
 					}
 				else
 					{
@@ -118,19 +119,26 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 							{
 							DP("There was an error opening file");
 							iSavingResponseBody = EFalse;
+							iHttpClient->ClientRequestCompleteL(KErrInUse);
 							User::Leave(err);
-							} else {
+							} 
+						else
+							{
 							int pos = -KByteOverlap;
-							if((err=iRespBodyFile.Seek(ESeekEnd, pos)) != KErrNone) {
+							if((err=iRespBodyFile.Seek(ESeekEnd, pos)) != KErrNone)
+								{
 								DP("Failed to set position!");
+								iHttpClient->ClientRequestCompleteL(KErrGeneral);
 								User::Leave(err);
+								}
+						iBytesDownloaded = (pos > 0) ? pos : 0;
+						iBytesTotal += iBytesDownloaded;
+						DP1("Total bytes is now %u", iBytesTotal);
+						DP1("Seeking end: %d", pos);
 							}
-							iBytesDownloaded = (pos > 0) ? pos : 0;
-							iBytesTotal += iBytesDownloaded;
-							DP1("Total bytes is now %u", iBytesTotal);
-							DP1("Seeking end: %d", pos);
-							}
-					} else {
+						}
+					else 
+						{
 						TInt err = iRespBodyFile.Replace(iFileServ,
 														 iParsedFileName.FullName(),
 														 EFileWrite);
@@ -160,10 +168,9 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 				iRespBody->GetNextDataPart(bodyData);
 				iBytesDownloaded += bodyData.Length();
 				TInt error = iRespBodyFile.Write(bodyData);
-				
 				// on writing error we close connection 
 				if (error != KErrNone) {
-					//aTransaction.Close();
+					iRespBodyFile.Close();
 					iCallbacks.FileError(error);
 					iHttpClient->ClientRequestCompleteL(error);
 					return;
@@ -196,12 +203,12 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 			DP("Transaction Failed");
 			aTransaction.Close();
 			
-			if(iLastStatusCode == HTTPStatus::EOk || iLastStatusCode == HTTPStatus::ECreated || iLastStatusCode == HTTPStatus::EAccepted)
-				{
-				iLastStatusCode = KErrNone;
-				}
+//			if(iLastStatusCode == HTTPStatus::EOk || iLastStatusCode == HTTPStatus::ECreated || iLastStatusCode == HTTPStatus::EAccepted)
+//				{
+//				iLastStatusCode = KErrNone;
+//				}
 			
-			iHttpClient->ClientRequestCompleteL(iLastStatusCode);
+			iHttpClient->ClientRequestCompleteL(KErrGeneral);
 			} break;
 		case THTTPEvent::ERedirectedPermanently:
 			{
@@ -227,7 +234,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 TInt CHttpEventHandler::MHFRunError(TInt aError, RHTTPTransaction /*aTransaction*/, const THTTPEvent& /*aEvent*/)
 	{
 	DP1("MHFRunError fired with error code %d", aError);
-
+	iHttpClient->ClientRequestCompleteL(aError);
 	return KErrNone;
 	}
 

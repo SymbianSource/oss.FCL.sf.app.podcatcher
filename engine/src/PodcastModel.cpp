@@ -434,7 +434,6 @@ EXPORT_C void CPodcastModel::GetShowsDownloadingL()
 
 EXPORT_C void CPodcastModel::GetShowsByFeedL(TUint aFeedUid)
 	{
-	DP1("iActiveShowList.Count()=%d", iActiveShowList.Count());
 	iActiveShowList.ResetAndDestroy();
 	iShowEngine->GetShowsByFeedL(iActiveShowList, aFeedUid);
 	}

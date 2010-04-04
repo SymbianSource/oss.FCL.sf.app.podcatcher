@@ -160,7 +160,7 @@ void  CHttpClient::DoGetAfterConnectL()
 	if (iResumeEnabled && iPodcastModel.FsSession().Entry(iCurrentFileName, entry) == KErrNone) {
 		DP1("Found file, with size=%d", entry.iSize);
 		// file exists, so we should probably resume
-		rangeText.Format(_L8("bytes=%d-"), entry.iSize-KByteOverlap);
+		rangeText.Format(_L8("bytes=%d-"), (entry.iSize-KByteOverlap > 0 ? entry.iSize-KByteOverlap : 0));
 		iHandler->SetSaveFileName(iCurrentFileName, ETrue);
 	} else {
 		// otherwise just make sure the directory exists
