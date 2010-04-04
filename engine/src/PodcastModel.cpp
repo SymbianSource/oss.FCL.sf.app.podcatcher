@@ -253,15 +253,30 @@ void CPodcastModel::SetActiveShowList(RShowInfoArray& aShowArray)
 	}
 }
 
-void CPodcastModel::ResetDB()
+void CPodcastModel::DropDB()
 	{
-	DP("CPodcastModel::ResetDB BEGIN");
-	
 	if (iDB != NULL)
 		{
 		sqlite3_close(iDB);
 		iDB = NULL;
 		}
+	
+	TFileName dbFileName;
+	dbFileName.Copy(iSettingsEngine->PrivatePath());
+	dbFileName.Append(KDBFileName);
+
+	// remove the old DB file
+	if (BaflUtils::FileExists(iFsSession, dbFileName))
+		{
+		BaflUtils::DeleteFile(iFsSession, dbFileName);
+		}
+	}
+
+void CPodcastModel::ResetDB()
+	{
+	DP("CPodcastModel::ResetDB BEGIN");
+	
+	DropDB();
 	
 	TFileName dbFileName;
 	dbFileName.Copy(iSettingsEngine->PrivatePath());

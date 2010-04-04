@@ -59,7 +59,8 @@ enum TPodcastCommandIds
 	EPodcastHide,
 	EPodcastHelp,
 	EPodcastSearch,
-	EPodcastAddSearchResult
+	EPodcastAddSearchResult,
+	EPodcastResetDb
 };
 
 enum TPodcastControl

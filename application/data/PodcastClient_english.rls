@@ -61,6 +61,9 @@ rls_string STRING_r_podcast_setting_iaplist "Access points"
 rls_string STRING_r_podcast_select_folder "Select folder"
 rls_string STRING_r_on "On"
 rls_string STRING_r_off "Off"
+rls_string STRING_r_podcast_setting_reset_db "Reset database"
+rls_string STRING_r_podcast_setting_reset_db_query "Reset database? All data will be lost!"
+
 
 
 // Choicelist for autodownload

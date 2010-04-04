@@ -85,6 +85,7 @@ public:
 	TInt GetIapId();
 	
 	sqlite3* DB();
+	void DropDB();
 	void ResetDB();
 	
 	IMPORT_C void GetAllShowsL();

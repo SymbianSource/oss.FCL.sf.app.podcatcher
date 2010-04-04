@@ -27,6 +27,7 @@
 
 #include <akncommondialogsdynmem.h> 
 #include <pathinfo.h>
+#include <aknquerydialog.h>
 
 
 class CIapSetting: public CAknEnumeratedTextPopupSettingItem 
@@ -540,7 +541,21 @@ void CPodcastSettingsView::HandleCommandL(TInt aCommand)
 		iListbox->StoreSettings();
 		AppUi()->ActivateViewL(iPreviousView);
 		}
-		break;	
+		break;
+	case EPodcastResetDb:
+		CAknQueryDialog* dlg= new(ELeave) CAknQueryDialog();
+		
+		CleanupStack::PushL(dlg);
+		HBufC *text = iCoeEnv->AllocReadResourceLC(R_RESET_DB_QUERY);
+		dlg->SetPromptL(*text);
+		CleanupStack::PopAndDestroy(text);
+		CleanupStack::Pop(dlg);
+		if(dlg->ExecuteLD(R_QUERYDLG))
+			{
+			iPodcastModel.DropDB();
+			AppUi()->Exit();
+			}
+		break;
 	default:
 		AppUi()->HandleCommandL(aCommand);
 		break;

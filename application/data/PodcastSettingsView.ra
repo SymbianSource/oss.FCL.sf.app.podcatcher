@@ -30,9 +30,14 @@ RESOURCE MENU_PANE r_podcast_settingsview_menu
         {        
 		MENU_ITEM
 			{
+			command = EPodcastResetDb;
+			txt = STRING_r_podcast_setting_reset_db;
+			},
+		MENU_ITEM
+			{
 			command = EPodcastHelp;
 			txt = STRING_r_view_help;
-			}		
+			}
 		};
     }
 
