@@ -245,7 +245,6 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 							{
 							CFeedInfo *info = iPodcastModel.FeedEngine().GetFeedInfoByUid(newInfo->Uid());
 							
-							iPodcastModel.ActiveShowList().Reset();
 							iPodcastModel.SetActiveFeedInfo(info);			
 							AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
 							iPodcastModel.FeedEngine().UpdateFeedL(info->Uid());

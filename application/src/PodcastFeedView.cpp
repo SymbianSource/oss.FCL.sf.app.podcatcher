@@ -217,7 +217,6 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 
 			if(index >= 0 && index < sortedItems->Count())
 				{
-				iPodcastModel.ActiveShowList().Reset();
 				iPodcastModel.SetActiveFeedInfo((*sortedItems)[index]);			
 				iViewingShows = ETrue;
 				AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
@@ -615,7 +614,6 @@ void CPodcastFeedView::HandleAddFeedL()
 					{
 					CFeedInfo *info = iPodcastModel.FeedEngine().GetFeedInfoByUid(newFeedInfo->Uid());
 					
-					iPodcastModel.ActiveShowList().Reset();
 					iPodcastModel.SetActiveFeedInfo(info);			
 					AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
 					iPodcastModel.FeedEngine().UpdateFeedL(newFeedInfo->Uid());

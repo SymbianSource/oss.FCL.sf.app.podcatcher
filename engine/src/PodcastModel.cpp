@@ -417,31 +417,12 @@ void CPodcastModel::GetProxyInformationForConnectionL(TBool& aIsUsed, HBufC*& aP
 	CleanupStack::PopAndDestroy(table);
 	}
 	
-	
 TInt CPodcastModel::GetIapId()
 	{
 	_LIT(KSetting, "IAP\\Id");
 	TUint32 iapId = 0;
 	iConnectionEngine->Connection().GetIntSetting(KSetting, iapId);
 	return iapId;
-	}
-
-EXPORT_C void CPodcastModel::GetAllShowsL()
-	{
-	iActiveShowList.ResetAndDestroy();
-	iShowEngine->GetAllShowsL(iActiveShowList);
-	}
-
-EXPORT_C void CPodcastModel::GetNewShowsL()
-	{
-	iActiveShowList.ResetAndDestroy();
-	iShowEngine->GetNewShowsL(iActiveShowList);	
-	}
-
-EXPORT_C void CPodcastModel::GetShowsDownloadedL()
-	{
-	iActiveShowList.ResetAndDestroy();
-	iShowEngine->GetShowsDownloadedL(iActiveShowList);
 	}
 
 EXPORT_C void CPodcastModel::GetShowsDownloadingL()
@@ -452,6 +433,7 @@ EXPORT_C void CPodcastModel::GetShowsDownloadingL()
 
 EXPORT_C void CPodcastModel::GetShowsByFeedL(TUint aFeedUid)
 	{
+	DP1("iActiveShowList.Count()=%d", iActiveShowList.Count());
 	iActiveShowList.ResetAndDestroy();
 	iShowEngine->GetShowsByFeedL(iActiveShowList, aFeedUid);
 	}

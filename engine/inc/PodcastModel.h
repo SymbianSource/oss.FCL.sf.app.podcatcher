@@ -88,9 +88,6 @@ public:
 	void DropDB();
 	void ResetDB();
 	
-	IMPORT_C void GetAllShowsL();
-	IMPORT_C void GetNewShowsL();
-	IMPORT_C void GetShowsDownloadedL();
 	IMPORT_C void GetShowsDownloadingL();
 	IMPORT_C void GetShowsByFeedL(TUint aFeedUid);
 	IMPORT_C void MarkSelectionPlayedL();
