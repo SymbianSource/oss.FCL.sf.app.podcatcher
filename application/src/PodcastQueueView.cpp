@@ -522,16 +522,18 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
 			if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
 				{
-				if (iPodcastModel.ShowEngine().RemoveDownloadL(iPodcastModel.ActiveShowList()[index]->Uid()))
+				TRAPD(err, iPodcastModel.ShowEngine().RemoveDownloadL(iPodcastModel.ActiveShowList()[index]->Uid()));
+				
+				if (err == KErrNone)
 					{
-						iItemArray->Delete(index);
-						iItemIdArray.Remove(index);						
-						iListContainer->Listbox()->HandleItemRemovalL();
-						iListContainer->Listbox()->SetCurrentItemIndex(index - 1 > 0 ? index - 1 : 0);
-						iListContainer->Listbox()->DrawNow();
-						
-						delete iPodcastModel.ActiveShowList()[index];
-						iPodcastModel.ActiveShowList().Remove(index);
+					iItemArray->Delete(index);
+					iItemIdArray.Remove(index);						
+					iListContainer->Listbox()->HandleItemRemovalL();
+					iListContainer->Listbox()->SetCurrentItemIndex(index - 1 > 0 ? index - 1 : 0);
+					iListContainer->Listbox()->DrawNow();
+					
+					delete iPodcastModel.ActiveShowList()[index];
+					iPodcastModel.ActiveShowList().Remove(index);
 					}
 				}
 			}

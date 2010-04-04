@@ -112,15 +112,14 @@ EXPORT_C void CShowEngine::RemoveAllDownloadsL()
 		SuspendDownloads();
 		}
 
-	DBRemoveAllDownloads();
+	DBRemoveAllDownloadsL();
 	NotifyDownloadQueueUpdatedL();
 	}
 
-EXPORT_C TBool CShowEngine::RemoveDownloadL(TUint aUid)
+EXPORT_C void CShowEngine::RemoveDownloadL(TUint aUid)
 	{
-	DP("CShowEngine::RemoveDownload\t Trying to remove download");
+	DP("CShowEngine::RemoveDownloadL BEGIN");
 
-	TBool retVal = EFalse;
 	TBool resumeAfterRemove = EFalse;
 	// if trying to remove the present download, we first stop it
 	if (!iPodcastModel.SettingsEngine().DownloadSuspended() && iShowDownloading != NULL
@@ -138,7 +137,8 @@ EXPORT_C TBool CShowEngine::RemoveDownloadL(TUint aUid)
 		DBUpdateShowL(*info);
 		delete info;
 		}
-	DBRemoveDownload(aUid);
+	
+	DBRemoveDownloadL(aUid);
 
 	// partial downloads should be removed
 	if (iShowDownloading)
@@ -154,9 +154,7 @@ EXPORT_C TBool CShowEngine::RemoveDownloadL(TUint aUid)
 	}
 	
 	DownloadNextShowL();
-	retVal = ETrue;
-
-	return retVal;
+	DP("CShowEngine::RemoveDownloadL END");
 	}
 
 void CShowEngine::Connected(CHttpClient* /*aClient*/)
@@ -185,16 +183,11 @@ void CShowEngine::DownloadInfo(CHttpClient* aHttpClient, TInt aTotalBytes)
 		}
 	}
 
-TBool CShowEngine::GetShowL(CShowInfo *info)
+void CShowEngine::GetShowL(CShowInfo *info)
 	{
 	CFeedInfo *feedInfo = iPodcastModel.FeedEngine().GetFeedInfoByUid(
 			info->FeedUid());
-	if (feedInfo == NULL)
-		{
-		DP("Feed not found for this show!");
-		return EFalse;
-		}
-
+	
 	TFileName filePath;
 	filePath.Copy(iPodcastModel.SettingsEngine().BaseDir());
 	
@@ -211,10 +204,10 @@ TBool CShowEngine::GetShowL(CShowInfo *info)
 	filePath.Append(relPath);
 	info->SetFileNameL(filePath);
 
-	return iShowClient->GetL(info->Url(), filePath);
+	User::LeaveIfError(iShowClient->GetL(info->Url(), filePath));
 	}
 
-EXPORT_C TBool CShowEngine::AddShowL(const CShowInfo& aItem)
+EXPORT_C void CShowEngine::AddShowL(const CShowInfo& aItem)
 	{
 	DP1("CShowEngine::AddShowL, title=%S", &aItem.Title());
 	CShowInfo *showInfo = DBGetShowByUidL(aItem.Uid());
@@ -222,12 +215,11 @@ EXPORT_C TBool CShowEngine::AddShowL(const CShowInfo& aItem)
 	if (showInfo == NULL)
 		{
 		DBAddShowL(aItem);
-		return ETrue;
 		}
 	else
 		{
 		delete showInfo;	
-		return EFalse;
+		User::Leave(KErrAlreadyExists);
 		}	
 	}
 
@@ -290,7 +282,7 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 
 				iShowDownloading->SetDownloadState(EDownloaded);
 				DBUpdateShowL(*iShowDownloading);
-				DBRemoveDownload(iShowDownloading->Uid());
+				DBRemoveDownloadL(iShowDownloading->Uid());
 				AddShowToMpxCollection(*iShowDownloading);				
 				NotifyShowFinishedL(aError);
 				iDownloadErrors = 0;
@@ -304,7 +296,7 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 					{
 					iShowDownloading->SetDownloadState(EFailedDownload);
 					DBUpdateShowL(*iShowDownloading);
-					DBRemoveDownload(iShowDownloading->Uid());
+					DBRemoveDownloadL(iShowDownloading->Uid());
 					NotifyShowFinishedL(aError);
 
 					delete iShowDownloading;
@@ -465,6 +457,10 @@ void CShowEngine::DBGetAllDownloadsL(RShowInfoArray& aShowArray)
 			}
 		CleanupStack::PopAndDestroy();//st
 		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 
 	// delete downloads that don't have a show
 	
@@ -475,8 +471,13 @@ void CShowEngine::DBGetAllDownloadsL(RShowInfoArray& aShowArray)
 
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		sqlite3_finalize(st);
+		CleanupStack::PopAndDestroy(); // st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
 		}
 	}
 
@@ -510,7 +511,15 @@ CShowInfo* CShowEngine::DBGetNextDownloadL()
 			DBFillShowInfoFromStmtL(st, showInfo);
 			CleanupStack::Pop(showInfo);
 			}
+		else
+			{
+			User::Leave(KErrUnknown);
+			}
 		CleanupStack::PopAndDestroy();//st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
 		}
 
 	return showInfo;
@@ -546,10 +555,14 @@ void CShowEngine::DBGetShowsByFeedL(RShowInfoArray& aShowArray, TUint aFeedUid)
 			}
 		CleanupStack::PopAndDestroy();//st
 		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 	DP("CShowEngine::DBGetShowsByFeed END");
 	}
 
-TUint CShowEngine::DBGetDownloadsCount()
+TUint CShowEngine::DBGetDownloadsCountL()
 	{
 	DP("CShowEngine::DBGetDownloadsCount");
 
@@ -564,13 +577,23 @@ TUint CShowEngine::DBGetDownloadsCount()
 
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
 
 		if (rc == SQLITE_ROW)
 			{
 			count = sqlite3_column_int(st, 0);
 			}
-		sqlite3_finalize(st);
+		else
+			{
+			User::Leave(KErrUnknown);
+			}
+		
+		CleanupStack::PopAndDestroy(); //st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
 		}
 	return count;
 	}
@@ -605,6 +628,10 @@ void CShowEngine::DBGetDownloadedShowsL(RShowInfoArray& aShowArray)
 			}
 		CleanupStack::PopAndDestroy();//st
 		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 	}
 
 void CShowEngine::DBGetNewShowsL(RShowInfoArray& aShowArray)
@@ -632,9 +659,13 @@ void CShowEngine::DBGetNewShowsL(RShowInfoArray& aShowArray)
 			}
 		CleanupStack::PopAndDestroy();//st
 		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 	}
 
-void CShowEngine::DBDeleteOldShowsByFeed(TUint aFeedUid)
+void CShowEngine::DBDeleteOldShowsByFeedL(TUint aFeedUid)
 	{
 	DP("CShowEngine::DBDeleteOldShows");
 	
@@ -657,6 +688,10 @@ void CShowEngine::DBDeleteOldShowsByFeed(TUint aFeedUid)
 		rc = sqlite3_step(st);
 		sqlite3_finalize(st);
 		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 	
 	_LIT(KSqlStatement2, "delete from downloads where uid not in (select downloads.uid from shows, downloads where shows.uid=downloads.uid)");
 	iSqlBuffer.Format(KSqlStatement2);
@@ -667,6 +702,10 @@ void CShowEngine::DBDeleteOldShowsByFeed(TUint aFeedUid)
 		{
 		rc = sqlite3_step(st);
 		sqlite3_finalize(st);
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
 		}
 	}
 
@@ -724,7 +763,7 @@ void CShowEngine::DBFillShowInfoFromStmtL(sqlite3_stmt *st, CShowInfo* showInfo)
 	showInfo->SetLastError(lasterror);
 	}
 
-TBool CShowEngine::DBAddShowL(const CShowInfo& aItem)
+void CShowEngine::DBAddShowL(const CShowInfo& aItem)
 	{
 	DP2("CShowEngine::DBAddShow, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 
@@ -754,28 +793,24 @@ TBool CShowEngine::DBAddShowL(const CShowInfo& aItem)
 
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*) iSqlBuffer.PtrZ(), -1,
 			&st, (const void**) NULL);
+	
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		if (rc == SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
-			sqlite3_finalize(st);
-			return ETrue;
+			User::Leave(KErrAlreadyExists);
 			}
-		else
-			{
-			sqlite3_finalize(st);
-			}
+		CleanupStack::PopAndDestroy(); // st
 		}
 	else
 		{
-		DP1("SQLite rc=%d", rc);
+		User::Leave(KErrCorrupt);
 		}
-
-	return EFalse;
 	}
 
-void CShowEngine::DBAddDownload(TUint aUid)
+void CShowEngine::DBAddDownloadL(TUint aUid)
 	{
 	DP1("CShowEngine::DBAddDownload, aUid=%u", aUid);
 
@@ -788,13 +823,21 @@ void CShowEngine::DBAddDownload(TUint aUid)
 
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
+		if (rc =! SQLITE_DONE)
+			{
+			User::Leave(KErrUnknown);
+			}
+		CleanupStack::PopAndDestroy(); // st
 		}
-
-	sqlite3_finalize(st);
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 	}
 
-TBool CShowEngine::DBUpdateShowL(CShowInfo& aItem)
+void CShowEngine::DBUpdateShowL(CShowInfo& aItem)
 	{
 	DP1("CShowEngine::DBUpdateShow, title='%S'", &aItem.Title());
 
@@ -827,27 +870,22 @@ TBool CShowEngine::DBUpdateShowL(CShowInfo& aItem)
 
 	if (rc == SQLITE_OK)
 		{
-		rc = sqlite3_step(st);
+		Cleanup_sqlite3_finalize_PushL(st);
+		rc = sqlite3_step(st);		
 
-		if (rc == SQLITE_DONE)
+		if (rc =! SQLITE_DONE)
 			{
-			sqlite3_finalize(st);
-			return ETrue;
+			User::Leave(KErrUnknown);
 			}
-		else
-			{
-			sqlite3_finalize(st);
-			}
+		CleanupStack::PopAndDestroy(); // st
 		}
 	else
 		{
-		DP1("SQLite rc=%d", rc);
+		User::Leave(KErrCorrupt);
 		}
-
-	return EFalse;
 	}
 
-TBool CShowEngine::DBDeleteShow(TUint aUid)
+void CShowEngine::DBDeleteShowL(TUint aUid)
 	{
 	DP("CShowEngine::DBDeleteShow");
 
@@ -856,33 +894,27 @@ TBool CShowEngine::DBDeleteShow(TUint aUid)
 
 	sqlite3_stmt *st;
 
-	//DP1("SQL: %S", &iSqlBuffer.Left(KSqlDPLen));
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*) iSqlBuffer.PtrZ(), -1,
 			&st, (const void**) NULL);
 
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
 
-		if (rc == SQLITE_DONE)
+		if (rc =! SQLITE_DONE)
 			{
-			sqlite3_finalize(st);
-			return ETrue;
+			User::Leave(KErrUnknown);
 			}
-		else
-			{
-			sqlite3_finalize(st);
-			}
+		CleanupStack::PopAndDestroy(); // st
 		}
 	else
 		{
-		DP1("SQLite rc=%d", rc);
+		User::Leave(KErrCorrupt);
 		}
-
-	return EFalse;
 	}
 
-TBool CShowEngine::DBDeleteAllShowsByFeed(TUint aFeedUid)
+void CShowEngine::DBDeleteAllShowsByFeedL(TUint aFeedUid)
 	{
 	DP("CShowEngine::DBDeleteAllShowsByFeed");
 
@@ -891,33 +923,27 @@ TBool CShowEngine::DBDeleteAllShowsByFeed(TUint aFeedUid)
 
 	sqlite3_stmt *st;
 
-	//DP1("SQL: %S", &iSqlBuffer.Left(KSqlDPLen));
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*) iSqlBuffer.PtrZ(), -1,
 			&st, (const void**) NULL);
 
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
 
-		if (rc == SQLITE_DONE)
+		if (rc =! SQLITE_DONE)
 			{
-			sqlite3_finalize(st);
-			return ETrue;
+			User::Leave(KErrUnknown);
 			}
-		else
-			{
-			sqlite3_finalize(st);
-			}
+		CleanupStack::PopAndDestroy(); // st
 		}
 	else
 		{
-		DP1("SQLite rc=%d", rc);
+		User::Leave(KErrCorrupt);
 		}
-
-	return EFalse;
 	}
 
-void CShowEngine::DBRemoveAllDownloads()
+void CShowEngine::DBRemoveAllDownloadsL()
 	{
 	DP("CShowEngine::DBRemoveAllDownloads");
 
@@ -934,6 +960,10 @@ void CShowEngine::DBRemoveAllDownloads()
 		rc = sqlite3_step(st);
 		sqlite3_finalize(st);
 		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 
 	_LIT(KSqlStatement2, "update shows set downloadstate=0 where downloadstate=1");
 	iSqlBuffer.Format(KSqlStatement2);
@@ -943,13 +973,22 @@ void CShowEngine::DBRemoveAllDownloads()
 
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		sqlite3_finalize(st);
+		if (rc =! SQLITE_DONE)
+			{
+			User::Leave(KErrUnknown);
+			}
+		CleanupStack::PopAndDestroy(); // st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
 		}
 
 	}
 
-void CShowEngine::DBRemoveDownload(TUint aUid)
+void CShowEngine::DBRemoveDownloadL(TUint aUid)
 	{
 	DP("CShowEngine::DBRemoveDownload");
 
@@ -963,8 +1002,17 @@ void CShowEngine::DBRemoveDownload(TUint aUid)
 
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		sqlite3_finalize(st);
+		if (rc =! SQLITE_DONE)
+			{
+			User::Leave(KErrUnknown);
+			}
+		CleanupStack::PopAndDestroy(); // st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
 		}
 	}
 
@@ -1089,7 +1137,7 @@ EXPORT_C void CShowEngine::DeleteAllShowsByFeedL(TUint aFeedUid, TBool aDeleteFi
 	array.ResetAndDestroy();
 	
 	// delete all shows from DB
-	DBDeleteAllShowsByFeed(aFeedUid);
+	DBDeleteAllShowsByFeedL(aFeedUid);
 
 	// this will clear out deleted shows from the download queue
 	DBGetAllDownloadsL(array);
@@ -1098,9 +1146,9 @@ EXPORT_C void CShowEngine::DeleteAllShowsByFeedL(TUint aFeedUid, TBool aDeleteFi
 	NotifyDownloadQueueUpdatedL();
 	}
 
-EXPORT_C void CShowEngine::DeleteOldShowsByFeed(TUint aFeedUid)
+EXPORT_C void CShowEngine::DeleteOldShowsByFeedL(TUint aFeedUid)
 	{
-		DBDeleteOldShowsByFeed(aFeedUid);
+	DBDeleteOldShowsByFeedL(aFeedUid);
 	}
 
 EXPORT_C void CShowEngine::DeleteShowL(TUint aShowUid, TBool aRemoveFile)
@@ -1153,14 +1201,17 @@ EXPORT_C void CShowEngine::GetShowsDownloadingL(RShowInfoArray &aArray)
 
 EXPORT_C TInt CShowEngine::GetNumDownloadingShows()
 	{
-	return (const TInt) DBGetDownloadsCount();
+	TUint count;
+	TRAP_IGNORE(count = DBGetDownloadsCountL());
+		
+	return (const TInt) count;
 	}
 
 EXPORT_C void CShowEngine::AddDownloadL(CShowInfo& aInfo)
 	{
 	aInfo.SetDownloadState(EQueued);
 	DBUpdateShowL(aInfo);
-	DBAddDownload(aInfo.Uid());
+	DBAddDownloadL(aInfo.Uid());
 	DownloadNextShowL();
 	}
 
@@ -1168,7 +1219,7 @@ void CShowEngine::DownloadNextShowL()
 	{
 	DP("CShowEngine::DownloadNextShowL BEGIN");
 	// Check if we have anything in the download queue
-	const TInt count = DBGetDownloadsCount();
+	const TInt count = DBGetDownloadsCountL();
 	DP("CShowEngine::DownloadNextShow\tTrying to start new download");DP1("CShowEngine::DownloadNextShow\tShows in download queue %d", count);
 
 	if (count > 0)
@@ -1196,7 +1247,6 @@ void CShowEngine::DownloadNextShowL()
 			
 			while(info != NULL)
 				{
-				TBool getOk = EFalse;
 				DP1("CShowEngine::DownloadNextShow\tDownloading: %S", &(info->Title()));
 				info->SetDownloadState(EDownloading);
 				info->SetLastError(KErrNone);
@@ -1206,11 +1256,11 @@ void CShowEngine::DownloadNextShowL()
 				// important to do this after we change download state
 				NotifyDownloadQueueUpdatedL();
 
-				TRAPD(error,getOk = GetShowL(info));
-				if (error != KErrNone || !getOk)
+				TRAPD(error,GetShowL(info));
+				if (error != KErrNone)
 					{
 					info->SetDownloadState(EFailedDownload);
-					DBRemoveDownload(info->Uid());
+					DBRemoveDownloadL(info->Uid());
 					DBUpdateShowL(*info);
 					info = DBGetNextDownloadL();
 					
@@ -1241,7 +1291,7 @@ void CShowEngine::NotifyDownloadQueueUpdatedL()
 	const TInt count = iObservers.Count();
 	for (TInt i = 0; i < count; i++)
 		{
-		iObservers[i]->DownloadQueueUpdatedL(1, DBGetDownloadsCount() - 1);
+		iObservers[i]->DownloadQueueUpdatedL(1, DBGetDownloadsCountL() - 1);
 		}
 	}
 

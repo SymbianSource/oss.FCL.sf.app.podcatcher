@@ -37,7 +37,7 @@ public:
 	
 public:
 	IMPORT_C void AddDownloadL(CShowInfo& info);
-	IMPORT_C TBool RemoveDownloadL(TUint aUid);
+	IMPORT_C void RemoveDownloadL(TUint aUid);
 	IMPORT_C void RemoveAllDownloadsL();
 
 	IMPORT_C void SuspendDownloads();
@@ -56,11 +56,11 @@ public:
 	IMPORT_C void GetShowsDownloadingL(RShowInfoArray &aArray);
 	IMPORT_C CShowInfo* DBGetShowByFileNameL(TFileName aFileName);
 	
-	IMPORT_C TBool AddShowL(const CShowInfo& item);
+	IMPORT_C void AddShowL(const CShowInfo& item);
 	IMPORT_C void DeletePlayedShowsL(RShowInfoArray &aShowInfoArray);
 	IMPORT_C void DeleteAllShowsByFeedL(TUint aFeedUid,TBool aDeleteFiles=ETrue);
 	IMPORT_C void DeleteShowL(TUint aShowUid, TBool aRemoveFile=ETrue);
-	IMPORT_C void DeleteOldShowsByFeed(TUint aFeedUid);
+	IMPORT_C void DeleteOldShowsByFeedL(TUint aFeedUid);
 	
 	IMPORT_C void AddObserver(MShowEngineObserver *observer);
 	IMPORT_C void RemoveObserver(MShowEngineObserver *observer);
@@ -88,7 +88,7 @@ private:
 	CShowEngine(CPodcastModel& aPodcastModel);
 	void ConstructL();
 
-	TBool GetShowL(CShowInfo *info);
+	void GetShowL(CShowInfo *info);
 
 	void NotifyDownloadQueueUpdatedL();
 	void NotifyShowDownloadUpdatedL(TInt aBytesOfCurrentDownload, TInt aBytesTotal);
@@ -106,20 +106,20 @@ private:
 	// DB methods
 	CShowInfo* DBGetShowByUidL(TUint aUid);
 	void DBFillShowInfoFromStmtL(sqlite3_stmt *st, CShowInfo* showInfo);
-	TBool DBAddShowL(const CShowInfo& aItem);
-	TBool DBUpdateShowL(CShowInfo& aItem);
+	void DBAddShowL(const CShowInfo& aItem);
+	void DBUpdateShowL(CShowInfo& aItem);
 	void DBGetShowsByFeedL(RShowInfoArray& aShowArray, TUint aFeedUid);
 	void DBGetAllShowsL(RShowInfoArray& aShowArray);
 	void DBGetNewShowsL(RShowInfoArray& aShowArray);
 	void DBGetDownloadedShowsL(RShowInfoArray& aShowArray);
-	TBool DBDeleteAllShowsByFeed(TUint aFeedUid);
-	void DBDeleteOldShowsByFeed(TUint aFeedUid);
-	TBool DBDeleteShow(TUint aUid);
-	void DBRemoveAllDownloads();
-	void DBRemoveDownload(TUint aUid);
+	void DBDeleteAllShowsByFeedL(TUint aFeedUid);
+	void DBDeleteOldShowsByFeedL(TUint aFeedUid);
+	void DBDeleteShowL(TUint aUid);
+	void DBRemoveAllDownloadsL();
+	void DBRemoveDownloadL(TUint aUid);
 	void DBGetAllDownloadsL(RShowInfoArray& aShowArray);
-	TUint DBGetDownloadsCount();
-	void DBAddDownload(TUint aUid);
+	TUint DBGetDownloadsCountL();
+	void DBAddDownloadL(TUint aUid);
 	CShowInfo* DBGetNextDownloadL();
 	
 private:

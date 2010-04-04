@@ -278,9 +278,10 @@ void CFeedEngine::NewShowL(CShowInfo& aItem)
 		}
 	}
 	
-	TBool isShowAdded = iPodcastModel.ShowEngine().AddShowL(aItem);
+	TRAPD(err, iPodcastModel.ShowEngine().AddShowL(aItem));
 
-	if (aItem.PlayState() == ENeverPlayed && isShowAdded && iPodcastModel.SettingsEngine().DownloadAutomatically()) 
+	if (err == KErrNone && aItem.PlayState() == ENeverPlayed && 
+			iPodcastModel.SettingsEngine().DownloadAutomatically()) 
 		{
 		iPodcastModel.ShowEngine().AddDownloadL(aItem);
 		}	
@@ -576,7 +577,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 							}
 						else
 							{
-							iPodcastModel.ShowEngine().DeleteOldShowsByFeed(iActiveFeed->Uid());
+							iPodcastModel.ShowEngine().DeleteOldShowsByFeedL(iActiveFeed->Uid());
 							}
 	
 						// delete the downloaded XML file as it is no longer needed
