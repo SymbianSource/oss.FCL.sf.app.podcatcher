@@ -432,9 +432,10 @@ void CPodcastShowsView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aS
 	if(aShowInfo.LastError() != KErrNone)
 		{
 		GetShowErrorText(infoSize, aShowInfo.LastError());
+		showDate.Zero();
 		}
 	
-	if (infoSize.Length() > 0)
+	if (infoSize.Length() > 0 && showDate.Length() > 0)
 		{
 		infoSize.Insert(0,_L(", "));
 		}

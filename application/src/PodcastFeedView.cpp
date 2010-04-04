@@ -362,6 +362,7 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		if(aFeedInfo.LastError() != KErrNone)
 			{
 			GetFeedErrorText(unplayedShows, aFeedInfo.LastError());
+			updatedDate.Zero();
 			}
 		}
 	CArrayPtr<CGulIcon>* icons = iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->IconArray();
@@ -385,7 +386,7 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		iconIndex++;
 		}	
 
-	if (unplayedShows.Length() > 0) {
+	if (unplayedShows.Length() > 0 && updatedDate.Length() > 0) {
 		unplayedShows.Insert(0,_L(", "));
 	}
 	

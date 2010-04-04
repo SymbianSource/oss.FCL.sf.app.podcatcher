@@ -1345,7 +1345,5 @@ EXPORT_C CMetaDataReader& CShowEngine::MetaDataReader()
 
 void CShowEngine::FileError(TUint /*aError*/)
 	{
-	//TODO: Error dialog
-	//StopDownloads();
 	iDownloadErrors = KMaxDownloadErrors;
 	}
