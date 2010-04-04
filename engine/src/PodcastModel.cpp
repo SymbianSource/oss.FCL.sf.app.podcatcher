@@ -22,6 +22,7 @@
 #include "SettingsEngine.h"
 #include "ShowEngine.h"
 #include "connectionengine.h"
+#include "podcastutils.h"
 
 #include <cmdestination.h>
 #include <cmmanager.h>
@@ -83,6 +84,21 @@ void CPodcastModel::ConstructL()
 	
 	iSettingsEngine = CSettingsEngine::NewL(*this);
 	iConnectionEngine = CConnectionEngine::NewL(*this);	
+	
+	TRAPD(err, OpenDBL());
+	
+	if (err != KErrNone)
+		{
+		ResetDB();
+		
+		TRAP(err, OpenDBL());
+		
+		if (err != KErrNone)
+			{
+			User::Panic(_L("Podcatcher"), 1);
+			}
+		
+		}
 	
 	iFeedEngine = CFeedEngine::NewL(*this);
 	iShowEngine = CShowEngine::NewL(*this);
@@ -237,38 +253,90 @@ void CPodcastModel::SetActiveShowList(RShowInfoArray& aShowArray)
 	}
 }
 
-sqlite3* CPodcastModel::DB()
-{
-	DP("CPodcastModel::DB BEGIN");
-	if (iDB == NULL) {		
-		TFileName dbFileName;
-		dbFileName.Copy(iSettingsEngine->PrivatePath());
-		//iFsSession.PrivatePath(dbFileName);
-		dbFileName.Append(KDBFileName);
-		DP1("DB is at %S", &dbFileName);
-
-		if (!BaflUtils::FileExists(iFsSession, dbFileName)) {
-			TFileName dbTemplate;
-			dbTemplate.Copy(iSettingsEngine->PrivatePath());
-			//iFsSession.PrivatePath(dbTemplate);
-			dbTemplate.Append(KDBTemplateFileName);
-			DP1("No DB found, copying template from %S", &dbTemplate);
-			BaflUtils::CopyFile(iFsSession, dbTemplate,dbFileName);
-			iIsFirstStartup = ETrue;
+void CPodcastModel::ResetDB()
+	{
+	DP("CPodcastModel::ResetDB BEGIN");
+	
+	if (iDB != NULL)
+		{
+		sqlite3_close(iDB);
+		iDB = NULL;
 		}
+	
+	TFileName dbFileName;
+	dbFileName.Copy(iSettingsEngine->PrivatePath());
+	dbFileName.Append(KDBFileName);
+
+	// remove the old DB file
+	if (BaflUtils::FileExists(iFsSession, dbFileName))
+		{
+		BaflUtils::DeleteFile(iFsSession, dbFileName);
+		}
+
+	// copy template to new DB
+	TFileName dbTemplate;
+	dbTemplate.Copy(iSettingsEngine->PrivatePath());
+	dbTemplate.Append(KDBTemplateFileName);
+
+	BaflUtils::CopyFile(iFsSession, dbTemplate,dbFileName);
+	iIsFirstStartup = ETrue;
+	DP("CPodcastModel::ResetDB END");
+	}
+
+
+void CPodcastModel::OpenDBL()
+	{
+	DP("CPodcastModel::OpenDBL BEGIN");
+	
+	if (iDB != NULL)
+		{
+		sqlite3_close(iDB);
+		iDB = NULL;
+		}
+	
+	TFileName dbFileName;
+	dbFileName.Copy(iSettingsEngine->PrivatePath());
+	dbFileName.Append(KDBFileName);
 		
+	if (!BaflUtils::FileExists(iFsSession, dbFileName))
+		{
+		User::Leave(KErrNotFound);
+		}
+	
+	if (iDB == NULL) {	
+		// open DB
 		TBuf8<KMaxFileName> filename8;
 		filename8.Copy(dbFileName);
-		DP("Before sqlite3_open");
 		int rc = sqlite3_open((const char*) filename8.PtrZ(), &iDB);
-		if( rc != SQLITE_OK){
-			DP("Error loading DB");
-			User::Panic(_L("Podcatcher"), 10);
+		if(rc != SQLITE_OK){
+			User::Leave(KErrCorrupt);
 		}
 
+		// do a test query 
+		sqlite3_stmt *st;
+		rc = sqlite3_prepare_v2(iDB,"select count(*) from feeds" , -1, &st, (const char**) NULL);
+		if( rc==SQLITE_OK )
+			{
+			Cleanup_sqlite3_finalize_PushL(st);
+			rc = sqlite3_step(st);
+					
+			if (rc != SQLITE_ROW)
+				{
+				User::Leave(KErrCorrupt);
+				}
+			CleanupStack::PopAndDestroy(); // st
+			}
+		else
+			{
+			User::Leave(KErrCorrupt);
+			}
+		}
 
+	DP("CPodcastModel::OpenDBL END");	
 	}
-	DP("CPodcastModel::DB END");
+
+sqlite3* CPodcastModel::DB()
+{
 	return iDB;
 }
 

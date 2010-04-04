@@ -85,6 +85,7 @@ public:
 	TInt GetIapId();
 	
 	sqlite3* DB();
+	void ResetDB();
 	
 	IMPORT_C void GetAllShowsL();
 	IMPORT_C void GetNewShowsL();
@@ -99,6 +100,8 @@ public:
 protected:
 	CPodcastModel();
 	void ConstructL();
+	
+	void OpenDBL();
 	// From ImageHandler
 	void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel);
 private:	

@@ -130,18 +130,17 @@ void COpmlParser::OnStartElementL(const RTagInfo& aElement, const RAttributeArra
 				} else if (attr16.Compare(KTagHtmlUrl) == 0) {
 					newFeed->SetLinkL(*val16);
 					hasUrl = ETrue;
-				// text=...
+				// title=...
 				} else if (attr16.Compare(KTagTitle) == 0) {
 					newFeed->SetTitleL(*val16);
-					newFeed->SetCustomTitle();
 					hasTitle = ETrue;
 				// description=
 				} else if (attr16.Compare(KTagDescription) == 0) {
 					newFeed->SetDescriptionL(*val16);
+				// text=
 				} else if (attr16.Compare(KTagText) == 0) {
 					if (!hasTitle) {
 						newFeed->SetTitleL(*val16);
-						newFeed->SetCustomTitle();
 						hasTitle = ETrue;
 					}
 				} 
@@ -154,6 +153,14 @@ void COpmlParser::OnStartElementL(const RTagInfo& aElement, const RAttributeArra
 			
 			if (!hasTitle) {
 				newFeed->SetTitleL(newFeed->Url());
+			}
+			
+			// if the title is the same as the URL, it is hardly a custom
+			// title, so let's replace it on update
+			if (newFeed->Title().Length() &&
+					newFeed->Url().Length() &&
+					newFeed->Title().Compare(newFeed->Url()) != 0) {
+				newFeed->SetCustomTitle();
 			}
 			
 			if (iSearching) {

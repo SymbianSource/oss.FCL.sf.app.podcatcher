@@ -70,8 +70,7 @@ public:
 	IMPORT_C void CancelUpdateAllFeeds();
 	IMPORT_C const RFeedInfoArray& GetSortedFeeds();
 	IMPORT_C CFeedInfo* GetFeedInfoByUid(TUint aFeedUid);	
-	IMPORT_C void GetStatsByFeed(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed);
-	IMPORT_C void GetDownloadedStats(TUint &aNumShows, TUint &aNumUnplayed);
+	IMPORT_C void GetStatsByFeedL(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed);
 
 	IMPORT_C void AddObserver(MFeedEngineObserver *observer);
 	IMPORT_C void RemoveObserver(MFeedEngineObserver *observer);
@@ -123,12 +122,12 @@ private:
 	
 private:
 	void DBLoadFeedsL();
-	TBool DBRemoveFeed(TUint aUid);
-	TBool DBAddFeedL(const CFeedInfo& aTtem);
+	void DBRemoveFeedL(TUint aUid);
+	void DBAddFeedL(const CFeedInfo& aTtem);
 	CFeedInfo* DBGetFeedInfoByUidL(TUint aFeedUid);	
-	TUint DBGetFeedCount();
-	TBool DBUpdateFeedL(const CFeedInfo& aItem);
-	void DBGetStatsByFeed(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed);
+	TUint DBGetFeedCountL();
+	void DBUpdateFeedL(const CFeedInfo& aItem);
+	void DBGetStatsByFeedL(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed);
 
 		
 private:

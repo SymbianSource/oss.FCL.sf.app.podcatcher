@@ -22,9 +22,9 @@ WINSCW
 
 PRJ_MMPFILES
 
-//#ifdef SQLITE_INCLUDED
+#ifdef SQLITE_INCLUDED
 ..\engine\sqlite\group\sqlite.mmp
-//#endif
+#endif
 
 PRJ_MMPFILES
 ..\engine\group\engine.mmp
@@ -33,6 +33,7 @@ gnumakefile ..\application\group\icons.mk
 ..\application\group\Podcast.mmp
 
 PRJ_EXPORTS
+..\engine\config\podcatcher.sqlite \epoc32\winscw\c\private\A0009D00\podcatcher.sqlite.template
 ..\engine\config\defaultfeeds.xml \epoc32\winscw\c\private\A0009D00\defaultfeeds.xml
 ..\engine\config\testfeeds.xml \epoc32\winscw\c\data\testfeeds.xml
 ..\application\help\podcatcher.hlp \epoc32\winscw\c\resource\help\podcatcher.hlp

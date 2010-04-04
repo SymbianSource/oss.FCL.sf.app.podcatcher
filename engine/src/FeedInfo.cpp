@@ -52,7 +52,9 @@ EXPORT_C CFeedInfo* CFeedInfo::CopyL() const
 	copy->SetLinkL(Link());
 	copy->SetBuildDate(BuildDate());
 	copy->SetLastUpdated(LastUpdated());
-	copy->iFeedIcon->Duplicate(iFeedIcon->Handle());
+	if (iFeedIcon) {
+		copy->SetFeedIcon(iFeedIcon);
+	}
 	copy->SetImageFileNameL(ImageFileName(), NULL);
 	if(CustomTitle())
 		{
@@ -64,6 +66,7 @@ EXPORT_C CFeedInfo* CFeedInfo::CopyL() const
 	CleanupStack::Pop(copy);
 	return copy;
 	}
+
 CFeedInfo::CFeedInfo()
 	{
 	iCustomTitle = EFalse;
@@ -82,7 +85,7 @@ EXPORT_C CFeedInfo::~CFeedInfo()
 
 void CFeedInfo::ConstructL()
 	{
-	iFeedIcon = new (ELeave) CFbsBitmap;
+	//iFeedIcon = new (ELeave) CFbsBitmap;
 	}
 
 EXPORT_C const TDesC& CFeedInfo::Url() const
@@ -195,6 +198,7 @@ EXPORT_C const TDesC& CFeedInfo::ImageFileName() const
 
 EXPORT_C void CFeedInfo::SetImageFileNameL(const TDesC& aFileName, CPodcastModel* aPodcastModel)
 	{
+	DP1("CFeedInfo::SetImageFileNameL BEGIN, aFileName=%S", &aFileName);
 	TFileName cacheFileName;
 	
 	if (iImageFileName)
@@ -209,15 +213,21 @@ EXPORT_C void CFeedInfo::SetImageFileNameL(const TDesC& aFileName, CPodcastModel
 	cacheFileName.Append(parser.Name());
 	cacheFileName.Append(KMbmExtension());
 	
-	if( iFeedIcon->SizeInPixels() == TSize(0,0) && BaflUtils::FileExists(CEikonEnv::Static()->FsSession(), cacheFileName) )
+	if (iFeedIcon) {
+		delete iFeedIcon;
+	}
+	
+	if( BaflUtils::FileExists(CEikonEnv::Static()->FsSession(), cacheFileName) )
 		{
 		iFeedIcon = CEikonEnv::Static()->CreateBitmapL(cacheFileName, 0);
 		}
 	else if(aPodcastModel &&  BaflUtils::FileExists(CEikonEnv::Static()->FsSession(), ImageFileName() ))
 		{
 		// If this fails, no reason to worry
+		iFeedIcon = new CFbsBitmap();
 		TRAP_IGNORE(aPodcastModel->ImageHandler().LoadFileAndScaleL(FeedIcon(), ImageFileName(), TSize(64,56), *this, Uid()));
-		}		
+		}	
+	DP("CFeedInfo::SetImageFileNameL END");
 	} 
 
 EXPORT_C TBool CFeedInfo::CustomTitle() const

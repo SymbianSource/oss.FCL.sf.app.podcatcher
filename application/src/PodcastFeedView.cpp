@@ -204,17 +204,12 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 
 	switch(aEventType)
 		{
-		case EEventPenDownOnItem:
-			DP("PEN DOWN");
-			break;
-			
 #ifndef SYMBIAN1_UI
 	case EEventItemClicked:
 #endif
 	case EEventEnterKeyPressed:
 	case EEventItemDoubleClicked:
 	case EEventItemActioned:
-		DP("DOUBLE TAP");
 			{
 			const RFeedInfoArray* sortedItems = NULL;
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
@@ -334,7 +329,8 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		}
 	else
 		{
-		iPodcastModel.FeedEngine().GetStatsByFeed(aFeedInfo.Uid(), showCount, unplayedCount);	
+		// we will get a leave if there are no shows for this feed, for instance, which is fine
+		TRAP_IGNORE(iPodcastModel.FeedEngine().GetStatsByFeedL(aFeedInfo.Uid(), showCount, unplayedCount));	
 		
 		if (unplayedCount) {
 			unplayedShows.Format(*iFeedsFormat, unplayedCount);
@@ -370,7 +366,7 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		}
 	CArrayPtr<CGulIcon>* icons = iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->IconArray();
 	iconIndex = iFeedIdForIconArray.Find(aFeedInfo.Uid());
-	if(iconIndex == KErrNotFound && aFeedInfo.FeedIcon() != NULL && 
+	if(iconIndex == KErrNotFound && aFeedInfo.FeedIcon() != NULL && aFeedInfo.ImageFileName().Length() > 0 && 
 			aFeedInfo.FeedIcon()->SizeInPixels().iHeight > 0 &&
 			aFeedInfo.FeedIcon()->SizeInPixels().iWidth > 0)
 		{

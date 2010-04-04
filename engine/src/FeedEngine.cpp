@@ -28,14 +28,6 @@
 #include <utf.h>
 
 _LIT(KFeedParseStorePath, "feeds\\");
-// Cleanup stack macro for SQLite3
-// TODO Move this to some common place.
-static void Cleanup_sqlite3_finalize_wrapper(TAny* handle)
-	{
-	sqlite3_finalize(static_cast<sqlite3_stmt*>(handle));
-	}
-#define Cleanup_sqlite3_finalize_PushL(__handle) CleanupStack::PushL(TCleanupItem(&Cleanup_sqlite3_finalize_wrapper, __handle))
-
 
 CFeedEngine* CFeedEngine::NewL(CPodcastModel& aPodcastModel)
 	{
@@ -53,36 +45,41 @@ void CFeedEngine::ConstructL()
 	iFeedClient = CHttpClient::NewL(iPodcastModel, *this);
 	iFeedTimer.ConstructL();
 	
-	RunFeedTimer();
+	TInt err = KErrNone;
+	TInt feedCount = 0;
 	
-    if (DBGetFeedCount() > 0) 
+	TRAP(err, feedCount = DBGetFeedCountL());
+    if (err == KErrNone && feedCount > 0)
     	{
 		DP("Loading feeds from DB");
-		DBLoadFeedsL();
-		} 
+		TRAP(err, DBLoadFeedsL());
+    	}		
+
     
-	if (iPodcastModel.IsFirstStartup()) {
+	if (err != KErrNone || iPodcastModel.IsFirstStartup()) {
 		TFileName defaultFile = iPodcastModel.SettingsEngine().DefaultFeedsFileName();
 		DP1("Loading default feeds from %S", &defaultFile);
 		if (BaflUtils::FileExists(iPodcastModel.FsSession(), defaultFile)) {
 			ImportFeedsL(defaultFile);
 		}
-	} else {
-		// clean out feeds temp directory
-		TFileName feedTempPath;
-		feedTempPath.Copy (iPodcastModel.SettingsEngine().PrivatePath ());
-		feedTempPath.Append(KFeedParseStorePath);
-		feedTempPath.Append(_L("*"));
+	} 
+	
+	// clean out feeds temp directory
+	TFileName feedTempPath;
+	feedTempPath.Copy (iPodcastModel.SettingsEngine().PrivatePath ());
+	feedTempPath.Append(KFeedParseStorePath);
+	feedTempPath.Append(_L("*"));
 
-		BaflUtils::EnsurePathExistsL(iPodcastModel.FsSession(), feedTempPath);
-		BaflUtils::DeleteFile(iPodcastModel.FsSession(),feedTempPath);
-	}
+	BaflUtils::EnsurePathExistsL(iPodcastModel.FsSession(), feedTempPath);
+	BaflUtils::DeleteFile(iPodcastModel.FsSession(),feedTempPath);
     
     TFileName importFile = iPodcastModel.SettingsEngine().ImportFeedsFileName();
     if (BaflUtils::FileExists(iPodcastModel.FsSession(), importFile)) {
     	DP("Importing feeds");
-    	ImportFeedsL(importFile);
+    	TRAP_IGNORE(ImportFeedsL(importFile));
 		}
+    
+	RunFeedTimer();
 	}
 
 CFeedEngine::CFeedEngine(CPodcastModel& aPodcastModel)
@@ -340,15 +337,17 @@ EXPORT_C TBool CFeedEngine::AddFeedL(const CFeedInfo&aItem)
 	return ETrue;
 	}
 
-TBool CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
+void CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 	{
 	DP2("CFeedEngine::DBAddFeed, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 	
-	CFeedInfo *info = DBGetFeedInfoByUidL(aItem.Uid());
-	if (info) {
-		DP("Feed already exists!");
+	CFeedInfo *info;
+	
+	TRAPD(err, DBGetFeedInfoByUidL(aItem.Uid()));
+	
+	if (err == KErrNone && info) {
 		delete info;
-		return EFalse;
+		User::Leave(KErrAlreadyExists);
 	}
 
 	HBufC* titleBuf = HBufC::NewLC(KMaxLineLength);
@@ -372,24 +371,23 @@ TBool CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 	
 	sqlite3_stmt *st;
 	 
-	//DP1("SQL statement length=%d", iSqlBuffer.Length());
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st, (const void**) NULL);
 	
 	if (rc==SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
 
-		if (rc == SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
-			sqlite3_finalize(st);
-			return ETrue;
+			User::Leave(KErrCorrupt);
 			}
-		else {
-			sqlite3_finalize(st);
+		CleanupStack::PopAndDestroy(); // st
 		}
-	}
-
-	return EFalse;
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 	}
 
 EXPORT_C void CFeedEngine::RemoveFeedL(TUint aUid) 
@@ -427,15 +425,13 @@ EXPORT_C void CFeedEngine::RemoveFeedL(TUint aUid)
 			DP("Removed feed from array");
 			
 			// now remove it from DB
-			DBRemoveFeed(aUid);
-
-			return;
+			DBRemoveFeedL(aUid);
 		}
 	}
 }
 
 
-TBool CFeedEngine::DBRemoveFeed(TUint aUid)
+void CFeedEngine::DBRemoveFeedL(TUint aUid)
 	{
 	DP("CFeedEngine::DBRemoveFeed");
 	_LIT(KSqlStatement, "delete from feeds where uid=%u");
@@ -447,23 +443,23 @@ TBool CFeedEngine::DBRemoveFeed(TUint aUid)
 	
 	if (rc==SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		sqlite3_finalize(st);
 
-		if (rc == SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
-			DP("Feed removed from DB");
-			return ETrue;
+			User::Leave(KErrNotFound);
 			}
-		else
-			{
-			DP("Error when removing feed from DB");
-			}
+		
+		CleanupStack::PopAndDestroy(); //st
 		}
-	return EFalse;	
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 	}
 
-TBool CFeedEngine::DBUpdateFeedL(const CFeedInfo &aItem)
+void CFeedEngine::DBUpdateFeedL(const CFeedInfo &aItem)
 	{
 	DP2("CFeedEngine::DBUpdateFeed, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 	
@@ -488,25 +484,23 @@ TBool CFeedEngine::DBUpdateFeedL(const CFeedInfo &aItem)
 	
 	sqlite3_stmt *st;
 	 
-	//DP1("SQL statement length=%d", iSqlBuffer.Length());
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st, (const void**) NULL);
 	
 	if (rc==SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		sqlite3_finalize(st);
 		
-		if (rc == SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
-			return ETrue;
+			User::Leave(KErrNotFound);
 			}
+		CleanupStack::PopAndDestroy(); //st
 		}
 	else
 		{
-		DP1("SQLite rc=%d", rc);
+		User::Leave(KErrCorrupt);
 		}
-
-	return EFalse;
 	}
 
 void CFeedEngine::ParsingCompleteL(CFeedInfo *item)
@@ -627,11 +621,9 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 			iClientState = EIdle;
 			if(aError == KErrNone)
 				{
-				if( BaflUtils::FileExists(CEikonEnv::Static()->FsSession(), iActiveFeed->ImageFileName() ))
-					{
-						// If this fails, no reason to worry
-					TRAP_IGNORE(iPodcastModel.ImageHandler().LoadFileAndScaleL(iActiveFeed->FeedIcon(), iActiveFeed->ImageFileName(), TSize(64,56), *iActiveFeed, iActiveFeed->Uid()));
-					}				
+				// now the image has been downloaded, so we set it again in the FeedInfo to start
+				// converting it
+				TRAP_IGNORE(iActiveFeed->SetImageFileNameL(iActiveFeed->ImageFileName(), &iPodcastModel));
 				}
 			DBUpdateFeedL(*iActiveFeed);
 			NotifyFeedUpdateComplete(iActiveFeed->Uid(), aError);
@@ -808,49 +800,13 @@ TInt CFeedEngine::CompareFeedsByTitle(const CFeedInfo &a, const CFeedInfo &b)
 		return a.Title().CompareF(b.Title());
 	}
 
-EXPORT_C void CFeedEngine::GetDownloadedStats(TUint &aNumShows, TUint &aNumUnplayed)
-	{
-	DP("CFeedEngine::GetDownloadedStats");
-	_LIT(KSqlStatement, "select count(*) from shows where downloadstate=%u");
-	iSqlBuffer.Format(KSqlStatement, EDownloaded);
-
-	sqlite3_stmt *st;
-	 
-	int rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st,	(const void**) NULL);
-	
-	if( rc==SQLITE_OK ){
-	  	rc = sqlite3_step(st);
-	  	
-	  	if (rc == SQLITE_ROW) {
-	  		aNumShows = sqlite3_column_int(st, 0);
-	  	}
-	}
-		  
-	sqlite3_finalize(st);
-
-	_LIT(KSqlStatement2, "select count(*) from shows where downloadstate=%u and playstate=%u");
-	iSqlBuffer.Format(KSqlStatement2, EDownloaded, ENeverPlayed);
-
-	rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st,	(const void**) NULL);
-		
-	if( rc==SQLITE_OK ){
-	  	rc = sqlite3_step(st);
-	  	
-	  	if (rc == SQLITE_ROW) {
-	  		aNumUnplayed = sqlite3_column_int(st, 0);
-	  	}
-	}
-		  
-	sqlite3_finalize(st);
-	}
-
-EXPORT_C void CFeedEngine::GetStatsByFeed(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed)
+EXPORT_C void CFeedEngine::GetStatsByFeedL(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed)
 	{
 	//DP1("CFeedEngine::GetStatsByFeed, aFeedUid=%u", aFeedUid);
-	DBGetStatsByFeed(aFeedUid, aNumShows, aNumUnplayed);
+	DBGetStatsByFeedL(aFeedUid, aNumShows, aNumUnplayed);
 	}
 
-void CFeedEngine::DBGetStatsByFeed(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed)
+void CFeedEngine::DBGetStatsByFeedL(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed)
 	{
 	//DP1("CFeedEngine::DBGetStatsByFeed, feedUid=%u", aFeedUid);
 	_LIT(KSqlStatement, "select count(*) from shows where feeduid=%u");
@@ -860,50 +816,77 @@ void CFeedEngine::DBGetStatsByFeed(TUint aFeedUid, TUint &aNumShows, TUint &aNum
 	 
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st,	(const void**) NULL);
 	
-	if( rc==SQLITE_OK ){
+	if( rc==SQLITE_OK)
+		{
+		Cleanup_sqlite3_finalize_PushL(st);
 	  	rc = sqlite3_step(st);
 	  	
-	  	if (rc == SQLITE_ROW) {
+	  	if (rc == SQLITE_ROW)
+	  		{
 	  		aNumShows = sqlite3_column_int(st, 0);
-	  	}
-	}
+	  		}
+	  	else
+	  		{
+			User::Leave(KErrNotFound);
+	  		}
+	  	CleanupStack::PopAndDestroy(); // st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 		  
-	sqlite3_finalize(st);
-
 	_LIT(KSqlStatement2, "select count(*) from shows where feeduid=%u and playstate=0");
 	iSqlBuffer.Format(KSqlStatement2, aFeedUid);
 
 	rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st,	(const void**) NULL);
 		
-	if( rc==SQLITE_OK ){
+	if(rc==SQLITE_OK)
+		{
+		Cleanup_sqlite3_finalize_PushL(st);
 	  	rc = sqlite3_step(st);
 	  	
-	  	if (rc == SQLITE_ROW) {
+	  	if (rc == SQLITE_ROW)
+	  		{
 	  		aNumUnplayed = sqlite3_column_int(st, 0);
-	  	}
+	  		}
+	  	else
+	  		{
+			User::Leave(KErrNotFound);
+	  		}
+	  	CleanupStack::PopAndDestroy(); // st
 	}
-		  
-	sqlite3_finalize(st);
 }
 
-TUint CFeedEngine::DBGetFeedCount()
+TUint CFeedEngine::DBGetFeedCountL()
 	{
-	 DP("DBGetFeedCount BEGIN");
-	 sqlite3_stmt *st;
-	 int rc = sqlite3_prepare_v2(&iDB,"select count(*) from feeds" , -1, &st, (const char**) NULL);
-	 TUint size = 0;
+	DP("DBGetFeedCount BEGIN");
+	sqlite3_stmt *st;
+	int rc = sqlite3_prepare_v2(&iDB,"select count(*) from feeds" , -1, &st, (const char**) NULL);
+	TUint size = 0;
 	 
-	 if( rc==SQLITE_OK ){
-	  	rc = sqlite3_step(st);
-	  	
-	  	if (rc == SQLITE_ROW) {
+	if( rc==SQLITE_OK )
+		{
+		Cleanup_sqlite3_finalize_PushL(st);
+		rc = sqlite3_step(st);
+			
+		if (rc == SQLITE_ROW)
+			{
 	  		size = sqlite3_column_int(st, 0);
-	  	}
-	  }
-	  
-	  sqlite3_finalize(st);
-	  DP1("DBGetFeedCount END=%d", size);
-	  return size;
+	  		}
+		else
+			{
+	  		User::Leave(KErrCorrupt);
+	  		}
+		CleanupStack::PopAndDestroy(); // st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
+
+	DP1("DBGetFeedCount END=%d", size);
+	return size;
 }
 
 void CFeedEngine::DBLoadFeedsL()
@@ -920,11 +903,13 @@ void CFeedEngine::DBLoadFeedsL()
 	TLinearOrder<CFeedInfo> sortOrder( CFeedEngine::CompareFeedsByTitle);
 
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st,	(const void**) NULL);
-	Cleanup_sqlite3_finalize_PushL(st);
 	
-	if (rc==SQLITE_OK) {
+	if (rc==SQLITE_OK)
+		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		while(rc == SQLITE_ROW) {
+		while(rc == SQLITE_ROW) 
+			{
 			feedInfo = CFeedInfo::NewLC();
 			
 			const void *urlz = sqlite3_column_text16(st, 0);
@@ -945,8 +930,11 @@ void CFeedEngine::DBLoadFeedsL()
 
 			const void *imagefilez = sqlite3_column_text16(st, 4);
 			TPtrC16 imagefile((const TUint16*)imagefilez);
-			feedInfo->SetImageFileNameL(imagefile, &iPodcastModel);
-						
+			if (imagefile.Length() > 0)
+				{
+				feedInfo->SetImageFileNameL(imagefile, &iPodcastModel);
+				}
+			
 			const void *linkz = sqlite3_column_text16(st, 5);
 			TPtrC16 link((const TUint16*)linkz);
 			feedInfo->SetDescriptionL(link);
@@ -960,9 +948,10 @@ void CFeedEngine::DBLoadFeedsL()
 			feedInfo->SetLastUpdated(lastupdatedtime);
 			
 			sqlite3_int64 customtitle = sqlite3_column_int64(st, 10);
-			if (customtitle) {
+			if (customtitle)
+				{
 				feedInfo->SetCustomTitle();
-			}
+				}
 			
 			TInt lasterror = sqlite3_column_int(st, 11);
 			feedInfo->SetLastError(lasterror);
@@ -974,10 +963,13 @@ void CFeedEngine::DBLoadFeedsL()
 			CleanupStack::Pop(feedInfo);
 				
 			rc = sqlite3_step(st);
+			}	
+		CleanupStack::PopAndDestroy();//st
 		}
-	}
-
-	CleanupStack::PopAndDestroy();//st
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 
 	DP("DBLoadFeeds END");
 	}
@@ -990,15 +982,15 @@ CFeedInfo* CFeedEngine::DBGetFeedInfoByUidL(TUint aFeedUid)
 	iSqlBuffer.Format(KSqlStatement, aFeedUid);
 
 	sqlite3_stmt *st;
-	 
-	//DP1("SQL statement length=%d", iSqlBuffer.Length());
-
+	
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st,	(const void**) NULL);
 	
-	if (rc==SQLITE_OK) {
+	if (rc==SQLITE_OK)
+		{
 		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		if (rc == SQLITE_ROW) {
+		if (rc == SQLITE_ROW)
+			{
 			feedInfo = CFeedInfo::NewLC();
 			
 			const void *urlz = sqlite3_column_text16(st, 0);
@@ -1042,9 +1034,17 @@ CFeedInfo* CFeedEngine::DBGetFeedInfoByUidL(TUint aFeedUid)
 			feedInfo->SetLastError(lasterror);
 						
 			CleanupStack::Pop(feedInfo);
-		}
+			}
+		else
+			{
+			User::Leave(KErrNotFound);
+			}
 		CleanupStack::PopAndDestroy();//st	
-	}
+		}
+	else
+		{
+		User::Leave(KErrNotFound);
+		}
 	
 	return feedInfo;
 }
