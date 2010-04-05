@@ -57,4 +57,5 @@ USERINCLUDE                             ..\src
 USERINCLUDE                             .. 
 SYSTEMINCLUDE                           \Epoc32\include 
 SYSTEMINCLUDE                           \Epoc32\include\libc
+SYSTEMINCLUDE							..\inc
 macro                                   OS_SYMBIAN 

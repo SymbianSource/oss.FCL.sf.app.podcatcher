@@ -254,7 +254,7 @@ void CPodcastModel::SetActiveShowList(RShowInfoArray& aShowArray)
 	}
 }
 
-void CPodcastModel::DropDB()
+EXPORT_C void CPodcastModel::DropDB()
 	{
 	if (iDB != NULL)
 		{

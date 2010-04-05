@@ -146,12 +146,15 @@ EXPORT_C void CShowEngine::RemoveDownloadL(TUint aUid)
 		BaflUtils::DeleteFile(iPodcastModel.FsSession(), iShowDownloading->FileName());
 		}
 
-	NotifyShowDownloadUpdatedL(-1, -1);
-	NotifyDownloadQueueUpdatedL();
-	
-	if (resumeAfterRemove) {
+	if (resumeAfterRemove)
+		{
 		ResumeDownloadsL();
-	}
+		}
+	else
+		{
+		NotifyShowDownloadUpdatedL(-1, -1);
+		NotifyDownloadQueueUpdatedL();
+		}
 	
 	DownloadNextShowL();
 	DP("CShowEngine::RemoveDownloadL END");
@@ -833,7 +836,7 @@ void CShowEngine::DBAddDownloadL(TUint aUid)
 		{
 		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		if (rc =! SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
 			User::Leave(KErrUnknown);
 			}
@@ -881,7 +884,7 @@ void CShowEngine::DBUpdateShowL(CShowInfo& aItem)
 		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);		
 
-		if (rc =! SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
 			User::Leave(KErrUnknown);
 			}
@@ -910,7 +913,7 @@ void CShowEngine::DBDeleteShowL(TUint aUid)
 		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
 
-		if (rc =! SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
 			User::Leave(KErrUnknown);
 			}
@@ -939,7 +942,7 @@ void CShowEngine::DBDeleteAllShowsByFeedL(TUint aFeedUid)
 		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
 
-		if (rc =! SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
 			User::Leave(KErrUnknown);
 			}
@@ -983,7 +986,7 @@ void CShowEngine::DBRemoveAllDownloadsL()
 		{
 		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		if (rc =! SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
 			User::Leave(KErrUnknown);
 			}
@@ -1012,7 +1015,7 @@ void CShowEngine::DBRemoveDownloadL(TUint aUid)
 		{
 		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		if (rc =! SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
 			User::Leave(KErrUnknown);
 			}
@@ -1209,7 +1212,7 @@ EXPORT_C void CShowEngine::GetShowsDownloadingL(RShowInfoArray &aArray)
 
 EXPORT_C TInt CShowEngine::GetNumDownloadingShows()
 	{
-	TUint count;
+	TUint count = 0;
 	TRAP_IGNORE(count = DBGetDownloadsCountL());
 		
 	return (const TInt) count;
@@ -1248,45 +1251,42 @@ void CShowEngine::DownloadNextShowL()
 			}
 		else
 			{
+			if (iShowDownloading) {
+				delete iShowDownloading;
+			}
+			
 			// Start the download
-			CShowInfo *info = DBGetNextDownloadL();
-			CleanupStack::PushL(info);
-			while(info != NULL)
+			iShowDownloading = DBGetNextDownloadL();
+			
+			while(iShowDownloading != NULL)
 				{
-				DP1("CShowEngine::DownloadNextShow\tDownloading: %S", &(info->Title()));
-				info->SetDownloadState(EDownloading);
-				info->SetLastError(KErrNone);
-				DBUpdateShowL(*info);
-				iShowDownloading = info;
+				DP1("CShowEngine::DownloadNextShow\tDownloading: %S", &(iShowDownloading->Title()));
+				iShowDownloading->SetDownloadState(EDownloading);
+				iShowDownloading->SetLastError(KErrNone);
+				DBUpdateShowL(*iShowDownloading);
 				// Inform the observers
 				// important to do this after we change download state
 				NotifyDownloadQueueUpdatedL();
 
-				TRAPD(error,GetShowL(info));
-				if (error != KErrNone)
-					{
-					info->SetDownloadState(EFailedDownload);
-					DBRemoveDownloadL(info->Uid());
-					DBUpdateShowL(*info);
-					CleanupStack::PopAndDestroy(info);
-					info = DBGetNextDownloadL();
-					
-					if(info == NULL)
-						{
-						iPodcastModel.SettingsEngine().SetDownloadSuspended(ETrue);
-						iShowDownloading = NULL;
-						}
-					else
-						{
-						CleanupStack::PushL(info);
-						}
-					}				
-				else
+				TRAPD(error,GetShowL(iShowDownloading));
+				if (error == KErrNone)
 					{
 					break;
 					}
+				else
+					{
+					iShowDownloading->SetDownloadState(EFailedDownload);
+					DBRemoveDownloadL(iShowDownloading->Uid());
+					DBUpdateShowL(*iShowDownloading);
+					CleanupStack::PopAndDestroy(iShowDownloading);
+					
+					iShowDownloading = DBGetNextDownloadL();
+					if(iShowDownloading == NULL)
+						{
+						iPodcastModel.SettingsEngine().SetDownloadSuspended(ETrue);
+						}
+					}				
 				}
-			CleanupStack::Pop(info); // lives on as iShowDownloading
 			}
 		}
 	else

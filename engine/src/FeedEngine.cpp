@@ -345,7 +345,7 @@ void CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 	
 	CFeedInfo *info;
 	
-	TRAPD(err, DBGetFeedInfoByUidL(aItem.Uid()));
+	TRAPD(err, info = DBGetFeedInfoByUidL(aItem.Uid()));
 	
 	if (err == KErrNone && info) {
 		delete info;

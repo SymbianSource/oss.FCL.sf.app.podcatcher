@@ -117,7 +117,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 						TInt err = iRespBodyFile.Open(iFileServ, iParsedFileName.FullName(),EFileWrite);
 						if (err)
 							{
-							DP("There was an error opening file");
+							DP2("There was an error opening file '%S', err=%d", &iParsedFileName.FullName(), err);
 							iSavingResponseBody = EFalse;
 							iHttpClient->ClientRequestCompleteL(KErrInUse);
 							User::Leave(err);

@@ -29,7 +29,7 @@
 #include "FeedInfo.h"
 #include "ShowInfo.h"
 #include "debug.h"
-#include "sqlite3.h"
+#include <sqlite3.h>
 #include "ImageHandler.h"
 
 // SQLite leaks memory when sorting, so to test our own memory leaks we need to disable this
@@ -85,8 +85,7 @@ public:
 	TInt GetIapId();
 	
 	sqlite3* DB();
-	void DropDB();
-	void ResetDB();
+	IMPORT_C void DropDB();
 	
 	IMPORT_C void GetShowsDownloadingL();
 	IMPORT_C void GetShowsByFeedL(TUint aFeedUid);
@@ -98,7 +97,7 @@ public:
 protected:
 	CPodcastModel();
 	void ConstructL();
-	
+	void ResetDB();
 	void OpenDBL();
 	// From ImageHandler
 	void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel);

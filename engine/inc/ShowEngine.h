@@ -27,7 +27,7 @@
 #include "HttpClient.h"
 #include "ShowEngineObserver.h"
 #include "MetaDataReader.h"
-#include "sqlite3.h"
+#include <sqlite3.h>
 
 class CShowEngine : public CBase, public MHttpClientObserver, public MMetaDataReaderObserver
 {

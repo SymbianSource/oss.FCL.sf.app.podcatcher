@@ -529,18 +529,7 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
 			if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
 				{
-				iEatQueueUpdate = ETrue;
-				TRAPD(err, iPodcastModel.ShowEngine().RemoveDownloadL(iPodcastModel.ActiveShowList()[index]->Uid()));
-				
-				if (err == KErrNone)
-					{
-					iItemArray->Delete(index);
-					iItemIdArray.Remove(index);						
-					iListContainer->Listbox()->HandleItemRemovalL();
-					iListContainer->Listbox()->SetCurrentItemIndex(index - 1 > 0 ? index - 1 : 0);
-					iListContainer->Listbox()->DrawNow();
-					}
-				iEatQueueUpdate = EFalse;
+				TRAP_IGNORE(iPodcastModel.ShowEngine().RemoveDownloadL(iPodcastModel.ActiveShowList()[index]->Uid()));
 				}
 			}
 			break;
@@ -586,16 +575,12 @@ void CPodcastQueueView::UpdateToolbar(TBool aVisible)
 		toolbar->SetItemDimmed(EPodcastRemoveAllDownloads, itemCnt == 0, ETrue);
 		toolbar->HideItem(EPodcastSuspendDownloads,iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);
 		toolbar->HideItem(EPodcastResumeDownloads,!iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);	
-#ifdef SYMBIAN1_UI
-		toolbar->HideItem(EPodcastRemoveDownload, EFalse, ETrue);
 		toolbar->SetItemDimmed(EPodcastRemoveDownload, itemCnt == 0, ETrue);		
-#endif
 	}
 }
 
 void CPodcastQueueView::DownloadQueueUpdatedL(TInt /*aDownloadingShows*/, TInt /*aQueuedShows*/)
 	{
-	if (!iEatQueueUpdate)
 		UpdateListboxItemsL();
 	}
 

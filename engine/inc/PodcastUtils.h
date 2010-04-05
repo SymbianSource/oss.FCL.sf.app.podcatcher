@@ -20,14 +20,15 @@
 #define PODCASTUTILS_H_
 
 #include <e32cmn.h>
-#include "sqlite3.h"
+#include <sqlite3.h>
+
 // Cleanup stack macro for SQLite3
 static void Cleanup_sqlite3_finalize_wrapper(TAny* handle)
 	{
 	sqlite3_finalize(static_cast<sqlite3_stmt*>(handle));
 	}
-#define Cleanup_sqlite3_finalize_PushL(__handle) CleanupStack::PushL(TCleanupItem(&Cleanup_sqlite3_finalize_wrapper, __handle))
 
+#define Cleanup_sqlite3_finalize_PushL(__handle) CleanupStack::PushL(TCleanupItem(&Cleanup_sqlite3_finalize_wrapper, __handle))
 
 _LIT(KURLPrefix, "http://");
 _LIT(KItpcPrefix, "itpc://");

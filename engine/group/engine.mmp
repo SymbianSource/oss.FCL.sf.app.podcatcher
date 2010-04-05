@@ -31,6 +31,12 @@ USERINCLUDE ..\inc
 SYSTEMINCLUDE \epoc32\include 
 SYSTEMINCLUDE \epoc32\include\mw 		// needed for S^3
 
+#ifdef SQLITE_INCLUDED
+SYSTEMINCLUDE ..\..\engine\sqlite\inc
+#else
+SYSTEMINCLUDE \epoc32\include\stdapis
+#endif
+
 // Engine
 SOURCE			HttpClient.cpp
 SOURCE			HttpEventHandler.cpp 
