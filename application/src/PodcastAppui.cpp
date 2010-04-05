@@ -344,7 +344,7 @@ void CPodcastAppUi::ConnectionSelectionEnd()
 	iSearchView->UpdateToolbar(ETrue);
 	}
 
-void CPodcastAppUi::GetErrorText(TDes &aErrorMessage, TInt aErrorCode)
+void CPodcastAppUi::GetErrorTextL(TDes &aErrorMessage, TInt aErrorCode)
 	{
 	switch (aErrorCode)
 		{

@@ -392,7 +392,7 @@ void CPodcastQueueView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aS
 	
 	if(aShowInfo.LastError() != KErrNone)
 		{
-		((CPodcastAppUi*)AppUi())->GetErrorText(infoSize, aShowInfo.LastError());
+		TRAP_IGNORE(((CPodcastAppUi*)AppUi())->GetErrorTextL(infoSize, aShowInfo.LastError()));
 		showDate.Zero();
 		}
 		

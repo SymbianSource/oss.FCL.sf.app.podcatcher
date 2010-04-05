@@ -243,15 +243,16 @@ EXPORT_C TBool CFeedEngine::UpdateFeedL(TUint aFeedUid)
 	_LIT(KFileNameFormat, "%lu.xml");
 	iUpdatingFeedFileName.AppendFormat(KFileNameFormat, aFeedUid);
 	
+	iClientState = EUpdatingFeed;
+			
+	for (TInt i=0;i<iObservers.Count();i++)
+		{
+		TRAP_IGNORE(iObservers[i]->FeedDownloadStartedL(iAutoUpdatedInitiator?MFeedEngineObserver::EFeedAutoUpdate:MFeedEngineObserver::EFeedManualUpdate, iActiveFeed->Uid()));
+		}
+
 	if(iFeedClient->GetL(iActiveFeed->Url(), iUpdatingFeedFileName, iPodcastModel.SettingsEngine().SpecificIAP()))
 		{
-		iClientState = EUpdatingFeed;
 		
-		for (TInt i=0;i<iObservers.Count();i++)
-			{
-			TRAP_IGNORE(iObservers[i]->FeedDownloadStartedL(iAutoUpdatedInitiator?MFeedEngineObserver::EFeedAutoUpdate:MFeedEngineObserver::EFeedManualUpdate, iActiveFeed->Uid()));
-			}
-
 		DP("FeedEngine::UpdateFeedL END, return ETrue");
 		return ETrue;
 		}
@@ -604,6 +605,11 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 								}	
 							}
 						}
+					else
+						{
+						// even if it fails, this will allow us to move on
+						iClientState = EIdle;
+						}
 					}
 				iCancelRequested = EFalse;
 				}break;
@@ -655,6 +661,9 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 			
 			BaflUtils::DeleteFile(iPodcastModel.FsSession(), iSearchResultsFileName);
 			}break;
+		case EIdle:
+			UpdateNextFeedL();	
+			break;
 		default:
 			Panic(EPodcatcherPanicFeedEngineState);
 			break;
@@ -899,7 +908,7 @@ void CFeedEngine::DBLoadFeedsL()
 	iSortedFeeds.Reset();
 	CFeedInfo *feedInfo = NULL;
 	
-	_LIT(KSqlStatement, "select url, title, description, imageurl, imagefile, link, built, lastupdated, uid, feedtype, customtitle from feeds");
+	_LIT(KSqlStatement, "select url, title, description, imageurl, imagefile, link, built, lastupdated, uid, feedtype, customtitle, lasterror from feeds");
 	iSqlBuffer.Format(KSqlStatement);
 
 	sqlite3_stmt *st;
@@ -957,7 +966,7 @@ void CFeedEngine::DBLoadFeedsL()
 				feedInfo->SetCustomTitle();
 				}
 			
-			TInt lasterror = sqlite3_column_int(st, 11);
+			sqlite3_int64 lasterror = sqlite3_column_int(st, 11);
 			feedInfo->SetLastError(lasterror);
 			
 			TLinearOrder<CFeedInfo> sortOrder( CFeedEngine::CompareFeedsByTitle);

@@ -109,6 +109,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 		void HandleExportFeedsL();
 		void HandleUpdateFeedL();
 		void GetFeedErrorText(TDes &aErrorMessage, TInt aErrorCode);
+		void OpmlParsingCompleteL(TInt aError, TUint aNumFeedsImported);
 
 	private:
 		CPodcastModel& iPodcastModel;		

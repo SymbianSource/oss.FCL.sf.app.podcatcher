@@ -19,7 +19,6 @@
 // HttpEventHandler.cpp
 #include <e32debug.h>
 #include <httperr.h>
-
 #include "HttpEventHandler.h"
 #include "bautils.h"
 #include "Httpclient.h"
@@ -105,6 +104,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 				{
 				iFileServ.Parse(iFileName, iParsedFileName);
 				TInt valid = iFileServ.IsValidName(iFileName);
+				
 				if (!valid)
 					{
 					DP("The specified filename is not valid!.");
@@ -128,7 +128,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 							if((err=iRespBodyFile.Seek(ESeekEnd, pos)) != KErrNone)
 								{
 								DP("Failed to set position!");
-								iHttpClient->ClientRequestCompleteL(KErrGeneral);
+								iHttpClient->ClientRequestCompleteL(KErrWrite);
 								User::Leave(err);
 								}
 						iBytesDownloaded = (pos > 0) ? pos : 0;
@@ -168,6 +168,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 				iRespBody->GetNextDataPart(bodyData);
 				iBytesDownloaded += bodyData.Length();
 				TInt error = iRespBodyFile.Write(bodyData);
+
 				// on writing error we close connection 
 				if (error != KErrNone) {
 					iRespBodyFile.Close();
@@ -203,12 +204,12 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 			DP("Transaction Failed");
 			aTransaction.Close();
 			
-//			if(iLastStatusCode == HTTPStatus::EOk || iLastStatusCode == HTTPStatus::ECreated || iLastStatusCode == HTTPStatus::EAccepted)
-//				{
-//				iLastStatusCode = KErrNone;
-//				}
+			if(iLastStatusCode == HTTPStatus::EOk || iLastStatusCode == HTTPStatus::ECreated || iLastStatusCode == HTTPStatus::EAccepted)
+				{
+				iLastStatusCode = KErrNone;
+				}
 			
-			iHttpClient->ClientRequestCompleteL(KErrGeneral);
+			iHttpClient->ClientRequestCompleteL(iLastStatusCode);
 			} break;
 		case THTTPEvent::ERedirectedPermanently:
 			{
@@ -231,10 +232,11 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 		}
 	}
 
-TInt CHttpEventHandler::MHFRunError(TInt aError, RHTTPTransaction /*aTransaction*/, const THTTPEvent& /*aEvent*/)
+TInt CHttpEventHandler::MHFRunError(TInt aError, RHTTPTransaction aTransaction, const THTTPEvent& /*aEvent*/)
 	{
 	DP1("MHFRunError fired with error code %d", aError);
-	iHttpClient->ClientRequestCompleteL(aError);
+	aTransaction.Close();
+	TRAP_IGNORE(iHttpClient->ClientRequestCompleteL(aError));
 	return KErrNone;
 	}
 

@@ -445,7 +445,7 @@ void CPodcastShowsView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aS
 
 void CPodcastShowsView::GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode)
 	{
-	((CPodcastAppUi*)AppUi())->GetErrorText(aErrorMessage,aErrorCode);
+	TRAP_IGNORE(((CPodcastAppUi*)AppUi())->GetErrorTextL(aErrorMessage,aErrorCode));
 	}
 
 void CPodcastShowsView::UpdateShowItemDataL(CShowInfo* aShowInfo,TInt aIndex, TInt aSizeDownloaded)

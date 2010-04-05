@@ -320,7 +320,7 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 
 				NotifyDownloadQueueUpdatedL();
 				iDownloadErrors++;
-				if (iDownloadErrors > KMaxDownloadErrors)
+				if (iDownloadErrors >= KMaxDownloadErrors)
 					{
 					DP("Too many downloading errors, suspending downloads");
 					iPodcastModel.SettingsEngine().SetDownloadSuspended(ETrue);

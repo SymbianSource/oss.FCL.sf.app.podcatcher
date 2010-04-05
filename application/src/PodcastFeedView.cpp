@@ -836,6 +836,11 @@ void CPodcastFeedView::CheckResumeDownloadL()
 
 void CPodcastFeedView::OpmlParsingComplete(TInt aError, TUint aNumFeedsImported)
 	{
+	TRAP_IGNORE(OpmlParsingCompleteL(aError, aNumFeedsImported));
+	}
+
+void CPodcastFeedView::OpmlParsingCompleteL(TInt aError, TUint aNumFeedsImported)
+	{
 	DP("CPodcastFeedView::OpmlParsingComplete BEGIN");
 	
 	switch (aError)
@@ -900,7 +905,7 @@ void CPodcastFeedView::DialogDismissedL(TInt /*aButtonId*/)
 
 void CPodcastFeedView::GetFeedErrorText(TDes &aErrorMessage, TInt aErrorCode)
 	{
-	((CPodcastAppUi*)AppUi())->GetErrorText(aErrorMessage,aErrorCode);
+	TRAP_IGNORE(((CPodcastAppUi*)AppUi())->GetErrorTextL(aErrorMessage,aErrorCode));
 	}
 
 void CPodcastFeedView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)

@@ -245,7 +245,7 @@ void COpmlParser::OnProcessingInstructionL(const TDesC8& /*aTarget*/, const TDes
 void COpmlParser::OnError(TInt aErrorCode)
 	{
 	DP1("COpmlParser::OnError %d", aErrorCode);
-	iFeedEngine.OpmlParsingCompleteL(aErrorCode, iNumFeedsAdded);
+	TRAP_IGNORE(iFeedEngine.OpmlParsingCompleteL(aErrorCode, iNumFeedsAdded));
 	}
 
 TAny* COpmlParser::GetExtendedInterface(const TInt32 /*aUid*/)

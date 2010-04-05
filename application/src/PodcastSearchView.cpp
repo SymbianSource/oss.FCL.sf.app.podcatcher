@@ -139,7 +139,7 @@ void CPodcastSearchView::DoActivateL(const TVwsViewId& aPrevViewId,
 void CPodcastSearchView::DoDeactivate()
 {
 	CPodcastListView::DoDeactivate();
-	((CPodcastAppUi*)AppUi())->NaviShowTabGroupL();
+	TRAP_IGNORE(((CPodcastAppUi*)AppUi())->NaviShowTabGroupL());
 }
 
 
