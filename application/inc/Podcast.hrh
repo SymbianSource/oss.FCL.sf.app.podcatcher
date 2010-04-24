@@ -81,7 +81,7 @@ enum TPodcastControl
 
 enum TShowsIconIndex
 	{
-	EShowIcon,
+	EShowIcon = 0,
 	ENewShowIcon,
 	EQuedShowIcon,
 	EDownloadingShowIcon,

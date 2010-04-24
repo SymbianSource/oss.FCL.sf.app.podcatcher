@@ -69,9 +69,29 @@ const TUint KShowIconArrayIds[] =
 			EMbmPodcastAudio_failed_mask,
 			EMbmPodcastAudio_suspended,
 			EMbmPodcastAudio_suspended_mask,
+			EMbmPodcastVideo,
+			EMbmPodcastVideo_mask,
+			EMbmPodcastVideo_new,
+			EMbmPodcastVideo_new_mask,
+			EMbmPodcastVideo_queued,
+			EMbmPodcastVideo_queued_mask,
+			EMbmPodcastVideo_downloading,
+			EMbmPodcastVideo_downloading_mask,
+			EMbmPodcastVideo_downloaded,
+			EMbmPodcastVideo_downloaded_mask,
+			EMbmPodcastVideo_downloaded_new,
+			EMbmPodcastVideo_downloaded_new_mask,
+			EMbmPodcastVideo_failed,
+			EMbmPodcastVideo_failed_mask,
+			EMbmPodcastVideo_suspended,
+			EMbmPodcastVideo_suspended_mask,
+			EMbmPodcastFeed,
+			EMbmPodcastFeed_mask,
 			0,
 			0
 	};
+
+const TInt KVideoIconOffset = 8;
 
 CPodcastShowsView* CPodcastShowsView::NewL(CPodcastModel& aPodcastModel)
 	{
@@ -120,9 +140,9 @@ void CPodcastShowsView::CreateIconsL()
 	TInt pos = 0;
 	while (KShowIconArrayIds[pos] > 0)
 		{
-		// Load the bitmap for play icon	
-		CFbsBitmap* bitmap= NULL;//iEikonEnv->CreateBitmapL( _L("*"), KIconArrayIds[pos]);
-		CFbsBitmap* mask=  NULL;////iEikonEnv->CreateBitmapL( _L("*"), KIconArrayIds[pos+1] );
+		// Load the icon	
+		CFbsBitmap* bitmap= NULL;
+		CFbsBitmap* mask=  NULL;
 		AknIconUtils::CreateIconL(bitmap,
 					                          mask,
 					                          iEikonEnv->EikAppUi()->Application()->BitmapStoreName(),
@@ -131,7 +151,7 @@ void CPodcastShowsView::CreateIconsL()
 		CleanupStack::PushL(bitmap);		
 		CleanupStack::PushL(mask);
 		
-		// Append the play icon to icon array
+		// Append the icon to icon array
 		icons->AppendL(CGulIcon::NewL(bitmap, mask) );
 		CleanupStack::Pop(2); // bitmap, mask
 		pos+=2;
@@ -371,6 +391,11 @@ void CPodcastShowsView::GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex)
 		case EFailedDownload:
 			aIconIndex = EFailedShowIcon;
 			break;
+		}
+	
+	if (aShowInfo->ShowType() == EVideoPodcast)
+		{
+		aIconIndex += KVideoIconOffset;
 		}
 	}
 	
