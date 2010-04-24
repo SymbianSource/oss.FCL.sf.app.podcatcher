@@ -31,49 +31,9 @@
 #include <barsread.h>
 #include <aknnotedialog.h>
 #include <aknmessagequerydialog.h>
-#include "Podcast.hrh"
 
 #define KMaxMessageLength 200
 
-#define KPodcastImageWidth 160
-#define KPodcastImageHeight 120
-#define KPodcastDialogOffset 2
-
-#define KOneHundredPercent 100
-
-const TInt KSizeBufLen = 64;
-const TInt KDefaultGran = 5;
-_LIT(KSizeDownloadingOf, "%.1f/%.1f MB");
-_LIT(KShowsSizeFormatS60, "%.1f MB");
-
-_LIT(KShowFormat, "%d\t%S\t%S %S\t");
-_LIT(KShowErrorFormat, "%d\t%S\t%S\t");
-_LIT(KShowQueueFormat, "%d\t%S\t%S%S\t");
-
-
-// these must correspond with TShowsIconIndex
-
-const TUint KShowIconArrayIds[] =
-	{
-			EMbmPodcastAudio,
-			EMbmPodcastAudio_mask,
-			EMbmPodcastAudio_new,
-			EMbmPodcastAudio_new_mask,
-			EMbmPodcastAudio_queued,
-			EMbmPodcastAudio_queued_mask,
-			EMbmPodcastAudio_downloading,
-			EMbmPodcastAudio_downloading_mask,
-			EMbmPodcastAudio_downloaded,
-			EMbmPodcastAudio_downloaded_mask,
-			EMbmPodcastAudio_downloaded_new,
-			EMbmPodcastAudio_downloaded_new_mask,
-			EMbmPodcastAudio_failed,
-			EMbmPodcastAudio_failed_mask,
-			EMbmPodcastAudio_suspended,
-			EMbmPodcastAudio_suspended_mask,
-			0,
-			0
-	};
 
 CPodcastQueueView* CPodcastQueueView::NewL(CPodcastModel& aPodcastModel)
 	{
@@ -91,7 +51,7 @@ CPodcastQueueView* CPodcastQueueView::NewLC(CPodcastModel& aPodcastModel)
 	}
 
 CPodcastQueueView::CPodcastQueueView(CPodcastModel& aPodcastModel) :
-	iPodcastModel(aPodcastModel)
+	CPodcastShowsView(aPodcastModel)
 	{
 	}
 
@@ -99,33 +59,14 @@ void CPodcastQueueView::ConstructL()
 	{
 	BaseConstructL(R_PODCAST_QUEUEVIEW);
 	CPodcastListView::ConstructL();
-	CArrayPtr< CGulIcon>* icons = new(ELeave) CArrayPtrFlat< CGulIcon>(1);
-	CleanupStack::PushL(icons);
-	TInt pos = 0;
-	while (KShowIconArrayIds[pos] > 0)
-		{
-		// Load the bitmap for play icon	
-		CFbsBitmap* bitmap= NULL;//iEikonEnv->CreateBitmapL( _L("*"), KIconArrayIds[pos]);
-		CFbsBitmap* mask=  NULL;////iEikonEnv->CreateBitmapL( _L("*"), KIconArrayIds[pos+1] );
-		AknIconUtils::CreateIconL(bitmap,
-					                          mask,
-					                          iEikonEnv->EikAppUi()->Application()->BitmapStoreName(),
-					                          KShowIconArrayIds[pos],
-					                          KShowIconArrayIds[pos+1]);	
-		CleanupStack::PushL(bitmap);
-		// Load the mask for play icon			
-		CleanupStack::PushL(mask);
-		// Append the play icon to icon array
-		icons->AppendL(CGulIcon::NewL(bitmap, mask) );
-		CleanupStack::Pop(2); // bitmap, mask
-		pos+=2;
-		}
-	iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL(icons);
-	CleanupStack::Pop(icons); // icons
+
+	CreateIconsL();
+		
 	iListContainer->Listbox()->SetListBoxObserver(this);
 	
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);
+	
 
 	// no popup options apply to S^1
 #ifndef SYMBIAN1_UI
@@ -153,21 +94,6 @@ TKeyResponse CPodcastQueueView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEvent
 		if (activeShow != NULL) {
 			DP1("aKeyEvent.iCode=%d", aKeyEvent.iCode);
 			switch (aKeyEvent.iCode) {
-			case 117: 
-			case '*':
-			case EKeySpace:
-				if (activeShow->PlayState() == EPlayed) {
-					HandleCommandL(EPodcastMarkAsUnplayed);
-				} else {
-					HandleCommandL(EPodcastMarkAsPlayed);
-				}
-				break;
-			case 106:
-			case '#':
-				if (activeShow->DownloadState() == ENotDownloaded) {
-					HandleCommandL(EPodcastDownloadShow);
-				}
-				break;
 			case EKeyBackspace:
 			case EKeyDelete:
 				HandleCommandL(EPodcastRemoveDownload);
@@ -214,78 +140,6 @@ void CPodcastQueueView::DoDeactivate()
 	CPodcastListView::DoDeactivate();
 	}
 
-// Engine callback when new shows are available
-void CPodcastQueueView::ShowListUpdatedL()
-	{
-	UpdateListboxItemsL();
-	}
-
-void CPodcastQueueView::ShowDownloadUpdatedL(TInt aBytesOfCurrentDownload, TInt /*aBytesTotal*/)
-	{
-	if (!iListContainer->IsVisible())
-		{
-		return;
-		}
-		
-	CShowInfo *info = iPodcastModel.ShowEngine().ShowDownloading();
-	if (info) 
-		{
-		UpdateShowItemL(info->Uid(), aBytesOfCurrentDownload);
-		}
-	}
-
-void CPodcastQueueView::ShowDownloadFinishedL(TUint /*aShowUid*/, TInt aError)
-	{
-	if (iListContainer->IsVisible()) 
-		{
-	
-		iProgressAdded = EFalse;
-	
-		iPodcastModel.GetShowsDownloadingL();
-		UpdateListboxItemsL();
-		UpdateToolbar();
-		
-		switch(aError)
-			{
-			case KErrCouldNotConnect:
-				{
-				TBuf<KMaxMessageLength> message;
-				iEikonEnv->ReadResourceL(message, R_PODCAST_CONNECTION_ERROR);
-				ShowErrorMessageL(message);
-				}
-				break;
-			default: // Do nothing
-				break;
-			}
-		}
-	}
-
-
-void CPodcastQueueView::FeedDownloadStartedL(TFeedState /*aState*/, TUint aFeedUid)
-	{
-	// TODO make use of the fact that we know that the feed download is
-	// started instead of checking feed engine states in UpdateFeedUpdateStateL.
-	if (iPodcastModel.ActiveFeedInfo() != NULL
-			&& iPodcastModel.ActiveFeedInfo()->Uid() == aFeedUid)
-		{
-		UpdateFeedUpdateStateL();
-		UpdateToolbar();
-		}	
-	}
-
-void CPodcastQueueView::FeedDownloadFinishedL(TFeedState /*aState*/, TUint aFeedUid, TInt /*aError*/)
-	{
-	DP("CPodcastQueueView::FeedDownloadFinishedL BEGIN");
-	// TODO make use of the fact that we know that the feed download is
-	// finished instead of checking feed engine states in UpdateFeedUpdateStateL.
-	if (iPodcastModel.ActiveFeedInfo() != NULL
-			&& iPodcastModel.ActiveFeedInfo()->Uid() == aFeedUid)
-		{
-		UpdateFeedUpdateStateL();
-		}
-	DP("CPodcastQueueView::FeedDownloadFinishedL END");
-	}
-
 void CPodcastQueueView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 		TListBoxEvent aEventType)
 	{
@@ -303,135 +157,6 @@ void CPodcastQueueView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 		}
 		UpdateToolbar();
 	}
-
-void CPodcastQueueView::GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex)
-	{
-	TBool dlStop = iPodcastModel.SettingsEngine().DownloadSuspended();
-
-	switch (aShowInfo->DownloadState())
-		{
-		case EDownloaded:
-			if (aShowInfo->PlayState() == ENeverPlayed) {
-				aIconIndex = EDownloadedNewShowIcon;
-			} else {
-				aIconIndex = EDownloadedShowIcon;
-			}
-			break;
-		case ENotDownloaded:
-			if (aShowInfo->PlayState() == ENeverPlayed) {
-				aIconIndex = ENewShowIcon;
-			} else {
-				aIconIndex = EShowIcon;
-			}
-			break;
-		case EQueued:
-			aIconIndex = dlStop ? ESuspendedShowIcon : EQuedShowIcon;
-			break;
-		case EDownloading:
-			aIconIndex = dlStop ? ESuspendedShowIcon : EDownloadingShowIcon;		
-			break;
-		case EFailedDownload:
-			aIconIndex = EFailedShowIcon;
-			break;
-		}
-	}
-
-void CPodcastQueueView::UpdateFeedUpdateStateL()
-	{
-	TBool listboxDimmed = EFalse;
-
-	if (iPodcastModel.FeedEngine().ClientState() != EIdle && iPodcastModel.ActiveFeedInfo()
-			!= NULL && iPodcastModel.FeedEngine().ActiveClientUid() == iPodcastModel.ActiveFeedInfo()->Uid())
-		{
-		listboxDimmed = ETrue;
-		}
-
-	if ((iListContainer->Listbox()->IsDimmed() && !listboxDimmed) || (!iListContainer->Listbox()->IsDimmed() && listboxDimmed))
-		{
-		iListContainer->Listbox()->SetDimmed(listboxDimmed);
-		}
-	UpdateListboxItemsL();
-	UpdateToolbar();
-	}
-
-void CPodcastQueueView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aSizeDownloaded)
-	{
-	TBuf<32> infoSize;
-	TInt iconIndex = 0;	
-	TBuf<KMaxShortDateFormatSpec*2> showDate;
-	GetShowIcons(&aShowInfo, iconIndex);	
-	
-	if(aSizeDownloaded > 0)
-		{
-		if (aShowInfo.ShowSize() > 0)
-			{
-				infoSize.Format(KSizeDownloadingOf(), ((float) aSizeDownloaded / (float) KSizeMb),
-						((float)aShowInfo.ShowSize() / (float)KSizeMb));
-			}
-		else
-			{
-			infoSize.Format(KShowsSizeFormatS60(), (float)aSizeDownloaded / (float)KSizeMb);
-			}
-		}
-	else if (aShowInfo.ShowSize() > 0)
-		{
-		infoSize.Format(KShowsSizeFormatS60(), (float)aShowInfo.ShowSize() / (float)KSizeMb);
-		} 
-	else {
-		infoSize = KNullDesC();	
-	}
-
-	if (aShowInfo.PubDate().Int64() == 0)
-		{
-		showDate = KNullDesC();
-		}
-	else
-		{
-		aShowInfo.PubDate().FormatL(showDate, KDateFormatShort());
-		}
-	
-	if(aShowInfo.LastError() != KErrNone)
-		{
-		TRAP_IGNORE(((CPodcastAppUi*)AppUi())->GetErrorTextL(infoSize, aShowInfo.LastError()));
-		showDate.Zero();
-		}
-		
-	if (infoSize.Length() > 0 && showDate.Length() > 0)
-		{
-		infoSize.Insert(0,_L(", "));
-		}
-
-	iListboxFormatbuffer.Format(KShowQueueFormat(), iconIndex, &aShowInfo.Title(), &showDate, &infoSize);
-	}
-
-void CPodcastQueueView::UpdateShowItemDataL(CShowInfo* aShowInfo,TInt aIndex, TInt aSizeDownloaded)
-{
-	FormatShowInfoListBoxItemL(*aShowInfo, aSizeDownloaded);
-	iItemArray->Delete(aIndex);
-	if(aIndex>= iItemArray->MdcaCount())
-		{
-		iItemArray->AppendL(iListboxFormatbuffer);
-		}
-	else
-		{
-		iItemArray->InsertL(aIndex, iListboxFormatbuffer);
-		}
-}
-
-void CPodcastQueueView::UpdateShowItemL(TUint aUid, TInt aSizeDownloaded)
-{
-	RShowInfoArray& array = iPodcastModel.ActiveShowList();
-	
-	for (int i=0;i<array.Count();i++) {
-		if (array[i]->Uid() == aUid) {
-			UpdateShowItemDataL(array[i], i, aSizeDownloaded);
-			if (iListContainer->Listbox()->TopItemIndex() <= i &&
-				iListContainer->Listbox()->BottomItemIndex() >= i) {
-					iListContainer->Listbox()->DrawItem(i);
-			}
-		}
-	}
-}
 
 void CPodcastQueueView::UpdateListboxItemsL()
 	{
@@ -578,14 +303,3 @@ void CPodcastQueueView::UpdateToolbar(TBool aVisible)
 		toolbar->SetItemDimmed(EPodcastRemoveDownload, itemCnt == 0, ETrue);		
 	}
 }
-
-void CPodcastQueueView::DownloadQueueUpdatedL(TInt /*aDownloadingShows*/, TInt /*aQueuedShows*/)
-	{
-		UpdateListboxItemsL();
-	}
-
-void CPodcastQueueView::FeedUpdateAllCompleteL(TFeedState /*aState*/)
-	{
-	UpdateListboxItemsL();
-	UpdateToolbar();
-	}

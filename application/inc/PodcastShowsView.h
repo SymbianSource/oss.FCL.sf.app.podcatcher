@@ -97,9 +97,10 @@ protected:
 	void FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aSizeDownloaded = 0);
 
 	void HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& aPenEventScreenLocation);
+	void GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex);
+	void CreateIconsL();
 
 private:
-	void GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex);
 	void DisplayShowInfoDialogL();
 	void HandleSetShowPlayedL(TBool aPlayed);
 	void HandleDeleteShowL();
@@ -107,10 +108,9 @@ private:
 	void HandleSetShowPlayed(TBool aPlayed);
 	void HandleDeleteShow();
 	void UpdateViewTitleL();
-	void CreateIconsL();
 	void GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode);
 	
-private:
+protected:
 	
 	CPodcastModel& iPodcastModel;
 	TBool iProgressAdded;	

@@ -28,10 +28,9 @@
 #include "FeedEngine.h"
 #include "PodcastModel.h"
 #include "Podcast.hrh"
-#include "PodcastListView.h"
+#include "PodcastShowsView.h"
 
-class CPodcastQueueView : public CPodcastListView, public MEikListBoxObserver, 
-	public MFeedEngineObserver, public MShowEngineObserver
+class CPodcastQueueView : public CPodcastShowsView
 	{
 public: 
 	static CPodcastQueueView* NewL(CPodcastModel& aPodcastModel);
@@ -68,18 +67,8 @@ protected:
 
 	void UpdateListboxItemsL();
 
-	// From // MEikListBoxObserverClass
+	// From MEikListBoxObserverClass
 	void HandleListBoxEventL(CEikListBox* aListBox, TListBoxEvent aEventType);
-	// From showengine observer
-	void ShowListUpdatedL();  	
-	void ShowDownloadUpdatedL(TInt aBytesOfCurrentDownload, TInt aBytesTotal);	
-	void DownloadQueueUpdatedL(TInt aDownloadingShows, TInt aQueuedShows);
-	void ShowDownloadFinishedL(TUint aShowUid, TInt aError) ;
-	// from MFeedEngineObserver
-	void FeedDownloadStartedL(TFeedState aState,TUint aFeedUid);
-	void FeedDownloadFinishedL(TFeedState aState,TUint aFeedUid, TInt aError);
-	void FeedUpdateAllCompleteL(TFeedState aState);
-	void OpmlParsingComplete(TInt /*aError*/, TUint /*aNumFeedsImported*/) {}
 
 	/** 
 	 * Command handling function intended for overriding by sub classes. 
@@ -88,22 +77,7 @@ protected:
 	 */
 	void HandleCommandL(TInt aCommand);
 	TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
-
-	void UpdateFeedUpdateStateL();
-	void UpdateShowItemL(TUint aUid, TInt aSizeDownloaded);
-	void UpdateShowItemDataL(CShowInfo* aShowInfo,TInt aIndex, TInt aSizeDownloaded = KErrNotFound);
 	void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);
-	void FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aSizeDownloaded = 0);
-
-private:
-	void GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex);
-	
-private:
-	
-	CPodcastModel& iPodcastModel;
-	TBool iProgressAdded;	
-	TInt iLastImageHandlerError;
-	TBool iSetTitlebarImage;
 	};
 
 #endif

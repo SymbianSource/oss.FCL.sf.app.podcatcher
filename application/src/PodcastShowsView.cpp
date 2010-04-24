@@ -34,14 +34,6 @@
 
 #define KMaxMessageLength 200
 
-#define KPodcastImageWidth 160
-#define KPodcastImageHeight 120
-#define KPodcastDialogOffset 2
-
-#define KOneHundredPercent 100
-
-const TInt KSizeBufLen = 64;
-const TInt KDefaultGran = 5;
 _LIT(KSizeDownloadingOf, "%.1f/%.1f MB");
 _LIT(KShowsSizeFormatS60, "%.1f MB");
 
