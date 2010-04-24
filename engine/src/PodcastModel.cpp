@@ -435,6 +435,7 @@ EXPORT_C void CPodcastModel::GetShowsDownloadingL()
 EXPORT_C void CPodcastModel::GetShowsByFeedL(TUint aFeedUid)
 	{
 	iActiveShowList.ResetAndDestroy();
+	iShowEngine->CheckForDeletedShows(aFeedUid);
 	iShowEngine->GetShowsByFeedL(iActiveShowList, aFeedUid);
 	}
 

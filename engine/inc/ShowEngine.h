@@ -70,6 +70,7 @@ public:
 
 	IMPORT_C void GetMimeType(const TDesC& aFileName, TDes& aMimeType);
 
+	IMPORT_C void CheckForDeletedShows(TUint aFeedUid);
 	IMPORT_C CMetaDataReader& MetaDataReader();
 
 private:

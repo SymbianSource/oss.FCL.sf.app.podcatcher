@@ -1359,3 +1359,33 @@ void CShowEngine::FileError(TUint /*aError*/)
 	{
 	iDownloadErrors = KMaxDownloadErrors;
 	}
+
+EXPORT_C void CShowEngine::CheckForDeletedShows(TUint aFeedUid)
+	{
+	RShowInfoArray shows;
+	
+	TRAPD(err, DBGetShowsByFeedL(shows, aFeedUid));
+	
+	if (err != KErrNone)
+		{
+		// probably a catastrophic error, but it doesn't
+		// matter for this method
+		return;
+		}
+	
+	for (int i=0;i<shows.Count();i++)
+		{
+		if (shows[i]->DownloadState() == EDownloaded && shows[i]->FileName() != KNullDesC)
+			{
+			if(!BaflUtils::FileExists(iPodcastModel.FsSession(),shows[i]->FileName()))
+				{
+				// file doesn't exist anymore, assume it was deleted from outside
+				DP1("Show %S does not exist on disk, flagging as non downloaded", &shows[i]->FileName());
+				shows[i]->SetDownloadState(ENotDownloaded);
+				shows[i]->SetPlayState(EPlayed);
+				TRAP_IGNORE(DBUpdateShowL(*shows[i]));
+				}
+			}
+		}
+	}
+
