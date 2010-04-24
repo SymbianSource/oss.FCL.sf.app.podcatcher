@@ -66,10 +66,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 			// going to be a response body to save.
 			RHTTPResponse resp = aTransaction.Response();
 			iLastStatusCode = resp.StatusCode();
-			RStringF statusStr = resp.StatusText();
-			TBuf<32> statusStr16;
-			statusStr16.Copy(statusStr.DesC());
-			DP2("Status: %d (%S)", iLastStatusCode, &statusStr16);
+			DP1("Status: %d", iLastStatusCode);
 
 			// Dump the headers if we're being verbose
 			//DumpRespHeadersL(aTransaction);
