@@ -25,6 +25,7 @@
 #include <utf.h>
 #include <tinternetdate.h>
 #include "debug.h"
+#include "podcastutils.h"
 
 using namespace Xml;
 const TInt KMaxParseBuffer = 1024;
@@ -176,6 +177,10 @@ void CFeedParser::OnStartElementL(const RTagInfo& aElement, const RAttributeArra
 					HBufC* val16 = HBufC::NewLC(KMaxParseBuffer);
 					val16->Des().Copy(attr.Value().DesC());
 					iActiveShow->SetUrlL(*val16);
+					
+					if (PodcastUtils::IsVideoShow(*val16)) {
+						iActiveShow->SetShowType(EVideoPodcast);
+					}
 					CleanupStack::PopAndDestroy(val16);
 				// length=...
 				} else if (attr16.Compare(KTagLength) == 0) {
@@ -369,6 +374,10 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 		case EStateItemLink:
 			if (iActiveShow->Url().Length() == 0) {
 				iActiveShow->SetUrlL(iBuffer);
+				
+				if (PodcastUtils::IsVideoShow(iBuffer)) {
+					iActiveShow->SetShowType(EVideoPodcast);
+				}
 			}
 			iFeedState = EStateItem;
 			break;

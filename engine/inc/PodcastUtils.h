@@ -32,7 +32,13 @@ static void Cleanup_sqlite3_finalize_wrapper(TAny* handle)
 
 _LIT(KURLPrefix, "http://");
 _LIT(KItpcPrefix, "itpc://");
-_LIT(KPcastPrefix, "pcast://");			
+_LIT(KPcastPrefix, "pcast://");
+
+_LIT(KVideoFormat1, ".wmv");
+_LIT(KVideoFormat2, ".avi");
+_LIT(KVideoFormat3, ".mp4");
+
+
 
 class PodcastUtils
 	{
@@ -46,6 +52,7 @@ public:
 	IMPORT_C static void SQLEncode(TDes &aString);
 	IMPORT_C static void XMLEncode(TDes &aString);
 	IMPORT_C static void RemoveAllFormatting(TDes & aString);
+	IMPORT_C static TBool IsVideoShow(TDesC &aUrl);
 };
 
 #endif /* PODCASTUTILS_H_ */
