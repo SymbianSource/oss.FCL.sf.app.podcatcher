@@ -127,6 +127,10 @@ EXPORT_C void CShowEngine::RemoveDownloadL(TUint aUid)
 		{
 		DP("CShowEngine::RemoveDownload\t This is the active download, we suspend downloading");
 		SuspendDownloads();
+		
+		// partial downloads should be removed
+		BaflUtils::DeleteFile(iPodcastModel.FsSession(), iShowDownloading->FileName());
+
 		resumeAfterRemove = ETrue;
 		}
 
@@ -139,12 +143,6 @@ EXPORT_C void CShowEngine::RemoveDownloadL(TUint aUid)
 		}
 	
 	DBRemoveDownloadL(aUid);
-
-	// partial downloads should be removed
-	if (iShowDownloading)
-		{
-		BaflUtils::DeleteFile(iPodcastModel.FsSession(), iShowDownloading->FileName());
-		}
 
 	if (resumeAfterRemove)
 		{
