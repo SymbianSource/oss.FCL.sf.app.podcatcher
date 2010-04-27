@@ -37,7 +37,6 @@
 #include <pathinfo.h> 
 #include <f32file.h>
 #include <akntoolbarextension.h>
-#include <akntitle.h>
 
 const TInt KMaxFeedNameLength = 100;
 const TInt KDefaultGran = 5;
@@ -128,24 +127,19 @@ void CPodcastSearchView::DoActivateL(const TVwsViewId& aPrevViewId,
 	                                  TUid aCustomMessageId,
 	                                  const TDesC8& aCustomMessage)
 {
-	UpdateToolbar();
-	
-	 CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
-		      ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
-
-    ((CPodcastAppUi*)AppUi())->NaviSetTextL(R_SEARCH_RESULTS);
-
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
 	iPreviousView = TVwsViewId(KUidPodcast, KUidPodcastFeedViewID);
+	
+    ((CPodcastAppUi*)AppUi())->NaviSetTextL(R_SEARCH_RESULTS);
+    
+	UpdateListboxItemsL();
+	UpdateToolbar();
 }
 
 void CPodcastSearchView::DoDeactivate()
 {
 	CPodcastListView::DoDeactivate();
-	CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
-		     ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
-	titlePane->SetTextToDefaultL();
-	((CPodcastAppUi*)AppUi())->NaviShowTabGroupL();
+	TRAP_IGNORE(((CPodcastAppUi*)AppUi())->NaviShowTabGroupL());
 }
 
 
@@ -239,7 +233,7 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 								
 				iEikonEnv->ReadResourceL(templ, R_ADD_FEED_QUERY);
 				message.Format(templ, &newInfo->Title());
-				if(ShowQueryMessage(message)) {
+				if(ShowQueryMessageL(message)) {
 					TBool added = iPodcastModel.FeedEngine().AddFeedL(*newInfo);
 					
 					if (added)
@@ -247,11 +241,10 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 						// ask if user wants to update it now
 						TBuf<KMaxMessageLength> message;
 						iEikonEnv->ReadResourceL(message, R_ADD_FEED_SUCCESS);
-						if(ShowQueryMessage(message))
+						if(ShowQueryMessageL(message))
 							{
 							CFeedInfo *info = iPodcastModel.FeedEngine().GetFeedInfoByUid(newInfo->Uid());
 							
-							iPodcastModel.ActiveShowList().Reset();
 							iPodcastModel.SetActiveFeedInfo(info);			
 							AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
 							iPodcastModel.FeedEngine().UpdateFeedL(info->Uid());
@@ -261,7 +254,7 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 						{
 						TBuf<KMaxMessageLength> message;
 						iEikonEnv->ReadResourceL(message, R_ADD_FEED_EXISTS);
-						ShowErrorMessage(message);
+						ShowErrorMessageL(message);
 						}		
 				}
 				}
@@ -277,8 +270,7 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 void CPodcastSearchView::OpmlParsingComplete(TInt /*aError*/, TUint /*aNumFeedsImported*/)
 	{
 	DP("CPodcastSearchView::OpmlParsingComplete BEGIN");
-	UpdateListboxItemsL();
-	UpdateToolbar();
+
 	DP("CPodcastSearchView::OpmlParsingComplete END");
 	}
 

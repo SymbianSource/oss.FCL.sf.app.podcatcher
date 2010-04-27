@@ -19,10 +19,11 @@
 #include <commdb.h>
 #include "PodcastModel.h"
 #include "FeedEngine.h"
-#include "SoundEngine.h"
 #include "SettingsEngine.h"
 #include "ShowEngine.h"
 #include "connectionengine.h"
+#include "podcastutils.h"
+#include "Podcatcher.pan"
 
 #include <cmdestination.h>
 #include <cmmanager.h>
@@ -45,7 +46,6 @@ CPodcastModel::~CPodcastModel()
 {
 	
 	delete iFeedEngine;
-	delete iSoundEngine;
 	delete iSettingsEngine;
 	delete iShowEngine;
 
@@ -78,7 +78,7 @@ void CPodcastModel::ConstructL()
 	iIapNameArray = new (ELeave) CDesCArrayFlat(KDefaultGranu);
 	iSNAPNameArray = new (ELeave) CDesCArrayFlat(KDefaultGranu);
 	iCmManager.OpenL();
-	iImageHandler = CImageHandler::NewL(FsSession());
+	iImageHandler = CImageHandler::NewL(FsSession(), *this);
 	
 	UpdateIAPListL();
 	UpdateSNAPListL();
@@ -86,10 +86,24 @@ void CPodcastModel::ConstructL()
 	iSettingsEngine = CSettingsEngine::NewL(*this);
 	iConnectionEngine = CConnectionEngine::NewL(*this);	
 	
+	TRAPD(err, OpenDBL());
+	
+	if (err != KErrNone)
+		{
+		ResetDB();
+		
+		TRAP(err, OpenDBL());
+		
+		if (err != KErrNone)
+			{
+			Panic(EPodcatcherPanicDB);
+			}
+		
+		}
+	
 	iFeedEngine = CFeedEngine::NewL(*this);
 	iShowEngine = CShowEngine::NewL(*this);
 
-	iSoundEngine = CSoundEngine::NewL(*this);	
 	DP("CPodcastModel::ConstructL END");
 }
 
@@ -199,11 +213,6 @@ EXPORT_C CShowEngine& CPodcastModel::ShowEngine()
 	return *iShowEngine;
 }
 
-EXPORT_C CSoundEngine& CPodcastModel::SoundEngine()
-{
-	return *iSoundEngine;
-}
-
 EXPORT_C CSettingsEngine& CPodcastModel::SettingsEngine()
 {
 	return *iSettingsEngine;
@@ -216,40 +225,8 @@ EXPORT_C CConnectionEngine& CPodcastModel::ConnectionEngine()
 
 EXPORT_C void CPodcastModel::PlayPausePodcastL(CShowInfo* aPodcast, TBool aPlayOnInit) 
 	{
-	
-	// special treatment if this podcast is already active
-	if (iPlayingPodcast->Uid() == aPodcast->Uid() && SoundEngine().State() > ESoundEngineOpening ) {
-		if (aPodcast->PlayState() == EPlaying) {
-			SoundEngine().Pause();
-			aPodcast->SetPosition(iSoundEngine->Position());
-			aPodcast->SetPlayState(EPlayed);
-			aPodcast->SetPlayState(EPlayed);
-		} else {
-			iSoundEngine->Play();
-		}
-	} else {
-		// switching file, so save position
-		iSoundEngine->Pause();
-		if (iPlayingPodcast != NULL) {
-			iPlayingPodcast->SetPosition(iSoundEngine->Position());
-		}
-		
-		iSoundEngine->Stop(EFalse);
-
-		// we play video podcasts through the external player
-		if(aPodcast != NULL && aPodcast->ShowType() != EVideoPodcast) {
-			DP1("Starting: %S", &(aPodcast->FileName()));
-			TRAPD( error, iSoundEngine->OpenFileL(aPodcast->FileName(), aPlayOnInit) );
-			if (error != KErrNone) {
-				DP1("Error: %d", error);
-			} else {
-				iSoundEngine->SetPosition(aPodcast->Position().Int64() / 1000000);
-			}
-		}
-
-		iPlayingPodcast = aPodcast;		
+	// TODO: interact with MPX
 	}
-}
 
 EXPORT_C CFeedInfo* CPodcastModel::ActiveFeedInfo()
 {
@@ -277,33 +254,105 @@ void CPodcastModel::SetActiveShowList(RShowInfoArray& aShowArray)
 	}
 }
 
-sqlite3* CPodcastModel::DB()
-{
-	if (iDB == NULL) {		
-		TFileName dbFileName;
-		iFsSession.PrivatePath(dbFileName);
-		dbFileName.Append(KDBFileName);
-		DP1("DB is at %S", &dbFileName);
-
-		if (!BaflUtils::FileExists(iFsSession, dbFileName)) {
-			TFileName dbTemplate;
-			iFsSession.PrivatePath(dbTemplate);
-			dbTemplate.Append(KDBTemplateFileName);
-			DP1("No DB found, copying template from %S", &dbTemplate);
-			BaflUtils::CopyFile(iFsSession, dbTemplate,dbFileName);
-			iIsFirstStartup = ETrue;
+EXPORT_C void CPodcastModel::DropDB()
+	{
+	if (iDB != NULL)
+		{
+		sqlite3_close(iDB);
+		iDB = NULL;
 		}
+	
+	TFileName dbFileName;
+	dbFileName.Copy(iSettingsEngine->PrivatePath());
+	dbFileName.Append(KDBFileName);
+
+	// remove the old DB file
+	if (BaflUtils::FileExists(iFsSession, dbFileName))
+		{
+		BaflUtils::DeleteFile(iFsSession, dbFileName);
+		}
+	}
+
+void CPodcastModel::ResetDB()
+	{
+	DP("CPodcastModel::ResetDB BEGIN");
+	
+	DropDB();
+	
+	TFileName dbFileName;
+	dbFileName.Copy(iSettingsEngine->PrivatePath());
+	dbFileName.Append(KDBFileName);
+
+	// remove the old DB file
+	if (BaflUtils::FileExists(iFsSession, dbFileName))
+		{
+		BaflUtils::DeleteFile(iFsSession, dbFileName);
+		}
+
+	// copy template to new DB
+	TFileName dbTemplate;
+	dbTemplate.Copy(iSettingsEngine->PrivatePath());
+	dbTemplate.Append(KDBTemplateFileName);
+
+	BaflUtils::CopyFile(iFsSession, dbTemplate,dbFileName);
+	iIsFirstStartup = ETrue;
+	DP("CPodcastModel::ResetDB END");
+	}
+
+
+void CPodcastModel::OpenDBL()
+	{
+	DP("CPodcastModel::OpenDBL BEGIN");
+	
+	if (iDB != NULL)
+		{
+		sqlite3_close(iDB);
+		iDB = NULL;
+		}
+	
+	TFileName dbFileName;
+	dbFileName.Copy(iSettingsEngine->PrivatePath());
+	dbFileName.Append(KDBFileName);
 		
+	if (!BaflUtils::FileExists(iFsSession, dbFileName))
+		{
+		User::Leave(KErrNotFound);
+		}
+	
+	if (iDB == NULL) {	
+		// open DB
 		TBuf8<KMaxFileName> filename8;
 		filename8.Copy(dbFileName);
-		int rc = rc = sqlite3_open((const char*) filename8.PtrZ(), &iDB);
-		if( rc != SQLITE_OK){
-			DP("Error loading DB");
-			User::Panic(_L("Podcatcher"), 10);
+		int rc = sqlite3_open((const char*) filename8.PtrZ(), &iDB);
+		if(rc != SQLITE_OK){
+			User::Leave(KErrCorrupt);
 		}
 
+		// do a test query 
+		sqlite3_stmt *st;
+		rc = sqlite3_prepare_v2(iDB,"select count(*) from feeds" , -1, &st, (const char**) NULL);
+		if( rc==SQLITE_OK )
+			{
+			Cleanup_sqlite3_finalize_PushL(st);
+			rc = sqlite3_step(st);
+					
+			if (rc != SQLITE_ROW)
+				{
+				User::Leave(KErrCorrupt);
+				}
+			CleanupStack::PopAndDestroy(); // st
+			}
+		else
+			{
+			User::Leave(KErrCorrupt);
+			}
+		}
 
+	DP("CPodcastModel::OpenDBL END");	
 	}
+
+sqlite3* CPodcastModel::DB()
+{
 	return iDB;
 }
 
@@ -369,31 +418,12 @@ void CPodcastModel::GetProxyInformationForConnectionL(TBool& aIsUsed, HBufC*& aP
 	CleanupStack::PopAndDestroy(table);
 	}
 	
-	
 TInt CPodcastModel::GetIapId()
 	{
 	_LIT(KSetting, "IAP\\Id");
 	TUint32 iapId = 0;
 	iConnectionEngine->Connection().GetIntSetting(KSetting, iapId);
 	return iapId;
-	}
-
-EXPORT_C void CPodcastModel::GetAllShowsL()
-	{
-	iActiveShowList.ResetAndDestroy();
-	iShowEngine->GetAllShowsL(iActiveShowList);
-	}
-
-EXPORT_C void CPodcastModel::GetNewShowsL()
-	{
-	iActiveShowList.ResetAndDestroy();
-	iShowEngine->GetNewShowsL(iActiveShowList);	
-	}
-
-EXPORT_C void CPodcastModel::GetShowsDownloadedL()
-	{
-	iActiveShowList.ResetAndDestroy();
-	iShowEngine->GetShowsDownloadedL(iActiveShowList);
 	}
 
 EXPORT_C void CPodcastModel::GetShowsDownloadingL()
@@ -405,15 +435,16 @@ EXPORT_C void CPodcastModel::GetShowsDownloadingL()
 EXPORT_C void CPodcastModel::GetShowsByFeedL(TUint aFeedUid)
 	{
 	iActiveShowList.ResetAndDestroy();
+	iShowEngine->CheckForDeletedShows(aFeedUid);
 	iShowEngine->GetShowsByFeedL(iActiveShowList, aFeedUid);
 	}
 
-EXPORT_C void CPodcastModel::MarkSelectionPlayed()
+EXPORT_C void CPodcastModel::MarkSelectionPlayedL()
 	{
 	for (int i=0;i<iActiveShowList.Count();i++) {
 		if(iActiveShowList[i]->PlayState() != EPlayed) {
 			iActiveShowList[i]->SetPlayState(EPlayed);
-			iShowEngine->UpdateShow(*iActiveShowList[i]);
+			iShowEngine->UpdateShowL(*iActiveShowList[i]);
 		}
 	}
 	}
@@ -435,7 +466,7 @@ EXPORT_C TBool CPodcastModel::IsFirstStartup()
 	}
 
 
-void CPodcastModel::ImageOperationCompleteL(TInt /*aError*/, TUint /*aHandle*/)
+void CPodcastModel::ImageOperationCompleteL(TInt /*aError*/, TUint /*aHandle*/, CPodcastModel& /*aPodcastModel*/)
 	{
 	
 	}

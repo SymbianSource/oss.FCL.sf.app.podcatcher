@@ -42,7 +42,8 @@ enum TDownloadState {
 
 enum TShowType {
 	EAudioPodcast = 0,
-	EVideoPodcast
+	EVideoPodcast,
+	EOtherPodcast
 };
 
 class CShowInfo: public CBase {

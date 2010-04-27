@@ -24,7 +24,6 @@
 #include "SettingsEngine.h"
 #include <e32hashtab.h>
 #include <httperr.h>
-#include "SoundEngine.h"
 #include "debug.h"
 #include "PodcastUtils.h"
 
@@ -34,15 +33,6 @@
 
 const TUint KMaxDownloadErrors = 3;
 const TInt KMimeBufLength = 100;
-
-// Cleanup stack macro for SQLite3
-// TODO Move this to some common place.
-static void Cleanup_sqlite3_finalize_wrapper(TAny* handle)
-	{
-	sqlite3_finalize(static_cast<sqlite3_stmt*>(handle));
-	}
-#define Cleanup_sqlite3_finalize_PushL(__handle) CleanupStack::PushL(TCleanupItem(&Cleanup_sqlite3_finalize_wrapper, __handle))
-
 
 CShowEngine::CShowEngine(CPodcastModel& aPodcastModel) :
 	iPodcastModel(aPodcastModel),
@@ -115,22 +105,21 @@ EXPORT_C void CShowEngine::ResumeDownloadsL()
 	DP("CShowEngine::ResumeDownloadsL END");
 	}
 
-EXPORT_C void CShowEngine::RemoveAllDownloads()
+EXPORT_C void CShowEngine::RemoveAllDownloadsL()
 	{
 	if (!iPodcastModel.SettingsEngine().DownloadSuspended())
 		{
 		SuspendDownloads();
 		}
 
-	DBRemoveAllDownloads();
+	DBRemoveAllDownloadsL();
 	NotifyDownloadQueueUpdatedL();
 	}
 
-EXPORT_C TBool CShowEngine::RemoveDownloadL(TUint aUid)
+EXPORT_C void CShowEngine::RemoveDownloadL(TUint aUid)
 	{
-	DP("CShowEngine::RemoveDownload\t Trying to remove download");
+	DP("CShowEngine::RemoveDownloadL BEGIN");
 
-	TBool retVal = EFalse;
 	TBool resumeAfterRemove = EFalse;
 	// if trying to remove the present download, we first stop it
 	if (!iPodcastModel.SettingsEngine().DownloadSuspended() && iShowDownloading != NULL
@@ -138,6 +127,10 @@ EXPORT_C TBool CShowEngine::RemoveDownloadL(TUint aUid)
 		{
 		DP("CShowEngine::RemoveDownload\t This is the active download, we suspend downloading");
 		SuspendDownloads();
+		
+		// partial downloads should be removed
+		BaflUtils::DeleteFile(iPodcastModel.FsSession(), iShowDownloading->FileName());
+
 		resumeAfterRemove = ETrue;
 		}
 
@@ -145,28 +138,24 @@ EXPORT_C TBool CShowEngine::RemoveDownloadL(TUint aUid)
 	if (info != NULL)
 		{
 		info->SetDownloadState(ENotDownloaded);
-		DBUpdateShow(*info);
+		DBUpdateShowL(*info);
 		delete info;
 		}
-	DBRemoveDownload(aUid);
-
-	// partial downloads should be removed
-	if (iShowDownloading)
-		{
-		BaflUtils::DeleteFile(iPodcastModel.FsSession(), iShowDownloading->FileName());
-		}
-
-	NotifyShowDownloadUpdatedL(-1, -1);
-	NotifyDownloadQueueUpdatedL();
 	
-	if (resumeAfterRemove) {
+	DBRemoveDownloadL(aUid);
+
+	if (resumeAfterRemove)
+		{
 		ResumeDownloadsL();
-	}
+		}
+	else
+		{
+		NotifyShowDownloadUpdatedL(-1, -1);
+		NotifyDownloadQueueUpdatedL();
+		}
 	
 	DownloadNextShowL();
-	retVal = ETrue;
-
-	return retVal;
+	DP("CShowEngine::RemoveDownloadL END");
 	}
 
 void CShowEngine::Connected(CHttpClient* /*aClient*/)
@@ -195,16 +184,11 @@ void CShowEngine::DownloadInfo(CHttpClient* aHttpClient, TInt aTotalBytes)
 		}
 	}
 
-TBool CShowEngine::GetShowL(CShowInfo *info)
+void CShowEngine::GetShowL(CShowInfo *info)
 	{
 	CFeedInfo *feedInfo = iPodcastModel.FeedEngine().GetFeedInfoByUid(
 			info->FeedUid());
-	if (feedInfo == NULL)
-		{
-		DP("Feed not found for this show!");
-		return EFalse;
-		}
-
+	
 	TFileName filePath;
 	filePath.Copy(iPodcastModel.SettingsEngine().BaseDir());
 	
@@ -221,23 +205,22 @@ TBool CShowEngine::GetShowL(CShowInfo *info)
 	filePath.Append(relPath);
 	info->SetFileNameL(filePath);
 
-	return iShowClient->GetL(info->Url(), filePath);
+	User::LeaveIfError(iShowClient->GetL(info->Url(), filePath));
 	}
 
-EXPORT_C TBool CShowEngine::AddShowL(const CShowInfo& aItem)
+EXPORT_C void CShowEngine::AddShowL(const CShowInfo& aItem)
 	{
 	DP1("CShowEngine::AddShowL, title=%S", &aItem.Title());
 	CShowInfo *showInfo = DBGetShowByUidL(aItem.Uid());
 
 	if (showInfo == NULL)
 		{
-		DBAddShow(aItem);
-		return ETrue;
+		DBAddShowL(aItem);
 		}
 	else
 		{
 		delete showInfo;	
-		return EFalse;
+		User::Leave(KErrAlreadyExists);
 		}	
 	}
 
@@ -271,7 +254,7 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 	{
 	if (iShowDownloading != NULL)
 		{
-		DP1("CShowEngine::Complete\tDownload of file: %S is complete", &iShowDownloading->FileName());		
+		DP2("CShowEngine::CompleteL file=%S, aError=%d", &iShowDownloading->FileName(), aError);		
 		if(aError != KErrCouldNotConnect)
 			{
 			if(aError == KErrDisconnected && iPodcastModel.SettingsEngine().DownloadSuspended())
@@ -299,8 +282,8 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 					}
 
 				iShowDownloading->SetDownloadState(EDownloaded);
-				DBUpdateShow(*iShowDownloading);
-				DBRemoveDownload(iShowDownloading->Uid());
+				DBUpdateShowL(*iShowDownloading);
+				DBRemoveDownloadL(iShowDownloading->Uid());
 				AddShowToMpxCollection(*iShowDownloading);				
 				NotifyShowFinishedL(aError);
 				iDownloadErrors = 0;
@@ -313,21 +296,29 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 				if(aError >= HTTPStatus::EBadRequest && aError <= HTTPStatus::EBadRequest+200)
 					{
 					iShowDownloading->SetDownloadState(EFailedDownload);
-					DBUpdateShow(*iShowDownloading);
-					DBRemoveDownload(iShowDownloading->Uid());
+					DBUpdateShowL(*iShowDownloading);
+					DBRemoveDownloadL(iShowDownloading->Uid());
 					NotifyShowFinishedL(aError);
 
 					delete iShowDownloading;
 					iShowDownloading = NULL;
 					}
+				else if (aError == KErrDiskFull)
+					{
+					// stop downloading immediately if disk is full
+					iShowDownloading->SetDownloadState(EQueued);
+					DBUpdateShowL(*iShowDownloading);
+					iDownloadErrors = KMaxDownloadErrors;
+					}
 				else // other kind of error, missing network etc, reque this show
 					{
 					iShowDownloading->SetDownloadState(EQueued);
-					DBUpdateShow(*iShowDownloading);
+					DBUpdateShowL(*iShowDownloading);
 					}
 
+				NotifyDownloadQueueUpdatedL();
 				iDownloadErrors++;
-				if (iDownloadErrors > KMaxDownloadErrors)
+				if (iDownloadErrors >= KMaxDownloadErrors)
 					{
 					DP("Too many downloading errors, suspending downloads");
 					iPodcastModel.SettingsEngine().SetDownloadSuspended(ETrue);
@@ -343,7 +334,7 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 			if(iShowDownloading)
 				{
 				iShowDownloading->SetDownloadState(EQueued);
-				DBUpdateShow(*iShowDownloading);
+				DBUpdateShowL(*iShowDownloading);
 				}
 			iPodcastModel.SettingsEngine().SetDownloadSuspended(ETrue);
 			NotifyShowFinishedL(aError);
@@ -475,6 +466,10 @@ void CShowEngine::DBGetAllDownloadsL(RShowInfoArray& aShowArray)
 			}
 		CleanupStack::PopAndDestroy();//st
 		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 
 	// delete downloads that don't have a show
 	
@@ -485,8 +480,13 @@ void CShowEngine::DBGetAllDownloadsL(RShowInfoArray& aShowArray)
 
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		sqlite3_finalize(st);
+		CleanupStack::PopAndDestroy(); // st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
 		}
 	}
 
@@ -520,7 +520,15 @@ CShowInfo* CShowEngine::DBGetNextDownloadL()
 			DBFillShowInfoFromStmtL(st, showInfo);
 			CleanupStack::Pop(showInfo);
 			}
+		else
+			{
+			User::Leave(KErrUnknown);
+			}
 		CleanupStack::PopAndDestroy();//st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
 		}
 
 	return showInfo;
@@ -556,10 +564,14 @@ void CShowEngine::DBGetShowsByFeedL(RShowInfoArray& aShowArray, TUint aFeedUid)
 			}
 		CleanupStack::PopAndDestroy();//st
 		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 	DP("CShowEngine::DBGetShowsByFeed END");
 	}
 
-TUint CShowEngine::DBGetDownloadsCount()
+TUint CShowEngine::DBGetDownloadsCountL()
 	{
 	DP("CShowEngine::DBGetDownloadsCount");
 
@@ -574,13 +586,23 @@ TUint CShowEngine::DBGetDownloadsCount()
 
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
 
 		if (rc == SQLITE_ROW)
 			{
 			count = sqlite3_column_int(st, 0);
 			}
-		sqlite3_finalize(st);
+		else
+			{
+			User::Leave(KErrUnknown);
+			}
+		
+		CleanupStack::PopAndDestroy(); //st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
 		}
 	return count;
 	}
@@ -615,6 +637,10 @@ void CShowEngine::DBGetDownloadedShowsL(RShowInfoArray& aShowArray)
 			}
 		CleanupStack::PopAndDestroy();//st
 		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 	}
 
 void CShowEngine::DBGetNewShowsL(RShowInfoArray& aShowArray)
@@ -642,9 +668,13 @@ void CShowEngine::DBGetNewShowsL(RShowInfoArray& aShowArray)
 			}
 		CleanupStack::PopAndDestroy();//st
 		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 	}
 
-void CShowEngine::DBDeleteOldShowsByFeed(TUint aFeedUid)
+void CShowEngine::DBDeleteOldShowsByFeedL(TUint aFeedUid)
 	{
 	DP("CShowEngine::DBDeleteOldShows");
 	
@@ -667,6 +697,10 @@ void CShowEngine::DBDeleteOldShowsByFeed(TUint aFeedUid)
 		rc = sqlite3_step(st);
 		sqlite3_finalize(st);
 		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 	
 	_LIT(KSqlStatement2, "delete from downloads where uid not in (select downloads.uid from shows, downloads where shows.uid=downloads.uid)");
 	iSqlBuffer.Format(KSqlStatement2);
@@ -677,6 +711,10 @@ void CShowEngine::DBDeleteOldShowsByFeed(TUint aFeedUid)
 		{
 		rc = sqlite3_step(st);
 		sqlite3_finalize(st);
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
 		}
 	}
 
@@ -734,7 +772,7 @@ void CShowEngine::DBFillShowInfoFromStmtL(sqlite3_stmt *st, CShowInfo* showInfo)
 	showInfo->SetLastError(lasterror);
 	}
 
-TBool CShowEngine::DBAddShow(const CShowInfo& aItem)
+void CShowEngine::DBAddShowL(const CShowInfo& aItem)
 	{
 	DP2("CShowEngine::DBAddShow, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 
@@ -764,28 +802,24 @@ TBool CShowEngine::DBAddShow(const CShowInfo& aItem)
 
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*) iSqlBuffer.PtrZ(), -1,
 			&st, (const void**) NULL);
+	
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		if (rc == SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
-			sqlite3_finalize(st);
-			return ETrue;
+			User::Leave(KErrAlreadyExists);
 			}
-		else
-			{
-			sqlite3_finalize(st);
-			}
+		CleanupStack::PopAndDestroy(); // st
 		}
 	else
 		{
-		DP1("SQLite rc=%d", rc);
+		User::Leave(KErrCorrupt);
 		}
-
-	return EFalse;
 	}
 
-void CShowEngine::DBAddDownload(TUint aUid)
+void CShowEngine::DBAddDownloadL(TUint aUid)
 	{
 	DP1("CShowEngine::DBAddDownload, aUid=%u", aUid);
 
@@ -798,13 +832,21 @@ void CShowEngine::DBAddDownload(TUint aUid)
 
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
+		if (rc != SQLITE_DONE)
+			{
+			User::Leave(KErrUnknown);
+			}
+		CleanupStack::PopAndDestroy(); // st
 		}
-
-	sqlite3_finalize(st);
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 	}
 
-TBool CShowEngine::DBUpdateShow(CShowInfo& aItem)
+void CShowEngine::DBUpdateShowL(CShowInfo& aItem)
 	{
 	DP1("CShowEngine::DBUpdateShow, title='%S'", &aItem.Title());
 
@@ -837,27 +879,22 @@ TBool CShowEngine::DBUpdateShow(CShowInfo& aItem)
 
 	if (rc == SQLITE_OK)
 		{
-		rc = sqlite3_step(st);
+		Cleanup_sqlite3_finalize_PushL(st);
+		rc = sqlite3_step(st);		
 
-		if (rc == SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
-			sqlite3_finalize(st);
-			return ETrue;
+			User::Leave(KErrUnknown);
 			}
-		else
-			{
-			sqlite3_finalize(st);
-			}
+		CleanupStack::PopAndDestroy(); // st
 		}
 	else
 		{
-		DP1("SQLite rc=%d", rc);
+		User::Leave(KErrCorrupt);
 		}
-
-	return EFalse;
 	}
 
-TBool CShowEngine::DBDeleteShow(TUint aUid)
+void CShowEngine::DBDeleteShowL(TUint aUid)
 	{
 	DP("CShowEngine::DBDeleteShow");
 
@@ -866,33 +903,27 @@ TBool CShowEngine::DBDeleteShow(TUint aUid)
 
 	sqlite3_stmt *st;
 
-	//DP1("SQL: %S", &iSqlBuffer.Left(KSqlDPLen));
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*) iSqlBuffer.PtrZ(), -1,
 			&st, (const void**) NULL);
 
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
 
-		if (rc == SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
-			sqlite3_finalize(st);
-			return ETrue;
+			User::Leave(KErrUnknown);
 			}
-		else
-			{
-			sqlite3_finalize(st);
-			}
+		CleanupStack::PopAndDestroy(); // st
 		}
 	else
 		{
-		DP1("SQLite rc=%d", rc);
+		User::Leave(KErrCorrupt);
 		}
-
-	return EFalse;
 	}
 
-TBool CShowEngine::DBDeleteAllShowsByFeed(TUint aFeedUid)
+void CShowEngine::DBDeleteAllShowsByFeedL(TUint aFeedUid)
 	{
 	DP("CShowEngine::DBDeleteAllShowsByFeed");
 
@@ -901,33 +932,27 @@ TBool CShowEngine::DBDeleteAllShowsByFeed(TUint aFeedUid)
 
 	sqlite3_stmt *st;
 
-	//DP1("SQL: %S", &iSqlBuffer.Left(KSqlDPLen));
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*) iSqlBuffer.PtrZ(), -1,
 			&st, (const void**) NULL);
 
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
 
-		if (rc == SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
-			sqlite3_finalize(st);
-			return ETrue;
+			User::Leave(KErrUnknown);
 			}
-		else
-			{
-			sqlite3_finalize(st);
-			}
+		CleanupStack::PopAndDestroy(); // st
 		}
 	else
 		{
-		DP1("SQLite rc=%d", rc);
+		User::Leave(KErrCorrupt);
 		}
-
-	return EFalse;
 	}
 
-void CShowEngine::DBRemoveAllDownloads()
+void CShowEngine::DBRemoveAllDownloadsL()
 	{
 	DP("CShowEngine::DBRemoveAllDownloads");
 
@@ -944,6 +969,10 @@ void CShowEngine::DBRemoveAllDownloads()
 		rc = sqlite3_step(st);
 		sqlite3_finalize(st);
 		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 
 	_LIT(KSqlStatement2, "update shows set downloadstate=0 where downloadstate=1");
 	iSqlBuffer.Format(KSqlStatement2);
@@ -953,13 +982,22 @@ void CShowEngine::DBRemoveAllDownloads()
 
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		sqlite3_finalize(st);
+		if (rc != SQLITE_DONE)
+			{
+			User::Leave(KErrUnknown);
+			}
+		CleanupStack::PopAndDestroy(); // st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
 		}
 
 	}
 
-void CShowEngine::DBRemoveDownload(TUint aUid)
+void CShowEngine::DBRemoveDownloadL(TUint aUid)
 	{
 	DP("CShowEngine::DBRemoveDownload");
 
@@ -973,8 +1011,17 @@ void CShowEngine::DBRemoveDownload(TUint aUid)
 
 	if (rc == SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		sqlite3_finalize(st);
+		if (rc != SQLITE_DONE)
+			{
+			User::Leave(KErrUnknown);
+			}
+		CleanupStack::PopAndDestroy(); // st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
 		}
 	}
 
@@ -1058,21 +1105,16 @@ TInt CShowEngine::CompareShowsByTitle(const CShowInfo &a, const CShowInfo &b)
 		}
 	}
 
-EXPORT_C void CShowEngine::DeletePlayedShows(RShowInfoArray &aShowInfoArray)
+EXPORT_C void CShowEngine::DeletePlayedShowsL(RShowInfoArray &aShowInfoArray)
 	{
 	for (TInt i = 0; i < aShowInfoArray.Count(); i++)
 		{
 		if (aShowInfoArray[i]->PlayState() == EPlayed
 				&& aShowInfoArray[i]->FileName().Length() > 0)
 			{
-			if (CompareShowsByUid(*(iPodcastModel.PlayingPodcast()), *(aShowInfoArray[i]))
-					&& iPodcastModel.SoundEngine().State() != ESoundEngineNotInitialized)
-				{
-				iPodcastModel.SoundEngine().Stop();
-				}
 			BaflUtils::DeleteFile(iPodcastModel.FsSession(), aShowInfoArray[i]->FileName());
 			aShowInfoArray[i]->SetDownloadState(ENotDownloaded);
-			DBUpdateShow(*aShowInfoArray[i]);
+			DBUpdateShowL(*aShowInfoArray[i]);
 			}
 		}
 	}
@@ -1086,6 +1128,13 @@ EXPORT_C void CShowEngine::DeleteAllShowsByFeedL(TUint aFeedUid, TBool aDeleteFi
 
 	for (TInt i = count - 1; i >= 0; i--)
 		{
+		if (iShowDownloading && iShowDownloading->Uid() == array[i]->Uid())
+			{
+			// trying to delete the active download
+			RemoveDownloadL(iShowDownloading->Uid());
+			}
+		
+		// delete downloaded file
 		if (array[i]->FileName().Length() > 0)
 			{
 			if (aDeleteFiles)
@@ -1095,12 +1144,20 @@ EXPORT_C void CShowEngine::DeleteAllShowsByFeedL(TUint aFeedUid, TBool aDeleteFi
 			}
 		}
 	array.ResetAndDestroy();
-	DBDeleteAllShowsByFeed(aFeedUid);
+	
+	// delete all shows from DB
+	DBDeleteAllShowsByFeedL(aFeedUid);
+
+	// this will clear out deleted shows from the download queue
+	DBGetAllDownloadsL(array);
+	array.ResetAndDestroy();
+
+	NotifyDownloadQueueUpdatedL();
 	}
 
-EXPORT_C void CShowEngine::DeleteOldShowsByFeed(TUint aFeedUid)
+EXPORT_C void CShowEngine::DeleteOldShowsByFeedL(TUint aFeedUid)
 	{
-		DBDeleteOldShowsByFeed(aFeedUid);
+	DBDeleteOldShowsByFeedL(aFeedUid);
 	}
 
 EXPORT_C void CShowEngine::DeleteShowL(TUint aShowUid, TBool aRemoveFile)
@@ -1116,7 +1173,7 @@ EXPORT_C void CShowEngine::DeleteShowL(TUint aShowUid, TBool aRemoveFile)
 			}
 		
 		info->SetDownloadState(ENotDownloaded);
-		DBUpdateShow(*info);
+		DBUpdateShowL(*info);
 		delete info;
 		}
 	}
@@ -1153,14 +1210,17 @@ EXPORT_C void CShowEngine::GetShowsDownloadingL(RShowInfoArray &aArray)
 
 EXPORT_C TInt CShowEngine::GetNumDownloadingShows()
 	{
-	return (const TInt) DBGetDownloadsCount();
+	TUint count = 0;
+	TRAP_IGNORE(count = DBGetDownloadsCountL());
+		
+	return (const TInt) count;
 	}
 
 EXPORT_C void CShowEngine::AddDownloadL(CShowInfo& aInfo)
 	{
 	aInfo.SetDownloadState(EQueued);
-	DBUpdateShow(aInfo);
-	DBAddDownload(aInfo.Uid());
+	DBUpdateShowL(aInfo);
+	DBAddDownloadL(aInfo.Uid());
 	DownloadNextShowL();
 	}
 
@@ -1168,7 +1228,7 @@ void CShowEngine::DownloadNextShowL()
 	{
 	DP("CShowEngine::DownloadNextShowL BEGIN");
 	// Check if we have anything in the download queue
-	const TInt count = DBGetDownloadsCount();
+	const TInt count = DBGetDownloadsCountL();
 	DP("CShowEngine::DownloadNextShow\tTrying to start new download");DP1("CShowEngine::DownloadNextShow\tShows in download queue %d", count);
 
 	if (count > 0)
@@ -1189,41 +1249,41 @@ void CShowEngine::DownloadNextShowL()
 			}
 		else
 			{
-
+			if (iShowDownloading) {
+				delete iShowDownloading;
+			}
+			
 			// Start the download
+			iShowDownloading = DBGetNextDownloadL();
 			
-			CShowInfo *info = DBGetNextDownloadL();
-			
-			while(info != NULL)
+			while(iShowDownloading != NULL)
 				{
-				TBool getOk = EFalse;
-				DP1("CShowEngine::DownloadNextShow\tDownloading: %S", &(info->Title()));
-				info->SetDownloadState(EDownloading);
-				info->SetLastError(KErrNone);
-				DBUpdateShow(*info);
-				iShowDownloading = info;
+				DP1("CShowEngine::DownloadNextShow\tDownloading: %S", &(iShowDownloading->Title()));
+				iShowDownloading->SetDownloadState(EDownloading);
+				iShowDownloading->SetLastError(KErrNone);
+				DBUpdateShowL(*iShowDownloading);
 				// Inform the observers
 				// important to do this after we change download state
 				NotifyDownloadQueueUpdatedL();
 
-				TRAPD(error,getOk = GetShowL(info));
-				if (error != KErrNone || !getOk)
-					{
-					info->SetDownloadState(EFailedDownload);
-					DBRemoveDownload(info->Uid());
-					DBUpdateShow(*info);
-					info = DBGetNextDownloadL();
-					
-					if(info == NULL)
-						{
-						iPodcastModel.SettingsEngine().SetDownloadSuspended(ETrue);
-						iShowDownloading = NULL;
-						}
-					}				
-				else
+				TRAPD(error,GetShowL(iShowDownloading));
+				if (error == KErrNone)
 					{
 					break;
 					}
+				else
+					{
+					iShowDownloading->SetDownloadState(EFailedDownload);
+					DBRemoveDownloadL(iShowDownloading->Uid());
+					DBUpdateShowL(*iShowDownloading);
+					CleanupStack::PopAndDestroy(iShowDownloading);
+					
+					iShowDownloading = DBGetNextDownloadL();
+					if(iShowDownloading == NULL)
+						{
+						iPodcastModel.SettingsEngine().SetDownloadSuspended(ETrue);
+						}
+					}				
 				}
 			}
 		}
@@ -1241,7 +1301,7 @@ void CShowEngine::NotifyDownloadQueueUpdatedL()
 	const TInt count = iObservers.Count();
 	for (TInt i = 0; i < count; i++)
 		{
-		iObservers[i]->DownloadQueueUpdatedL(1, DBGetDownloadsCount() - 1);
+		iObservers[i]->DownloadQueueUpdatedL(1, DBGetDownloadsCountL() - 1);
 		}
 	}
 
@@ -1271,10 +1331,10 @@ EXPORT_C void CShowEngine::NotifyShowListUpdatedL()
 		}
 	}
 
-void CShowEngine::ReadMetaData(CShowInfo& aShowInfo)
+void CShowEngine::ReadMetaDataL(CShowInfo& aShowInfo)
 	{
 	//DP1("Read %S", &(aShowInfo->Title()));
-	DBUpdateShow(aShowInfo);
+	DBUpdateShowL(aShowInfo);
 	}
 
 void CShowEngine::ReadMetaDataCompleteL()
@@ -1283,9 +1343,9 @@ void CShowEngine::ReadMetaDataCompleteL()
 	MetaDataReader().SetIgnoreTrackNo(EFalse);
 	}
 
-EXPORT_C void CShowEngine::UpdateShow(CShowInfo& aInfo)
+EXPORT_C void CShowEngine::UpdateShowL(CShowInfo& aInfo)
 	{
-	DBUpdateShow(aInfo);
+	DBUpdateShowL(aInfo);
 	}
 
 EXPORT_C CMetaDataReader& CShowEngine::MetaDataReader()
@@ -1295,7 +1355,35 @@ EXPORT_C CMetaDataReader& CShowEngine::MetaDataReader()
 
 void CShowEngine::FileError(TUint /*aError*/)
 	{
-	//TODO: Error dialog
-	//StopDownloads();
 	iDownloadErrors = KMaxDownloadErrors;
 	}
+
+EXPORT_C void CShowEngine::CheckForDeletedShows(TUint aFeedUid)
+	{
+	RShowInfoArray shows;
+	
+	TRAPD(err, DBGetShowsByFeedL(shows, aFeedUid));
+	
+	if (err != KErrNone)
+		{
+		// probably a catastrophic error, but it doesn't
+		// matter for this method
+		return;
+		}
+	
+	for (int i=0;i<shows.Count();i++)
+		{
+		if (shows[i]->DownloadState() == EDownloaded && shows[i]->FileName() != KNullDesC)
+			{
+			if(!BaflUtils::FileExists(iPodcastModel.FsSession(),shows[i]->FileName()))
+				{
+				// file doesn't exist anymore, assume it was deleted from outside
+				DP1("Show %S does not exist on disk, flagging as non downloaded", &shows[i]->FileName());
+				shows[i]->SetDownloadState(ENotDownloaded);
+				shows[i]->SetPlayState(EPlayed);
+				TRAP_IGNORE(DBUpdateShowL(*shows[i]));
+				}
+			}
+		}
+	}
+

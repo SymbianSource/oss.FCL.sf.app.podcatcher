@@ -29,10 +29,10 @@
 #include <podcast.mbg>
 #include <gulicon.h>
 #include <aknquerydialog.h>
-#include <caknmemoryselectiondialog.h> 
-#include <caknfilenamepromptdialog.h> 
 #include <BAUTILS.H> 
 #include <pathinfo.h> 
+#include <akncommondialogsdynmem.h> 
+#include "Podcatcher.pan"
 
 const TInt KMaxFeedNameLength = 100;
 const TInt KMaxUnplayedFeedsLength =64;
@@ -105,7 +105,6 @@ void CPodcastFeedView::ConstructL()
 	// Append the feed icon to icon array
 	icons->AppendL( CGulIcon::NewL( bitmap, mask ) );
 	CleanupStack::Pop(2); // bitmap, mask
-	
 	iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL( icons );
 	CleanupStack::Pop(icons); // icons
 
@@ -128,16 +127,16 @@ CPodcastFeedView::~CPodcastFeedView()
 	delete iNeverUpdated;
 	delete iStylusPopupMenu;
 	delete iUpdater;
+	iFeedIdForIconArray.Close();
     }
 
 void CPodcastFeedView::UpdateItemL(TInt aIndex)
 	{
-	_LIT(KPanicCategory, "CPodcastFeedView::UpdateItemL");
-	__ASSERT_DEBUG(iListContainer->IsVisible(), User::Panic(KPanicCategory, 0));
-	__ASSERT_ALWAYS(iItemIdArray.Count() > aIndex, User::Panic(KPanicCategory, 1));
+	__ASSERT_DEBUG(iListContainer->IsVisible(), Panic(EPodcatcherPanicFeedView));
+	__ASSERT_ALWAYS(iItemIdArray.Count() > aIndex, Panic(EPodcatcherPanicFeedView));
 
 	const RFeedInfoArray& sortedItems = iPodcastModel.FeedEngine().GetSortedFeeds();
-	__ASSERT_ALWAYS(sortedItems.Count() > aIndex, User::Panic(KPanicCategory, 2));
+	__ASSERT_ALWAYS(sortedItems.Count() > aIndex, Panic(EPodcatcherPanicFeedView));
 
 	// Update UID of for the feed at aIndex
 	iItemIdArray[aIndex] = sortedItems[aIndex]->Uid();
@@ -175,27 +174,19 @@ void CPodcastFeedView::DoActivateL(const TVwsViewId& aPrevViewId,
 	                                  const TDesC8& aCustomMessage)
 	{
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
-
+	
 	if (aPrevViewId.iViewUid == KUidPodcastShowsViewID)
 		{
 		// back key from shows view
 		iViewingShows = EFalse;
 		}
 	
-	if (iViewingShows)
-		{
-		// go to shows view
-		AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
-		} 
-	else 
-		{
 		UpdateListboxItemsL();		
 		UpdateToolbar();
 
-		if (iFirstActivateAfterLaunch)
-			{
-			iFirstActivateAfterLaunch = EFalse;
-			}
+	if (iFirstActivateAfterLaunch)
+		{
+		iFirstActivateAfterLaunch = EFalse;
 		}
 	}
 
@@ -212,19 +203,12 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 
 	switch(aEventType)
 		{
-		case EEventPenDownOnItem:
-			DP("PEN DOWN");
-			break;
-			
-//#ifndef SYMBIAN1_UI
+#ifndef SYMBIAN1_UI
 	case EEventItemClicked:
-		DP("SINGLE TAP");
-		break;
-//#endif
+#endif
 	case EEventEnterKeyPressed:
 	case EEventItemDoubleClicked:
 	case EEventItemActioned:
-		DP("DOUBLE TAP");
 			{
 			const RFeedInfoArray* sortedItems = NULL;
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
@@ -232,7 +216,6 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 
 			if(index >= 0 && index < sortedItems->Count())
 				{
-				iPodcastModel.ActiveShowList().Reset();
 				iPodcastModel.SetActiveFeedInfo((*sortedItems)[index]);			
 				iViewingShows = ETrue;
 				AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
@@ -269,7 +252,7 @@ void CPodcastFeedView::FeedDownloadFinishedL(TFeedState aState,TUint aFeedUid, T
 				{
 				TBuf<KMaxMessageLength> message;
 				iEikonEnv->ReadResourceL(message, R_PODCAST_CONNECTION_ERROR);
-				ShowErrorMessage(message);
+				ShowErrorMessageL(message);
 				}
 			}
 			break;
@@ -344,7 +327,8 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		}
 	else
 		{
-		iPodcastModel.FeedEngine().GetStatsByFeed(aFeedInfo.Uid(), showCount, unplayedCount);	
+		// we will get a leave if there are no shows for this feed, for instance, which is fine
+		TRAP_IGNORE(iPodcastModel.FeedEngine().GetStatsByFeedL(aFeedInfo.Uid(), showCount, unplayedCount));	
 		
 		if (unplayedCount) {
 			unplayedShows.Format(*iFeedsFormat, unplayedCount);
@@ -376,48 +360,42 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		if(aFeedInfo.LastError() != KErrNone)
 			{
 			GetFeedErrorText(unplayedShows, aFeedInfo.LastError());
+			updatedDate.Zero();
 			}
 		}
 	CArrayPtr<CGulIcon>* icons = iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->IconArray();
-	
-	if (aFeedInfo.FeedIconIndex() != -1) {
-		iconIndex = aFeedInfo.FeedIconIndex();
-	} else {
-		if(aFeedInfo.FeedIcon() != NULL && 
-				aFeedInfo.FeedIcon()->SizeInPixels().iHeight > 0 &&
-				aFeedInfo.FeedIcon()->SizeInPixels().iWidth > 0)
-			{
-			// Hopefully temporary haxx to prevent double delete. I would prefer if
-			// this could be solved with a little better design.
-			CFbsBitmap* bmpCopy = new (ELeave) CFbsBitmap;
-			CleanupStack::PushL(bmpCopy);
-			bmpCopy->Duplicate(aFeedInfo.FeedIcon()->Handle());
-			icons->AppendL( CGulIcon::NewL(bmpCopy, NULL));
-			CleanupStack::Pop(bmpCopy);
-			iconIndex = icons->Count()-1;
-			aFeedInfo.SetFeedIconIndex(iconIndex);
-			}
-		else {
-			if(BaflUtils::FileExists(iEikonEnv->FsSession(), aFeedInfo.ImageFileName()))
-			{
-			// If this fails, no reason to worry
-			TRAP_IGNORE(iPodcastModel.ImageHandler().LoadFileAndScaleL(aFeedInfo.FeedIcon(), aFeedInfo.ImageFileName(), TSize(64,56), *this, aFeedInfo.Uid()));
-			}
-		}
-	}
-	
-	if (unplayedShows.Length() > 0) {
+	iconIndex = iFeedIdForIconArray.Find(aFeedInfo.Uid());
+	if(iconIndex == KErrNotFound && aFeedInfo.FeedIcon() != NULL && aFeedInfo.ImageFileName().Length() > 0 && 
+			aFeedInfo.FeedIcon()->SizeInPixels().iHeight > 0 &&
+			aFeedInfo.FeedIcon()->SizeInPixels().iWidth > 0)
+		{
+		// Hopefully temporary haxx to prevent double delete. I would prefer if
+		// this could be solved with a little better design.
+		CFbsBitmap* bmpCopy = new (ELeave) CFbsBitmap;
+		CleanupStack::PushL(bmpCopy);
+		bmpCopy->Duplicate(aFeedInfo.FeedIcon()->Handle());
+		icons->AppendL( CGulIcon::NewL(bmpCopy, NULL));
+		iFeedIdForIconArray.Append(aFeedInfo.Uid());
+		CleanupStack::Pop(bmpCopy);			
+		iconIndex = icons->Count()-1;
+		}	
+	else 
+		{
+		iconIndex++;
+		}	
+
+	if (unplayedShows.Length() > 0 && updatedDate.Length() > 0) {
 		unplayedShows.Insert(0,_L(", "));
 	}
 	
 	iListboxFormatbuffer.Format(KFeedFormat(), iconIndex, &(aFeedInfo.Title()), &updatedDate,  &unplayedShows);
 	}
 
-void CPodcastFeedView::ImageOperationCompleteL(TInt aError, TUint aHandle)
+void CPodcastFeedView::ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& /*aPodcastModel*/)
 	{
 	if (aError == KErrNone) {
-	UpdateFeedInfoStatusL(aHandle, EFalse);
-	}
+		UpdateFeedInfoStatusL(aHandle, EFalse);
+		}
 	}
 
 void CPodcastFeedView::UpdateFeedInfoDataL(CFeedInfo* aFeedInfo, TInt aIndex, TBool aIsUpdating )
@@ -552,7 +530,7 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 				{
 				TBuf<KMaxMessageLength> message;
 				iEikonEnv->ReadResourceL(message, R_EXIT_SHOWS_DOWNLOADING);
-				if(ShowQueryMessage(message))
+				if(ShowQueryMessageL(message))
 					{
 					// pass it on to AppUi, which will exit for us
 					CPodcastListView::HandleCommandL(aCommand);
@@ -570,7 +548,7 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 			break;
 		}
 	
-	iListContainer->SetLongTapDetected(EFalse); // in case we got here by long tapping
+	iListContainer->SetLongTapDetectedL(EFalse); // in case we got here by long tapping
 	UpdateToolbar();
 	}
 
@@ -631,11 +609,10 @@ void CPodcastFeedView::HandleAddFeedL()
 				// ask if users wants to update it now
 				TBuf<KMaxMessageLength> message;
 				iEikonEnv->ReadResourceL(message, R_ADD_FEED_SUCCESS);
-				if(ShowQueryMessage(message))
+				if(ShowQueryMessageL(message))
 					{
 					CFeedInfo *info = iPodcastModel.FeedEngine().GetFeedInfoByUid(newFeedInfo->Uid());
 					
-					iPodcastModel.ActiveShowList().Reset();
 					iPodcastModel.SetActiveFeedInfo(info);			
 					AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
 					iPodcastModel.FeedEngine().UpdateFeedL(newFeedInfo->Uid());
@@ -645,7 +622,7 @@ void CPodcastFeedView::HandleAddFeedL()
 				{
 				TBuf<KMaxMessageLength> message;
 				iEikonEnv->ReadResourceL(message, R_ADD_FEED_EXISTS);
-				ShowErrorMessage(message);
+				ShowErrorMessageL(message);
 				}		
 			
 			CleanupStack::PopAndDestroy(newFeedInfo);
@@ -676,7 +653,7 @@ void CPodcastFeedView::HandleEditFeedL()
 				iEikonEnv->ReadResourceL(dlgMessage, R_ADD_FEED_REPLACE);
 
 				// Ask the user if it is OK to remove all shows
-				if ( ShowQueryMessage(dlgMessage))
+				if ( ShowQueryMessageL(dlgMessage))
 					{
 					PodcastUtils::FixProtocolsL(url);
 					
@@ -703,7 +680,7 @@ void CPodcastFeedView::HandleEditFeedL()
 						// the feed existed. Object deleted in AddFeed.	
 						TBuf<KMaxMessageLength> dlgMessage;
 						iEikonEnv->ReadResourceL(dlgMessage, R_ADD_FEED_EXISTS);
-						ShowErrorMessage(dlgMessage);
+						ShowErrorMessageL(dlgMessage);
 					}
 					CleanupStack::PopAndDestroy(temp);
 				}
@@ -713,7 +690,7 @@ void CPodcastFeedView::HandleEditFeedL()
 				{
 					info->SetTitleL(title);
 					info->SetCustomTitle();	
-					iPodcastModel.FeedEngine().UpdateFeed(info);
+					iPodcastModel.FeedEngine().UpdateFeedInfoL(info);
 					UpdateListboxItemsL();
 				}
 			}
@@ -734,7 +711,7 @@ void CPodcastFeedView::HandleRemoveFeedL()
 			TBuf<KMaxMessageLength> message;
 			iEikonEnv->ReadResourceL(templ, R_PODCAST_REMOVE_FEED_PROMPT);
 			message.Format(templ, &info->Title());					
-			if(ShowQueryMessage(message))
+			if(ShowQueryMessageL(message))
 				{
 				iPodcastModel.FeedEngine().RemoveFeedL(iItemIdArray[index]);
 				iItemArray->Delete(index);
@@ -760,117 +737,75 @@ void CPodcastFeedView::HandleUpdateFeedL()
 
 void CPodcastFeedView::HandleImportFeedsL()
 	{
-	CAknMemorySelectionDialog* memDlg = 
-		CAknMemorySelectionDialog::NewL(ECFDDialogTypeNormal, ETrue);
-	CleanupStack::PushL(memDlg);
-	CAknMemorySelectionDialog::TMemory memory = 
-		CAknMemorySelectionDialog::EPhoneMemory;
-
-	if (memDlg->ExecuteL(memory))
-		{
-		TFileName importName;
+	TFileName fileName;
+	fileName.Zero();
+	TFileName startFolder;
+	startFolder.Zero();
+	TInt types = AknCommonDialogsDynMem::EMemoryTypePhone | AknCommonDialogsDynMem::EMemoryTypeMMC |AknCommonDialogsDynMem::EMemoryTypeInternalMassStorage| AknCommonDialogsDynMem::EMemoryTypeRemote;
 	
-		if (memory==CAknMemorySelectionDialog::EMemoryCard)
+	HBufC *title = iCoeEnv->AllocReadResourceLC(R_PODCAST_SELECT_OPML);
+	if (AknCommonDialogsDynMem::RunSelectDlgLD (types, fileName,
+			startFolder, NULL, NULL, *title))
 		{
-			importName = PathInfo:: MemoryCardRootPath();
-		}
-		else
-		{
-			importName = PathInfo:: PhoneMemoryRootPath();
-		}
-
-		CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeNormal, R_PODCAST_IMPORT_PODCAST);
-		CleanupStack::PushL(dlg);
-
-		dlg->SetDefaultFolderL(importName);
 		
-		if(dlg->ExecuteL(importName))
+		if(fileName.Length()>0)
 			{
-			if(importName.Length()>0)
-				{
-				HBufC *waitText = iEikonEnv->AllocReadResourceLC(R_IMPORTING);
-				iOpmlState = EOpmlImporting;
-				ShowWaitDialogL(*waitText);
-				CleanupStack::PopAndDestroy(waitText);	
+			HBufC *waitText = iEikonEnv->AllocReadResourceLC(R_IMPORTING);
+			iOpmlState = EOpmlImporting;
+			ShowWaitDialogL(*waitText);
+			CleanupStack::PopAndDestroy(waitText);	
 
-				TRAPD(err, iPodcastModel.FeedEngine().ImportFeedsL(importName));
-									
-				if (err != KErrNone) {
-					TBuf<KMaxMessageLength> message;
-					iEikonEnv->ReadResourceL(message, R_IMPORT_FEED_FAILURE);
-					ShowErrorMessage(message);
-					}
+			TRAPD(err, iPodcastModel.FeedEngine().ImportFeedsL(fileName));
+								
+			if (err != KErrNone) {
+				TBuf<KMaxMessageLength> message;
+				iEikonEnv->ReadResourceL(message, R_IMPORT_FEED_FAILURE);
+				ShowErrorMessageL(message);
 				}
-				
 			}
-		CleanupStack::PopAndDestroy(dlg);
+
 		}
-	CleanupStack::PopAndDestroy(memDlg);
+	CleanupStack::PopAndDestroy(title);
 	}
 
 void CPodcastFeedView::HandleExportFeedsL()
 	{
-	CAknMemorySelectionDialog* memDlg = 
-		CAknMemorySelectionDialog::NewL(ECFDDialogTypeSave, ETrue);
-	CleanupStack::PushL(memDlg);
-	CAknMemorySelectionDialog::TMemory memory = 
-		CAknMemorySelectionDialog::EPhoneMemory;
-
-	if (memDlg->ExecuteL(memory))
+	TFileName fileName;
+	fileName.Copy(_L("feeds.opml"));
+	TFileName startFolder;
+	startFolder.Zero();
+	TInt types = AknCommonDialogsDynMem::EMemoryTypePhone | AknCommonDialogsDynMem::EMemoryTypeMMC |AknCommonDialogsDynMem::EMemoryTypeInternalMassStorage| AknCommonDialogsDynMem::EMemoryTypeRemote;
+	
+	HBufC *title = iCoeEnv->AllocReadResourceLC(R_PODCAST_SELECT_FOLDER);
+	if (AknCommonDialogsDynMem::RunSaveDlgLD (types, fileName,
+			startFolder, NULL, NULL, *title))
 		{
-		TFileName pathName;
-		
-		if (memory==CAknMemorySelectionDialog::EMemoryCard)
-		{
-			pathName = PathInfo::MemoryCardRootPath();
-		}
-		else
-		{
-			pathName = PathInfo::PhoneMemoryRootPath();
-		}
-
-		CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeSave, R_PODCAST_EXPORT_FEEDS);
-		CleanupStack::PushL(dlg);
-								
-		if(dlg->ExecuteL(pathName))
-			{
-			CAknFileNamePromptDialog *fileDlg = CAknFileNamePromptDialog::NewL(R_PODCAST_FILENAME_PROMPT_DIALOG);
-			CleanupStack::PushL(fileDlg);
-			fileDlg->SetPathL(pathName);
-			TFileName fileName;
-			if (fileDlg->ExecuteL(fileName) && fileName.Length() > 0)
+			TFileName temp;
+			TRAPD(err, iPodcastModel.FeedEngine().ExportFeedsL(temp));						
+			BaflUtils::CopyFile(iEikonEnv->FsSession(), temp, fileName);
+			BaflUtils::DeleteFile(iEikonEnv->FsSession(),temp);	
+			if (err == KErrNone) 
 				{
-				pathName.Append(fileName);
-				TFileName temp;
-				TRAPD(err, iPodcastModel.FeedEngine().ExportFeedsL(temp));						
-				BaflUtils::CopyFile(iEikonEnv->FsSession(), temp, pathName);
-				BaflUtils::DeleteFile(iEikonEnv->FsSession(),temp);	
-				if (err == KErrNone) 
-					{
-					UpdateListboxItemsL();
-					TInt numFeeds = iPodcastModel.FeedEngine().GetSortedFeeds().Count();
-									
-					TBuf<KMaxMessageLength> message;
-					TBuf<KMaxMessageLength> templ;
-					iEikonEnv->ReadResourceL(templ, R_EXPORT_FEED_SUCCESS);
-					message.Format(templ, numFeeds);
-					ShowOkMessage(message);
-					} 
-				else 
-					{
-					TBuf<KMaxMessageLength> message;
-					iEikonEnv->ReadResourceL(message, R_EXPORT_FEED_FAILURE);
-					ShowErrorMessage(message);
-					}
+				UpdateListboxItemsL();
+				TInt numFeeds = iPodcastModel.FeedEngine().GetSortedFeeds().Count();
+								
+				TBuf<KMaxMessageLength> message;
+				TBuf<KMaxMessageLength> templ;
+				iEikonEnv->ReadResourceL(templ, R_EXPORT_FEED_SUCCESS);
+				message.Format(templ, numFeeds);
+				ShowOkMessageL(message);
+				} 
+			else 
+				{
+				TBuf<KMaxMessageLength> message;
+				iEikonEnv->ReadResourceL(message, R_EXPORT_FEED_FAILURE);
+				ShowErrorMessageL(message);
 				}
-			CleanupStack::PopAndDestroy(fileDlg);
-			}
-		CleanupStack::PopAndDestroy(dlg);
-	}
-	CleanupStack::PopAndDestroy(memDlg);									
+		}
+	CleanupStack::PopAndDestroy(title);
 	}
 
-void CPodcastFeedView::CheckResumeDownload()
+void CPodcastFeedView::CheckResumeDownloadL()
 	{
 	// if there are shows queued for downloading, ask if we should resume now
 	RShowInfoArray showsDownloading;
@@ -881,7 +816,7 @@ void CPodcastFeedView::CheckResumeDownload()
 		TBuf<KMaxMessageLength> msg;
 		iEikonEnv->ReadResourceL(msg, R_PODCAST_ENABLE_DOWNLOADS_PROMPT);
 	
-		if (ShowQueryMessage(msg))
+		if (ShowQueryMessageL(msg))
 			{
 			// need to suspend downloads before ResumeDownloadL will work :)
 			iPodcastModel.SettingsEngine().SetDownloadSuspended(ETrue);
@@ -901,6 +836,11 @@ void CPodcastFeedView::CheckResumeDownload()
 
 void CPodcastFeedView::OpmlParsingComplete(TInt aError, TUint aNumFeedsImported)
 	{
+	TRAP_IGNORE(OpmlParsingCompleteL(aError, aNumFeedsImported));
+	}
+
+void CPodcastFeedView::OpmlParsingCompleteL(TInt aError, TUint aNumFeedsImported)
+	{
 	DP("CPodcastFeedView::OpmlParsingComplete BEGIN");
 	
 	switch (aError)
@@ -909,7 +849,7 @@ void CPodcastFeedView::OpmlParsingComplete(TInt aError, TUint aNumFeedsImported)
 			{
 			TBuf<KMaxMessageLength> message;
 			iEikonEnv->ReadResourceL(message, R_PODCAST_CONNECTION_ERROR);
-			ShowErrorMessage(message);
+			ShowErrorMessageL(message);
 			}
 			break;
 		case KErrNone: 
@@ -929,7 +869,7 @@ void CPodcastFeedView::OpmlParsingComplete(TInt aError, TUint aNumFeedsImported)
 				iEikonEnv->ReadResourceL(templ, R_IMPORT_FEED_SUCCESS);
 				message.Format(templ, aNumFeedsImported);
 				
-				if(ShowQueryMessage(message))
+				if(ShowQueryMessageL(message))
 					{
 					HandleCommandL(EPodcastUpdateAllFeeds);
 					}
@@ -937,11 +877,12 @@ void CPodcastFeedView::OpmlParsingComplete(TInt aError, TUint aNumFeedsImported)
 				break;
 			case EOpmlSearching:
 				delete iWaitDialog;
+				iWaitDialog = NULL;
 				if (iPodcastModel.FeedEngine().GetSearchResults().Count() == 0)
 					{
 					TBuf<KMaxMessageLength> message;
 					iEikonEnv->ReadResourceL(message, R_SEARCH_NORESULTS);
-					ShowErrorMessage(message);
+					ShowErrorMessageL(message);
 					}
 				else
 					{
@@ -964,18 +905,14 @@ void CPodcastFeedView::DialogDismissedL(TInt /*aButtonId*/)
 
 void CPodcastFeedView::GetFeedErrorText(TDes &aErrorMessage, TInt aErrorCode)
 	{
-	iEikonEnv->GetErrorText(aErrorMessage, aErrorCode);
+	TRAP_IGNORE(((CPodcastAppUi*)AppUi())->GetErrorTextL(aErrorMessage,aErrorCode));
 	}
 
 void CPodcastFeedView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
 {
 	DP("CPodcastListView::HandleLongTapEventL BEGIN");
 
-	if (iUpdatingAllRunning) {
-		return; // we don't allow feed manipulation while update is running
-	}
-
-	iListContainer->SetLongTapDetected(ETrue);
+	iListContainer->SetLongTapDetectedL(ETrue);
 
 	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
 	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
@@ -988,3 +925,8 @@ void CPodcastFeedView::HandleLongTapEventL( const TPoint& aPenEventLocation, con
     }
 	DP("CPodcastListView::HandleLongTapEventL END");
 }
+
+TBool CPodcastFeedView::ViewingShows()
+	{
+	return iViewingShows;
+	}

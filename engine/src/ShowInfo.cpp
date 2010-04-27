@@ -217,10 +217,22 @@ EXPORT_C TUint CShowInfo::TrackNo() const
 
 EXPORT_C CShowInfo::CShowInfo(CShowInfo *aInfo)
 	{
+	if (iTitle)
+		delete iTitle;
 	iTitle = aInfo->Title().Alloc();
+	
+	if(iUrl)
+		delete iUrl;
 	iUrl = aInfo->Url().Alloc();
+	
+	if (iDescription)
+		delete iDescription;
 	iDescription = aInfo->Description().Alloc();
+	
+	if (iFileName)
+		delete iFileName;
 	iFileName = aInfo->FileName().Alloc();
+	
 	iPosition = aInfo->Position();
 	iPlayTime = aInfo->PlayTime();
 	iPlayState = aInfo->PlayState();

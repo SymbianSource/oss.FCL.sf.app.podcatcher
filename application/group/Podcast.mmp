@@ -33,6 +33,12 @@ SYSTEMINCLUDE \epoc32\include\domain\middleware
 SYSTEMINCLUDE \epoc32\include\mw					// for Symbian^3
 SYSTEMINCLUDE \epoc32\include\platform\mw			// for Symbian^3
 
+#ifdef SQLITE_INCLUDED
+SYSTEMINCLUDE ..\..\engine\sqlite\inc
+#else
+SYSTEMINCLUDE \epoc32\include\stdapis
+#endif
+
 USERINCLUDE ..\..\engine\inc
 USERINCLUDE . 
 USERINCLUDE ..\inc
@@ -85,6 +91,7 @@ LIBRARY imageconversion.lib
 LIBRARY bitmaptransforms.lib 
 #else
 LIBRARY PodCastEngine.lib
+LIBRARY sqlite3.lib
 #endif
 LIBRARY	euser.lib 
 LIBRARY	apparc.lib
@@ -114,4 +121,3 @@ LIBRARY form.lib
 LIBRARY ws32.lib 
 LIBRARY hlplch.lib
 LIBRARY bitgdi.lib 
-

@@ -29,12 +29,9 @@
 #include "PodcastModel.h"
 #include "Podcast.hrh"
 #include "PodcastListView.h"
-#include "Imagehandler.h"
-
-class CImageHandler;
 
 class CPodcastShowsView : public CPodcastListView, public MEikListBoxObserver, 
-	public MFeedEngineObserver, public MShowEngineObserver, public MImageHandlerCallback
+	public MFeedEngineObserver, public MShowEngineObserver
 	{
 public: 
 	static CPodcastShowsView* NewL(CPodcastModel& aPodcastModel);
@@ -100,23 +97,20 @@ protected:
 	void FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aSizeDownloaded = 0);
 
 	void HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& aPenEventScreenLocation);
+	void GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex);
+	void CreateIconsL();
 
 private:
-	void GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex);
 	void DisplayShowInfoDialogL();
-	/*
-	 * Called by CImageHandler when an image has been loaded.
-	 * @param aError Error code given by the CImageHandler or 0 (zero) if the
-	 *   image was loaded successfully.
-	 */
-	virtual void ImageOperationCompleteL(TInt aError, TUint aHandle);
+	void HandleSetShowPlayedL(TBool aPlayed);
+	void HandleDeleteShowL();
+	void ImageOperationCompleteL(TInt /* aError */, TUint /* aHandle */, CPodcastModel& /* aPodcastModel */) {}
 	void HandleSetShowPlayed(TBool aPlayed);
 	void HandleDeleteShow();
 	void UpdateViewTitleL();
-	void CreateIconsL();
 	void GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode);
 	
-private:
+protected:
 	
 	CPodcastModel& iPodcastModel;
 	TBool iProgressAdded;	

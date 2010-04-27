@@ -25,9 +25,9 @@
 #include <podcast.rsg>
 #include "SettingsEngine.h"
 
-#include <caknfileselectiondialog.h> 
-#include <caknmemoryselectiondialog.h> 
+#include <akncommondialogsdynmem.h> 
 #include <pathinfo.h>
+#include <aknquerydialog.h>
 
 
 class CIapSetting: public CAknEnumeratedTextPopupSettingItem 
@@ -289,42 +289,33 @@ public:
 		{
 		DP("EditItemL BEGIN");
 		if (aIndex == 0) {
-			CAknMemorySelectionDialog* memDlg = 
-				CAknMemorySelectionDialog::NewL(ECFDDialogTypeNormal, ETrue);
-			CleanupStack::PushL(memDlg);
-			CAknMemorySelectionDialog::TMemory memory = 
-				CAknMemorySelectionDialog::EPhoneMemory;
-	
-			if (memDlg->ExecuteL(memory))
-				{
-				TFileName importName;
+			TFileName selectedFolder;
+			selectedFolder.Copy(iShowDir);
+			TFileName startFolder;
+			startFolder.Zero();
+			TInt types = AknCommonDialogsDynMem::EMemoryTypePhone | AknCommonDialogsDynMem::EMemoryTypeMMC |AknCommonDialogsDynMem::EMemoryTypeInternalMassStorage| AknCommonDialogsDynMem::EMemoryTypeRemote;
 			
-				if (memory==CAknMemorySelectionDialog::EMemoryCard)
+			HBufC *title = iCoeEnv->AllocReadResourceLC(R_PODCAST_SELECT_FOLDER);
+			if (AknCommonDialogsDynMem::RunFolderSelectDlgLD (types, selectedFolder,
+					startFolder, NULL, NULL, *title))
 				{
-					importName = PathInfo:: MemoryCardRootPath();
-				}
-				else
-				{
-					importName = PathInfo:: PhoneMemoryRootPath();
-				}
-	
-				CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeSave, R_PODCAST_SHOWDIR_SELECTOR);
-				HBufC* select = iEikonEnv->AllocReadResourceLC(R_PODCAST_SOFTKEY_SELECT);
-				dlg->SetLeftSoftkeyFileL(*select);
-				CleanupStack::PopAndDestroy(select);
-				CleanupStack::PushL(dlg);
-	
-				dlg->SetDefaultFolderL(importName);
-				
-				if(dlg->ExecuteL(importName))
+				_LIT(KPodcastsDir, "Podcasts");
+				TInt pos = selectedFolder.Find(KPodcastsDir);
+				if (pos == KErrNotFound || pos != selectedFolder.Length()-9)
 					{
-					importName.Append(_L("Podcasts"));
-					iShowDir.Copy(importName);
-					LoadSettingsL();
+					// append "Podcasts" if the folder isn't already called this
+					selectedFolder.Append(KPodcastsDir);
 					}
-				CleanupStack::PopAndDestroy(dlg);
+				
+				if (selectedFolder[selectedFolder.Length()-1] != '\\')
+					{
+					selectedFolder.Append(_L("\\"));
+					}
+				
+				iShowDir.Copy(selectedFolder);
+				LoadSettingsL();
 				}
-			CleanupStack::PopAndDestroy(memDlg);								
+			CleanupStack::PopAndDestroy(title);
 			}
 		else {
 			CAknSettingItemList::EditItemL(aIndex,aCalledFromMenu);
@@ -511,6 +502,7 @@ void CPodcastSettingsView::DoActivateL(const TVwsViewId& aPrevViewId,
 		{
 		iNaviPane->PushL(*iNaviDecorator);
 		}
+
 	DP("CPodcastSettingsView::DoActivateL END");
 }
 
@@ -549,7 +541,21 @@ void CPodcastSettingsView::HandleCommandL(TInt aCommand)
 		iListbox->StoreSettings();
 		AppUi()->ActivateViewL(iPreviousView);
 		}
-		break;	
+		break;
+	case EPodcastResetDb:
+		CAknQueryDialog* dlg= new(ELeave) CAknQueryDialog();
+		
+		CleanupStack::PushL(dlg);
+		HBufC *text = iCoeEnv->AllocReadResourceLC(R_RESET_DB_QUERY);
+		dlg->SetPromptL(*text);
+		CleanupStack::PopAndDestroy(text);
+		CleanupStack::Pop(dlg);
+		if(dlg->ExecuteLD(R_QUERYDLG))
+			{
+			iPodcastModel.DropDB();
+			AppUi()->Exit();
+			}
+		break;
 	default:
 		AppUi()->HandleCommandL(aCommand);
 		break;

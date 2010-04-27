@@ -17,8 +17,13 @@
 */
 
 #include "FeedInfo.h"
+#include "FeedEngine.h"
+#include "PodcastModel.h"
 #include <e32hashtab.h>
 #include <fbs.h>
+#include <bautils.h>
+#include <eikenv.h>
+_LIT(KMbmExtension, ".mbm");
 
 EXPORT_C CFeedInfo* CFeedInfo::NewL()
 	{
@@ -47,22 +52,24 @@ EXPORT_C CFeedInfo* CFeedInfo::CopyL() const
 	copy->SetLinkL(Link());
 	copy->SetBuildDate(BuildDate());
 	copy->SetLastUpdated(LastUpdated());
-	copy->SetImageFileNameL(ImageFileName());
-	copy->iFeedIcon->Duplicate(iFeedIcon->Handle());
+	if (iFeedIcon) {
+		copy->SetFeedIcon(iFeedIcon);
+	}
+	copy->SetImageFileNameL(ImageFileName(), NULL);
 	if(CustomTitle())
 		{
 		copy->SetCustomTitle();
 		}
 	
 	copy->SetLastError(LastError());
-	copy->SetFeedIconIndex(FeedIconIndex());
+
 	CleanupStack::Pop(copy);
 	return copy;
 	}
+
 CFeedInfo::CFeedInfo()
 	{
 	iCustomTitle = EFalse;
-	iFeedIconIndex = -1;
 	}
 
 EXPORT_C CFeedInfo::~CFeedInfo()
@@ -78,7 +85,7 @@ EXPORT_C CFeedInfo::~CFeedInfo()
 
 void CFeedInfo::ConstructL()
 	{
-	iFeedIcon = new (ELeave) CFbsBitmap;
+	//iFeedIcon = new (ELeave) CFbsBitmap;
 	}
 
 EXPORT_C const TDesC& CFeedInfo::Url() const
@@ -189,15 +196,39 @@ EXPORT_C const TDesC& CFeedInfo::ImageFileName() const
 	return iImageFileName ? *iImageFileName : KNullDesC();
 	}
 
-EXPORT_C void CFeedInfo::SetImageFileNameL(const TDesC& aFileName)
+EXPORT_C void CFeedInfo::SetImageFileNameL(const TDesC& aFileName, CPodcastModel* aPodcastModel)
 	{
+	DP1("CFeedInfo::SetImageFileNameL BEGIN, aFileName=%S", &aFileName);
+	TFileName cacheFileName;
+	
 	if (iImageFileName)
 		{
 		delete iImageFileName;
 		iImageFileName = NULL;
 		}
-	iImageFileName = aFileName.AllocL();	
+	
+	iImageFileName = aFileName.AllocL();
+	TParsePtrC parser(*iImageFileName);
+	cacheFileName = parser.DriveAndPath();
+	cacheFileName.Append(parser.Name());
+	cacheFileName.Append(KMbmExtension());
+	
+	if (iFeedIcon) {
+		delete iFeedIcon;
 	}
+	
+	if( BaflUtils::FileExists(CEikonEnv::Static()->FsSession(), cacheFileName) )
+		{
+		iFeedIcon = CEikonEnv::Static()->CreateBitmapL(cacheFileName, 0);
+		}
+	else if(aPodcastModel &&  BaflUtils::FileExists(CEikonEnv::Static()->FsSession(), ImageFileName() ))
+		{
+		// If this fails, no reason to worry
+		iFeedIcon = new CFbsBitmap();
+		TRAP_IGNORE(aPodcastModel->ImageHandler().LoadFileAndScaleL(FeedIcon(), ImageFileName(), TSize(64,56), *this, Uid()));
+		}	
+	DP("CFeedInfo::SetImageFileNameL END");
+	} 
 
 EXPORT_C TBool CFeedInfo::CustomTitle() const
 	{
@@ -226,20 +257,25 @@ EXPORT_C CFbsBitmap* CFeedInfo::FeedIcon() const
 
 EXPORT_C void CFeedInfo::SetFeedIcon(CFbsBitmap* aBitmapToClone)
 	{
+	if (iFeedIcon)
+		{
+		delete iFeedIcon;
+		}
+	
 	iFeedIcon->Duplicate(aBitmapToClone->Handle());
 	}
 
-void CFeedInfo::ImageOperationCompleteL(TInt /*aError*/, TUint /*aHandle*/)
-	{
+void CFeedInfo::ImageOperationCompleteL(TInt aError, TUint /*aHandle*/, CPodcastModel& aPodcastModel)
+	{		
+	if (aError == KErrNone && iImageFileName && iFeedIcon)
+		{
+		TFileName cacheFileName;
 	
-	}
-
-EXPORT_C TInt CFeedInfo::FeedIconIndex() const
-	{
-	return iFeedIconIndex;
-	}
-
-EXPORT_C void CFeedInfo::SetFeedIconIndex(TInt aIndex)
-	{
-	iFeedIconIndex = aIndex;
+		TParsePtrC parser(*iImageFileName);
+		cacheFileName = parser.DriveAndPath();
+		cacheFileName.Append(parser.Name());
+		cacheFileName.Append(KMbmExtension());		
+		iFeedIcon->Save(cacheFileName);					
+		aPodcastModel.FeedEngine().NotifyFeedUpdateComplete(this->iUid, KErrNone);
+		}
 	}

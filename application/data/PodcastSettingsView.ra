@@ -30,9 +30,14 @@ RESOURCE MENU_PANE r_podcast_settingsview_menu
         {        
 		MENU_ITEM
 			{
+			command = EPodcastResetDb;
+			txt = STRING_r_podcast_setting_reset_db;
+			},
+		MENU_ITEM
+			{
 			command = EPodcastHelp;
 			txt = STRING_r_view_help;
-			}		
+			}
 		};
     }
 
@@ -224,6 +229,18 @@ RESOURCE FILESELECTIONDIALOG r_podcast_showdir_selector
   }
  };
 }
+
+RESOURCE MEMORYSELECTIONDIALOG r_podcast_memory_selection
+    {
+    title = "Select memory:";
+    softkey_1 = text_softkey_ok; // The text for the left softkey.
+    softkey_2 = text_softkey_cancel; // The text for the right softkey.
+    locations =
+        {
+        LOCATION { root_path =  text_phone_memory_root_path; },
+        LOCATION { root_path = text_memory_card_root_path; }
+        };
+    } 
 
 RESOURCE TBUF r_podcast_softkey_select { buf = STRING_r_view_export_feeds_softkey; }
 RESOURCE TBUF r_settings_title { buf = STRING_r_podcast_settings_title; }

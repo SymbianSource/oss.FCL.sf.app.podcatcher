@@ -19,7 +19,6 @@
 // HttpEventHandler.cpp
 #include <e32debug.h>
 #include <httperr.h>
-
 #include "HttpEventHandler.h"
 #include "bautils.h"
 #include "Httpclient.h"
@@ -67,10 +66,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 			// going to be a response body to save.
 			RHTTPResponse resp = aTransaction.Response();
 			iLastStatusCode = resp.StatusCode();
-			RStringF statusStr = resp.StatusText();
-			TBuf<32> statusStr16;
-			statusStr16.Copy(statusStr.DesC());
-			DP2("Status: %d (%S)", iLastStatusCode, &statusStr16);
+			DP1("Status: %d", iLastStatusCode);
 
 			// Dump the headers if we're being verbose
 			//DumpRespHeadersL(aTransaction);
@@ -105,10 +101,12 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 				{
 				iFileServ.Parse(iFileName, iParsedFileName);
 				TInt valid = iFileServ.IsValidName(iFileName);
+				
 				if (!valid)
 					{
 					DP("The specified filename is not valid!.");
 					iSavingResponseBody = EFalse;
+					iHttpClient->ClientRequestCompleteL(KErrBadName);
 					}
 				else
 					{
@@ -116,21 +114,28 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 						TInt err = iRespBodyFile.Open(iFileServ, iParsedFileName.FullName(),EFileWrite);
 						if (err)
 							{
-							DP("There was an error opening file");
+							DP2("There was an error opening file '%S', err=%d", &iParsedFileName.FullName(), err);
 							iSavingResponseBody = EFalse;
+							iHttpClient->ClientRequestCompleteL(KErrInUse);
 							User::Leave(err);
-							} else {
+							} 
+						else
+							{
 							int pos = -KByteOverlap;
-							if((err=iRespBodyFile.Seek(ESeekEnd, pos)) != KErrNone) {
+							if((err=iRespBodyFile.Seek(ESeekEnd, pos)) != KErrNone)
+								{
 								DP("Failed to set position!");
+								iHttpClient->ClientRequestCompleteL(KErrWrite);
 								User::Leave(err);
+								}
+						iBytesDownloaded = (pos > 0) ? pos : 0;
+						iBytesTotal += iBytesDownloaded;
+						DP1("Total bytes is now %u", iBytesTotal);
+						DP1("Seeking end: %d", pos);
 							}
-							iBytesDownloaded = (pos > 0) ? pos : 0;
-							iBytesTotal += iBytesDownloaded;
-							DP1("Total bytes is now %u", iBytesTotal);
-							DP1("Seeking end: %d", pos);
-							}
-					} else {
+						}
+					else 
+						{
 						TInt err = iRespBodyFile.Replace(iFileServ,
 														 iParsedFileName.FullName(),
 														 EFileWrite);
@@ -160,10 +165,10 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 				iRespBody->GetNextDataPart(bodyData);
 				iBytesDownloaded += bodyData.Length();
 				TInt error = iRespBodyFile.Write(bodyData);
-				
+
 				// on writing error we close connection 
 				if (error != KErrNone) {
-					//aTransaction.Close();
+					iRespBodyFile.Close();
 					iCallbacks.FileError(error);
 					iHttpClient->ClientRequestCompleteL(error);
 					return;
@@ -224,10 +229,11 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 		}
 	}
 
-TInt CHttpEventHandler::MHFRunError(TInt aError, RHTTPTransaction /*aTransaction*/, const THTTPEvent& /*aEvent*/)
+TInt CHttpEventHandler::MHFRunError(TInt aError, RHTTPTransaction aTransaction, const THTTPEvent& /*aEvent*/)
 	{
 	DP1("MHFRunError fired with error code %d", aError);
-
+	aTransaction.Close();
+	TRAP_IGNORE(iHttpClient->ClientRequestCompleteL(aError));
 	return KErrNone;
 	}
 

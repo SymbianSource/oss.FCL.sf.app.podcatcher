@@ -29,7 +29,7 @@
 #include "debug.h"
 #include "..\help\podcatcher.hlp.hrh"
 #include "PodcastApp.h"
-
+#include <APGWGNAM.H>
 #include <HLPLCH.H>
 #include <avkon.hrh>
 
@@ -127,15 +127,35 @@ void CPodcastAppUi::HandleCommandL( TInt aCommand )
             }
         case EEikCmdExit:
         	{
-			TApaTask task(CEikonEnv::Static()->WsSession());
-			task.SetWgId(CEikonEnv::Static()->RootWin().Identifier());
-			task.SendToBackground(); 
+        	// we want to prevent red button from closing podcatcher, and
+        	// instead we send it to background
+        	// however, we want to respect the task manager (fast swap) close
+        	// command, so we check if task manager is the focussed window group
+        	
+        	RWsSession& ws = iEikonEnv->WsSession();
+			TInt wgid = ws.GetFocusWindowGroup();
+			CApaWindowGroupName* gn = CApaWindowGroupName::NewLC(ws, wgid);
+			TUid activeAppUid = gn->AppUid();
+			CleanupStack::PopAndDestroy(gn);
+        	
+			const TUid KUidFastSwap = { 0x10207218 };
+			if (activeAppUid == KUidFastSwap)
+				{
+				// closed by task manager
+				Exit();
+				}
+			else
+        		{
+        		// red button pressed
+				TApaTask task(iEikonEnv->WsSession());
+				task.SetWgId(iEikonEnv->RootWin().Identifier());
+				task.SendToBackground(); 
+        		}   		
 			break;
         	}
 	case EPodcastHelp:
-        	{
-        	CArrayFix<TCoeHelpContext>* buf = CPodcastAppUi::AppHelpContextL();		
-        	HlpLauncher::LaunchHelpApplicationL(iEikonEnv->WsSession(), buf);
+        	{	
+        	HlpLauncher::LaunchHelpApplicationL(iEikonEnv->WsSession(), HelpContextL());
         	}
         	break;      	
         default:
@@ -148,11 +168,15 @@ CArrayFix<TCoeHelpContext>* CPodcastAppUi::HelpContextL() const
     CArrayFixFlat<TCoeHelpContext>* array = 
                 new(ELeave)CArrayFixFlat<TCoeHelpContext>(1);
     CleanupStack::PushL(array);
-    // todo: view detection doesn't seem to work
-    if (ViewShown(KUidPodcastSearchViewID)) {
-		array->AppendL(TCoeHelpContext(KUidPodcast,KContextSettings));
+    
+    if (iFeedView->IsVisible()) {
+		array->AppendL(TCoeHelpContext(KUidPodcast,KContextFeedsView));
+    } else if (iShowsView->IsVisible()) {
+		array->AppendL(TCoeHelpContext(KUidPodcast,KContextShowsView));
+    } else if (iQueueView->IsVisible()) {
+		array->AppendL(TCoeHelpContext(KUidPodcast,KContextDownloadQueue));
     } else {
-		array->AppendL(TCoeHelpContext(KUidPodcast,KContextApplication));
+		array->AppendL(TCoeHelpContext(KUidPodcast,KContextSettings));
     }
 	
     CleanupStack::Pop(array);
@@ -202,7 +226,7 @@ void CPodcastAppUi::NaviShowTabGroupL()
 	iNaviPane->PushL(*iNaviTabGroup);
 	iNaviStyle = ENaviTabGroup;
 
-	UpdateQueueTab(iPodcastModel->ShowEngine().GetNumDownloadingShows());
+	UpdateQueueTabL(iPodcastModel->ShowEngine().GetNumDownloadingShows());
 	}
 
 void CPodcastAppUi::TabChangedL (TInt aIndex)
@@ -213,14 +237,25 @@ void CPodcastAppUi::TabChangedL (TInt aIndex)
 		{
 		TUid newview = TUid::Uid(0);
 		TUid messageUid = TUid::Uid(0);
-		
-		if (aIndex == KTabIdFeeds) {
-			newview = KUidPodcastFeedViewID;
-		} else if (aIndex == KTabIdQueue) {
+		if (aIndex == KTabIdFeeds) 
+			{
+			if (iFeedView->ViewingShows())
+				{
+				newview = KUidPodcastShowsViewID;
+				}
+			else
+				{
+				newview = KUidPodcastFeedViewID;
+				}
+			} 
+		else if (aIndex == KTabIdQueue)
+			{
 			newview = KUidPodcastQueueViewID;
-		} else {
+			} 
+		else 
+			{
 			User::Leave(KErrTooBig);
-		}
+			}
 		
 		if(newview.iUid != 0)
 			{			
@@ -236,12 +271,12 @@ void CPodcastAppUi::SetActiveTab(TInt aIndex) {
 		}
 }
 
-void CPodcastAppUi::HandleTimeout(const CTimeout& /*aId*/, TInt /*aError*/)
+void CPodcastAppUi::HandleTimeoutL(const CTimeout& /*aId*/, TInt /*aError*/)
 	{
-	iFeedView->CheckResumeDownload();
+	iFeedView->CheckResumeDownloadL();
 	}
 
-void CPodcastAppUi::UpdateQueueTab(TInt aQueueLength)
+void CPodcastAppUi::UpdateQueueTabL(TInt aQueueLength)
 	{
 	if (iNaviStyle == ENaviTabGroup)
 		{
@@ -264,7 +299,7 @@ void CPodcastAppUi::UpdateQueueTab(TInt aQueueLength)
 		}
 	}
 
-void CPodcastAppUi::TabLeft()
+void CPodcastAppUi::TabLeftL()
 	{
 	if (iNaviStyle == ENaviTabGroup) 
 		{
@@ -277,7 +312,7 @@ void CPodcastAppUi::TabLeft()
 		}
 	}
 
-void CPodcastAppUi::TabRight()
+void CPodcastAppUi::TabRightL()
 	{
 	if (iNaviStyle == ENaviTabGroup) 
 		{
@@ -307,4 +342,48 @@ void CPodcastAppUi::ConnectionSelectionEnd()
 	iShowsView->UpdateToolbar(ETrue);
 	iQueueView->UpdateToolbar(ETrue);
 	iSearchView->UpdateToolbar(ETrue);
+	}
+
+void CPodcastAppUi::GetErrorTextL(TDes &aErrorMessage, TInt aErrorCode)
+	{
+	switch (aErrorCode)
+		{
+		case KErrNotFound:
+			{
+			HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_INVALID_ADDRESS);
+			aErrorMessage.Copy(*error);
+			CleanupStack::PopAndDestroy(error);
+			}
+			break;
+		case KErrDiskFull:
+			{
+			HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_DISK_FULL);
+			aErrorMessage.Copy(*error);
+			CleanupStack::PopAndDestroy(error);
+			}
+			break;
+		case 404:
+			{
+			HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_NOTFOUND);
+			aErrorMessage.Copy(*error);
+			CleanupStack::PopAndDestroy(error);
+			}
+			break;
+		default:
+			{
+			if (aErrorCode > 200)
+				{
+				HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_HTTP);
+				aErrorMessage.Format(*error, aErrorCode);
+				CleanupStack::PopAndDestroy(error);
+				}
+			else
+				{
+				HBufC* error = iCoeEnv->AllocReadResourceLC(R_ERROR_GENERAL);
+				aErrorMessage.Format(*error, aErrorCode);
+				CleanupStack::PopAndDestroy(error);
+				}
+			}
+			break;
+		}
 	}

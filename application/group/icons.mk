@@ -33,6 +33,14 @@ RESOURCE :
 		$(DPATH)\new\Audio_downloaded_new.svg\
 		$(DPATH)\new\Audio_failed.svg\
 		$(DPATH)\new\Audio_suspended.svg\
+		$(DPATH)\new\Video.svg\
+		$(DPATH)\new\Video_new.svg\
+		$(DPATH)\new\Video_queued.svg\
+		$(DPATH)\new\Video_downloading.svg\
+		$(DPATH)\new\Video_downloaded.svg\
+		$(DPATH)\new\Video_downloaded_new.svg\
+		$(DPATH)\new\Video_failed.svg\
+		$(DPATH)\new\Video_suspended.svg\
 		$(DPATH)\new\Feed.svg
 
 FREEZE : do_nothing

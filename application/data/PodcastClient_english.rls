@@ -38,8 +38,8 @@ rls_string STRING_r_tabgroup_queue "Queue"
 rls_string STRING_r_tabgroup_queue_counter "Queue (%d)"
 
 // Question dialogs
-rls_string STRING_r_add_feed_prompt "Enter search terms or feed URL"
-rls_string STRING_r_edit_feed_prompt "Feed URL"
+rls_string STRING_r_add_feed_prompt "Enter search terms or feed address"
+rls_string STRING_r_edit_feed_prompt "Feed address"
 rls_string STRING_r_add_feed_title_prompt "Feed title"
 rls_string STRING_r_remove_feed_prompt "Remove feed '%S'?"
 rls_string STRING_r_enable_downloads_prompt "There are shows in the download queue. Do you want to download now?"
@@ -50,7 +50,7 @@ rls_string STRING_r_exit_shows_downloading "Shows are being downloaded. Exit any
 
 // Settings view
 rls_string STRING_r_podcast_settings_title "Settings"
-rls_string STRING_r_podcast_setting_showdir "Podcast directory"
+rls_string STRING_r_podcast_setting_showdir "Podcast folder"
 rls_string STRING_r_podcast_setting_autoupdate "Automatic update"
 rls_string STRING_r_podcast_setting_autodownload "Automatic download"
 rls_string STRING_r_podcast_setting_connection "Connection"
@@ -58,6 +58,13 @@ rls_string STRING_r_podcast_setting_default "Use default"
 rls_string STRING_r_podcast_setting_alwaysask "Always ask"
 rls_string STRING_r_podcast_setting_useiap "Select access point"
 rls_string STRING_r_podcast_setting_iaplist "Access points"
+rls_string STRING_r_podcast_select_folder "Select folder"
+rls_string STRING_r_on "On"
+rls_string STRING_r_off "Off"
+rls_string STRING_r_podcast_setting_reset_db "Reset database"
+rls_string STRING_r_podcast_setting_reset_db_query "Reset database? All data will be lost!"
+
+
 
 // Choicelist for autodownload
 rls_string STRING_podcast_autoupdate_option1 "Off"
@@ -65,6 +72,10 @@ rls_string STRING_podcast_autoupdate_option2 "Every hour"
 rls_string STRING_podcast_autoupdate_option3 "Four times a day"
 rls_string STRING_podcast_autoupdate_option4 "Twice a day"
 rls_string STRING_podcast_autoupdate_option5 "Daily"
+
+// Auto download settings
+rls_string STRING_r_on "On"
+rls_string STRING_r_off "Off"
 
 // Feed import/export
 rls_string STRING_r_view_import_feeds_title "Select OPML file"
@@ -92,7 +103,7 @@ rls_string STRING_r_edit_feed_title "Edit feed"
 rls_string STRING_r_cancel_update_all_feeds_cmd "Cancel update"
 rls_string STRING_r_cancel_update_all_feeds_short_cmd "Cancel"
 rls_string STRING_r_podcast_feeds_status_format "%d new"
-rls_string STRING_r_podcast_shows_never_updated "Never"
+rls_string STRING_r_podcast_shows_never_updated "Never updated"
 rls_string STRING_r_view_add_feed_cmd "Add feed"
 rls_string STRING_r_view_add_feed_cmd_short "Add"
 rls_string STRING_r_view_edit_feed_cmd "Edit feed"
@@ -110,7 +121,7 @@ rls_string STRING_add_feed_query "Add feed '%S'?"
 rls_string STRING_add_feed_success "Feed added. Update now?"
 rls_string STRING_add_feed_error "Could not add feed"
 rls_string STRING_r_add_feed_replace "All existing shows in this feed will be deleted! Continue?" // shown when changing an existing feed URL
-rls_string STRING_r_add_feed_exists "A feed with this URL already exists" // shown when adding or changing a feed to a URL that already exists
+rls_string STRING_r_add_feed_exists "A feed with this address already exists" // shown when adding or changing a feed to a URL that already exists
 
 // Feed searching
 
@@ -132,6 +143,13 @@ rls_string STRING_r_view_resume_short_dls_cmd "Resume"
 rls_string STRING_r_view_stop_downloads_cmd "Suspend downloading"
 rls_string STRING_r_view_resume_downloads_cmd "Resume downloading"
 rls_string STRING_r_view_remove_all_downloads_cmd_short "Clear"
+rls_string STRING_r_view_remove_all_downloads_cmd "Clear download queue"
 rls_string STRING_r_clear_query "Clear download queue?"
 rls_string STRING_r_view_remove_download_short_cmd "Remove"
-rls_string STRING_r_view_remove_download_cmd "Remove Download"
+rls_string STRING_r_view_remove_download_cmd "Remove download"
+
+rls_string STRING_r_error_notfound "Error: Not found on server"
+rls_string STRING_r_error_invalid_address "Error: Invalid address"
+rls_string STRING_r_error_general "Error: General error %d"
+rls_string STRING_r_error_http "Error: HTTP error %d"
+rls_string STRING_r_error_disk_full "Error: Disk full"

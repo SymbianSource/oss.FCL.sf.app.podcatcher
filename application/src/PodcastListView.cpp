@@ -29,6 +29,7 @@
 #include <akntoolbarextension.h>
 #include <aknquerydialog.h>
 #include <barsread.h>
+#include <akntitle.h>
 
 const TInt KDefaultGran = 5;
 
@@ -100,7 +101,7 @@ CCoeControl* CPodcastListContainer::ComponentControl(TInt aIndex) const
         }
     }
 
-void CPodcastListContainer::SetLongTapDetected(TBool aLongTapDetected)
+void CPodcastListContainer::SetLongTapDetectedL(TBool aLongTapDetected)
 	{
 	iLongTapDetected = aLongTapDetected;
 	
@@ -262,6 +263,11 @@ void CPodcastListView::DoActivateL(const TVwsViewId& /*aPrevViewId */,
 		AppUi()->AddToStackL(*this, iListContainer);
 		iListContainer->MakeVisible(ETrue);
 	}
+	
+	CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
+		      ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
+	titlePane->SetTextToDefaultL();
+
 	DP("CPodcastListView::DoActivateL() END");
 
 }
@@ -296,10 +302,9 @@ void CPodcastListView::HandleCommandL(TInt aCommand)
 	case EAknSoftkeyBack:
 		{
 		AppUi()->ActivateViewL(iPreviousView);
-		if (iPreviousView.iViewUid == KUidPodcastFeedViewID) {
-			((CPodcastAppUi*)AppUi())->SetActiveTab(KTabIdFeeds);
+		((CPodcastAppUi*)AppUi())->SetActiveTab(KTabIdFeeds);
 		}
-		}break;
+		break;
 	case EPodcastSettings:
 		AppUi()->ActivateLocalViewL(KUidPodcastSettingsViewID);
 		break;
@@ -311,6 +316,10 @@ void CPodcastListView::HandleCommandL(TInt aCommand)
 	}
 }
 
+TBool CPodcastListView::IsVisible()
+	{
+	return iListContainer->IsVisible();
+	}
 
 void CPodcastListView::RunAboutDialogL()
 {
@@ -325,7 +334,7 @@ void CPodcastListView::SetEmptyTextL(TInt aResourceId)
 	CleanupStack::PopAndDestroy(emptyText);	
 	}
 
-void CPodcastListView::ShowOkMessage(TDesC &aText)
+void CPodcastListView::ShowOkMessageL(TDesC &aText)
 	{
 	CAknNoteDialog* dlg= new(ELeave) CAknNoteDialog();
 	CleanupStack::PushL(dlg);
@@ -334,7 +343,7 @@ void CPodcastListView::ShowOkMessage(TDesC &aText)
 	dlg->ExecuteLD(R_MESSAGEDLG_OK);
 	}
 
-void CPodcastListView::ShowErrorMessage(TDesC &aText)
+void CPodcastListView::ShowErrorMessageL(TDesC &aText)
 	{
 	CAknNoteDialog* dlg= new(ELeave) CAknNoteDialog();
 	CleanupStack::PushL(dlg);
@@ -343,7 +352,7 @@ void CPodcastListView::ShowErrorMessage(TDesC &aText)
 	dlg->ExecuteLD(R_ERRORDLG_OK);
 	}
 
-TInt CPodcastListView::ShowQueryMessage(TDesC &aText)
+TInt CPodcastListView::ShowQueryMessageL(TDesC &aText)
 	{
 	CAknQueryDialog* dlg= new(ELeave) CAknQueryDialog();
 	
@@ -375,16 +384,17 @@ void CPodcastListView::PointerEventL(const TPointerEvent& aPointerEvent)
 void CPodcastListView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
 {
 	DP("CPodcastListView::HandleLongTapEventL BEGIN");
-	iListContainer->SetLongTapDetected(ETrue);
 	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
 	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
 			iListContainer->Listbox()->Model()->NumberOfItems()) - KListboxDefaultHeight;
 
     if(iStylusPopupMenu && aPenEventLocation.iY < lbHeight)
     {
+		iListContainer->SetLongTapDetectedL(ETrue);
 		iStylusPopupMenu->ShowMenu();
 		iStylusPopupMenu->SetPosition(aPenEventLocation);
     }
+    
 	DP("CPodcastListView::HandleLongTapEventL END");
 }
 
@@ -421,10 +431,10 @@ TKeyResponse CPodcastListView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventC
 		switch (aKeyEvent.iCode)
 			{
 			case EKeyRightArrow:
-				((CPodcastAppUi*)AppUi())->TabRight();
+				((CPodcastAppUi*)AppUi())->TabRightL();
 				return EKeyWasConsumed;
 			case EKeyLeftArrow:
-				((CPodcastAppUi*)AppUi())->TabLeft();
+				((CPodcastAppUi*)AppUi())->TabLeftL();
 				return EKeyWasConsumed;
 			}
 		}

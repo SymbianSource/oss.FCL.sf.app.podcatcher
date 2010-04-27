@@ -27,7 +27,7 @@
 #include "HttpClient.h"
 #include "ShowEngineObserver.h"
 #include "MetaDataReader.h"
-#include "sqlite3.h"
+#include <sqlite3.h>
 
 class CShowEngine : public CBase, public MHttpClientObserver, public MMetaDataReaderObserver
 {
@@ -37,8 +37,8 @@ public:
 	
 public:
 	IMPORT_C void AddDownloadL(CShowInfo& info);
-	IMPORT_C TBool RemoveDownloadL(TUint aUid);
-	IMPORT_C void RemoveAllDownloads();
+	IMPORT_C void RemoveDownloadL(TUint aUid);
+	IMPORT_C void RemoveAllDownloadsL();
 
 	IMPORT_C void SuspendDownloads();
 	IMPORT_C void ResumeDownloadsL();
@@ -56,20 +56,21 @@ public:
 	IMPORT_C void GetShowsDownloadingL(RShowInfoArray &aArray);
 	IMPORT_C CShowInfo* DBGetShowByFileNameL(TFileName aFileName);
 	
-	IMPORT_C TBool AddShowL(const CShowInfo& item);
-	IMPORT_C void DeletePlayedShows(RShowInfoArray &aShowInfoArray);
+	IMPORT_C void AddShowL(const CShowInfo& item);
+	IMPORT_C void DeletePlayedShowsL(RShowInfoArray &aShowInfoArray);
 	IMPORT_C void DeleteAllShowsByFeedL(TUint aFeedUid,TBool aDeleteFiles=ETrue);
 	IMPORT_C void DeleteShowL(TUint aShowUid, TBool aRemoveFile=ETrue);
-	IMPORT_C void DeleteOldShowsByFeed(TUint aFeedUid);
+	IMPORT_C void DeleteOldShowsByFeedL(TUint aFeedUid);
 	
 	IMPORT_C void AddObserver(MShowEngineObserver *observer);
 	IMPORT_C void RemoveObserver(MShowEngineObserver *observer);
 
 	IMPORT_C void NotifyShowListUpdatedL();
-	IMPORT_C void UpdateShow(CShowInfo& aInfo);
+	IMPORT_C void UpdateShowL(CShowInfo& aInfo);
 
 	IMPORT_C void GetMimeType(const TDesC& aFileName, TDes& aMimeType);
 
+	IMPORT_C void CheckForDeletedShows(TUint aFeedUid);
 	IMPORT_C CMetaDataReader& MetaDataReader();
 
 private:
@@ -81,14 +82,14 @@ private:
 	void DownloadInfo(CHttpClient* aClient, int aSize);
 	void FileError(TUint aError);
 	// from MetaDataReaderObserver
-	void ReadMetaData(CShowInfo& aShowInfo);
+	void ReadMetaDataL(CShowInfo& aShowInfo);
 	void ReadMetaDataCompleteL();
 	
 private:
 	CShowEngine(CPodcastModel& aPodcastModel);
 	void ConstructL();
 
-	TBool GetShowL(CShowInfo *info);
+	void GetShowL(CShowInfo *info);
 
 	void NotifyDownloadQueueUpdatedL();
 	void NotifyShowDownloadUpdatedL(TInt aBytesOfCurrentDownload, TInt aBytesTotal);
@@ -106,20 +107,20 @@ private:
 	// DB methods
 	CShowInfo* DBGetShowByUidL(TUint aUid);
 	void DBFillShowInfoFromStmtL(sqlite3_stmt *st, CShowInfo* showInfo);
-	TBool DBAddShow(const CShowInfo& aItem);
-	TBool DBUpdateShow(CShowInfo& aItem);
+	void DBAddShowL(const CShowInfo& aItem);
+	void DBUpdateShowL(CShowInfo& aItem);
 	void DBGetShowsByFeedL(RShowInfoArray& aShowArray, TUint aFeedUid);
 	void DBGetAllShowsL(RShowInfoArray& aShowArray);
 	void DBGetNewShowsL(RShowInfoArray& aShowArray);
 	void DBGetDownloadedShowsL(RShowInfoArray& aShowArray);
-	TBool DBDeleteAllShowsByFeed(TUint aFeedUid);
-	void DBDeleteOldShowsByFeed(TUint aFeedUid);
-	TBool DBDeleteShow(TUint aUid);
-	void DBRemoveAllDownloads();
-	void DBRemoveDownload(TUint aUid);
+	void DBDeleteAllShowsByFeedL(TUint aFeedUid);
+	void DBDeleteOldShowsByFeedL(TUint aFeedUid);
+	void DBDeleteShowL(TUint aUid);
+	void DBRemoveAllDownloadsL();
+	void DBRemoveDownloadL(TUint aUid);
 	void DBGetAllDownloadsL(RShowInfoArray& aShowArray);
-	TUint DBGetDownloadsCount();
-	void DBAddDownload(TUint aUid);
+	TUint DBGetDownloadsCountL();
+	void DBAddDownloadL(TUint aUid);
 	CShowInfo* DBGetNextDownloadL();
 	
 private:

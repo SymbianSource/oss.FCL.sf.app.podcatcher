@@ -26,15 +26,9 @@
 #include "OpmlParser.h"
 #include "PodcastUtils.h"
 #include <utf.h>
+#include "Podcatcher.pan"
 
-// Cleanup stack macro for SQLite3
-// TODO Move this to some common place.
-static void Cleanup_sqlite3_finalize_wrapper(TAny* handle)
-	{
-	sqlite3_finalize(static_cast<sqlite3_stmt*>(handle));
-	}
-#define Cleanup_sqlite3_finalize_PushL(__handle) CleanupStack::PushL(TCleanupItem(&Cleanup_sqlite3_finalize_wrapper, __handle))
-
+_LIT(KFeedParseStorePath, "feeds\\");
 
 CFeedEngine* CFeedEngine::NewL(CPodcastModel& aPodcastModel)
 	{
@@ -52,27 +46,41 @@ void CFeedEngine::ConstructL()
 	iFeedClient = CHttpClient::NewL(iPodcastModel, *this);
 	iFeedTimer.ConstructL();
 	
-	RunFeedTimer();
+	TInt err = KErrNone;
+	TInt feedCount = 0;
 	
-    if (DBGetFeedCount() > 0) 
+	TRAP(err, feedCount = DBGetFeedCountL());
+    if (err == KErrNone && feedCount > 0)
     	{
 		DP("Loading feeds from DB");
-		DBLoadFeedsL();
-		} 
+		TRAP(err, DBLoadFeedsL());
+    	}		
+
     
-	if (iPodcastModel.IsFirstStartup()) {
+	if (err != KErrNone || iPodcastModel.IsFirstStartup()) {
 		TFileName defaultFile = iPodcastModel.SettingsEngine().DefaultFeedsFileName();
 		DP1("Loading default feeds from %S", &defaultFile);
 		if (BaflUtils::FileExists(iPodcastModel.FsSession(), defaultFile)) {
 			ImportFeedsL(defaultFile);
 		}
-	}
+	} 
+	
+	// clean out feeds temp directory
+	TFileName feedTempPath;
+	feedTempPath.Copy (iPodcastModel.SettingsEngine().PrivatePath ());
+	feedTempPath.Append(KFeedParseStorePath);
+	feedTempPath.Append(_L("*"));
+
+	BaflUtils::EnsurePathExistsL(iPodcastModel.FsSession(), feedTempPath);
+	BaflUtils::DeleteFile(iPodcastModel.FsSession(),feedTempPath);
     
     TFileName importFile = iPodcastModel.SettingsEngine().ImportFeedsFileName();
     if (BaflUtils::FileExists(iPodcastModel.FsSession(), importFile)) {
     	DP("Importing feeds");
-    	ImportFeedsL(importFile);
+    	TRAP_IGNORE(ImportFeedsL(importFile));
 		}
+    
+	RunFeedTimer();
 	}
 
 CFeedEngine::CFeedEngine(CPodcastModel& aPodcastModel)
@@ -148,7 +156,7 @@ EXPORT_C void CFeedEngine::UpdateAllFeedsL(TBool aAutoUpdate)
 	TInt cnt = iSortedFeeds.Count();
 	for (int i=0;i<cnt;i++)
 		{
-		iFeedsUpdating.Append(iSortedFeeds[i]);
+		iFeedsUpdating.Append(iSortedFeeds[i]->Uid());
 		}
 
 	UpdateNextFeedL();
@@ -168,20 +176,31 @@ void CFeedEngine::UpdateNextFeedL()
 	{
 	DP1("UpdateNextFeed. %d feeds left to update", iFeedsUpdating.Count());
 	
+	// reset active feed, will be set again in UpdateFeedL if needed
+	iActiveFeed = NULL;
+	
 	if (iFeedsUpdating.Count() > 0)
 		{
-		CFeedInfo *info = iFeedsUpdating[0];
+		CFeedInfo *info = GetFeedInfoByUid(iFeedsUpdating[0]);
 		iFeedsUpdating.Remove(0);
-		TBool result = EFalse;
-		//DP2("** UpdateNextFeed: %S, ID: %u", &(info->Url()), info->Uid());
-		TRAPD(error, result = UpdateFeedL(info->Uid()));
 		
-		if (error != KErrNone || !result)
+		if (info == NULL)
 			{
-			DP("Error while updating all feeds");
-			for (TInt i=0;i<iObservers.Count();i++) 
+			UpdateNextFeedL();
+			}
+		else
+			{
+			TBool result = EFalse;
+			//DP2("** UpdateNextFeed: %S, ID: %u", &(info->Url()), info->Uid());
+			TRAPD(error, result = UpdateFeedL(info->Uid()));
+			
+			if (error != KErrNone || !result)
 				{
-				TRAP_IGNORE(iObservers[i]->FeedUpdateAllCompleteL(iAutoUpdatedInitiator?MFeedEngineObserver::EFeedAutoUpdate:MFeedEngineObserver::EFeedManualUpdate));
+				DP("Error while updating all feeds");
+				for (TInt i=0;i<iObservers.Count();i++) 
+					{
+					TRAP_IGNORE(iObservers[i]->FeedUpdateAllCompleteL(iAutoUpdatedInitiator?MFeedEngineObserver::EFeedAutoUpdate:MFeedEngineObserver::EFeedManualUpdate));
+					}
 				}
 			}
 		}
@@ -198,31 +217,42 @@ void CFeedEngine::UpdateNextFeedL()
 EXPORT_C TBool CFeedEngine::UpdateFeedL(TUint aFeedUid)
 	{
 	DP("FeedEngine::UpdateFeedL BEGIN");
+	
+	if (iActiveFeed)
+		{
+		User::Leave(KErrInUse);
+		}
+	
 	iActiveFeed = GetFeedInfoByUid(aFeedUid);
-	iCatchupCounter = 0;
+	
 	iCancelRequested = EFalse;
 
 	if (iActiveFeed->LastUpdated() == 0)
 		{
 		iCatchupMode = ETrue;
+		iCatchupCounter = 0;
 		}
 	
 	iActiveFeed->SetLastError(KErrNone);
-	DBUpdateFeed(*iActiveFeed);
+	DBUpdateFeedL(*iActiveFeed);
 	
 	iUpdatingFeedFileName.Copy (iPodcastModel.SettingsEngine().PrivatePath ());
+	iUpdatingFeedFileName.Append(KFeedParseStorePath);
+	BaflUtils::EnsurePathExistsL(iPodcastModel.FsSession(), iUpdatingFeedFileName);
+	
 	_LIT(KFileNameFormat, "%lu.xml");
 	iUpdatingFeedFileName.AppendFormat(KFileNameFormat, aFeedUid);
 	
+	iClientState = EUpdatingFeed;
+			
+	for (TInt i=0;i<iObservers.Count();i++)
+		{
+		TRAP_IGNORE(iObservers[i]->FeedDownloadStartedL(iAutoUpdatedInitiator?MFeedEngineObserver::EFeedAutoUpdate:MFeedEngineObserver::EFeedManualUpdate, iActiveFeed->Uid()));
+		}
+
 	if(iFeedClient->GetL(iActiveFeed->Url(), iUpdatingFeedFileName, iPodcastModel.SettingsEngine().SpecificIAP()))
 		{
-		iClientState = EUpdatingFeed;
 		
-		for (TInt i=0;i<iObservers.Count();i++)
-			{
-			TRAP_IGNORE(iObservers[i]->FeedDownloadStartedL(iAutoUpdatedInitiator?MFeedEngineObserver::EFeedAutoUpdate:MFeedEngineObserver::EFeedManualUpdate, iActiveFeed->Uid()));
-			}
-
 		DP("FeedEngine::UpdateFeedL END, return ETrue");
 		return ETrue;
 		}
@@ -250,9 +280,10 @@ void CFeedEngine::NewShowL(CShowInfo& aItem)
 		}
 	}
 	
-	TBool isShowAdded = iPodcastModel.ShowEngine().AddShowL(aItem);
+	TRAPD(err, iPodcastModel.ShowEngine().AddShowL(aItem));
 
-	if (aItem.PlayState() == ENeverPlayed && isShowAdded && iPodcastModel.SettingsEngine().DownloadAutomatically()) 
+	if (err == KErrNone && aItem.PlayState() == ENeverPlayed && 
+			iPodcastModel.SettingsEngine().DownloadAutomatically()) 
 		{
 		iPodcastModel.ShowEngine().AddDownloadL(aItem);
 		}	
@@ -277,7 +308,7 @@ void CFeedEngine::GetFeedImageL(CFeedInfo *aFeedInfo)
 	
 	// complete file path is base dir + rel path
 	filePath.Append(relPath);
-	aFeedInfo->SetImageFileNameL(filePath);
+	aFeedInfo->SetImageFileNameL(filePath, NULL);
 
 	if(iFeedClient->GetL(aFeedInfo->ImageUrl(), filePath, ETrue))
 		{
@@ -309,15 +340,17 @@ EXPORT_C TBool CFeedEngine::AddFeedL(const CFeedInfo&aItem)
 	return ETrue;
 	}
 
-TBool CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
+void CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 	{
 	DP2("CFeedEngine::DBAddFeed, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 	
-	CFeedInfo *info = DBGetFeedInfoByUidL(aItem.Uid());
-	if (info) {
-		DP("Feed already exists!");
+	CFeedInfo *info;
+	
+	TRAPD(err, info = DBGetFeedInfoByUidL(aItem.Uid()));
+	
+	if (err == KErrNone && info) {
 		delete info;
-		return EFalse;
+		User::Leave(KErrAlreadyExists);
 	}
 
 	HBufC* titleBuf = HBufC::NewLC(KMaxLineLength);
@@ -341,34 +374,38 @@ TBool CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 	
 	sqlite3_stmt *st;
 	 
-	//DP1("SQL statement length=%d", iSqlBuffer.Length());
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st, (const void**) NULL);
 	
 	if (rc==SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
 
-		if (rc == SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
-			sqlite3_finalize(st);
-			return ETrue;
+			User::Leave(KErrCorrupt);
 			}
-		else {
-			sqlite3_finalize(st);
+		CleanupStack::PopAndDestroy(); // st
 		}
-	}
-
-	return EFalse;
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 	}
 
 EXPORT_C void CFeedEngine::RemoveFeedL(TUint aUid) 
 	{
+	if (iActiveFeed && iActiveFeed->Uid() == aUid)
+		{
+		User::Leave(KErrInUse);
+		}
+	
 	for (int i=0;i<iSortedFeeds.Count();i++) 
 		{
 		if (iSortedFeeds[i]->Uid() == aUid) 
 			{
 			iPodcastModel.ShowEngine().DeleteAllShowsByFeedL(aUid);
-					
+
 			CFeedInfo* feedToRemove = iSortedFeeds[i];
 			
 			//delete the image file if it exists
@@ -391,15 +428,13 @@ EXPORT_C void CFeedEngine::RemoveFeedL(TUint aUid)
 			DP("Removed feed from array");
 			
 			// now remove it from DB
-			DBRemoveFeed(aUid);
-
-			return;
+			DBRemoveFeedL(aUid);
 		}
 	}
 }
 
 
-TBool CFeedEngine::DBRemoveFeed(TUint aUid)
+void CFeedEngine::DBRemoveFeedL(TUint aUid)
 	{
 	DP("CFeedEngine::DBRemoveFeed");
 	_LIT(KSqlStatement, "delete from feeds where uid=%u");
@@ -411,23 +446,23 @@ TBool CFeedEngine::DBRemoveFeed(TUint aUid)
 	
 	if (rc==SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		sqlite3_finalize(st);
 
-		if (rc == SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
-			DP("Feed removed from DB");
-			return ETrue;
+			User::Leave(KErrNotFound);
 			}
-		else
-			{
-			DP("Error when removing feed from DB");
-			}
+		
+		CleanupStack::PopAndDestroy(); //st
 		}
-	return EFalse;	
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 	}
 
-TBool CFeedEngine::DBUpdateFeed(const CFeedInfo &aItem)
+void CFeedEngine::DBUpdateFeedL(const CFeedInfo &aItem)
 	{
 	DP2("CFeedEngine::DBUpdateFeed, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 	
@@ -452,25 +487,23 @@ TBool CFeedEngine::DBUpdateFeed(const CFeedInfo &aItem)
 	
 	sqlite3_stmt *st;
 	 
-	//DP1("SQL statement length=%d", iSqlBuffer.Length());
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st, (const void**) NULL);
 	
 	if (rc==SQLITE_OK)
 		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		sqlite3_finalize(st);
 		
-		if (rc == SQLITE_DONE)
+		if (rc != SQLITE_DONE)
 			{
-			return ETrue;
+			User::Leave(KErrNotFound);
 			}
+		CleanupStack::PopAndDestroy(); //st
 		}
 	else
 		{
-		DP1("SQLite rc=%d", rc);
+		User::Leave(KErrCorrupt);
 		}
-
-	return EFalse;
 	}
 
 void CFeedEngine::ParsingCompleteL(CFeedInfo *item)
@@ -510,21 +543,8 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 
 	switch(iClientState)
 		{		
-		default:
-			if(iActiveFeed != NULL)
-				{
-				TTime time;
-				time.HomeTime();
-				iActiveFeed->SetLastUpdated(time);
-				iActiveFeed->SetLastError(aError);
-				NotifyFeedUpdateComplete(aError);
-				}
-			break;
 		case EUpdatingFeed: 
 		{
-		// Parse the feed. We need to trap this call since it could leave and then
-		// the whole update chain will be broken
-		// change client state
 		iClientState = EIdle;
 		switch (aError)
 			{
@@ -545,7 +565,10 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 					iActiveFeed->SetLastUpdated(time);
 	
 					if( aError == KErrNone)
-						{			
+						{
+						// Parse the feed. We need to trap this call since it could leave and then
+						// the whole update chain will be broken
+						// change client state
 						TRAPD(parserErr, iParser->ParseFeedL(iUpdatingFeedFileName, iActiveFeed, iPodcastModel.SettingsEngine().MaxListItems()));
 	
 						if(parserErr)
@@ -556,7 +579,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 							}
 						else
 							{
-							iPodcastModel.ShowEngine().DeleteOldShowsByFeed(iActiveFeed->Uid());
+							iPodcastModel.ShowEngine().DeleteOldShowsByFeedL(iActiveFeed->Uid());
 							}
 	
 						// delete the downloaded XML file as it is no longer needed
@@ -582,13 +605,18 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 								}	
 							}
 						}
+					else
+						{
+						// even if it fails, this will allow us to move on
+						iClientState = EIdle;
+						}
 					}
 				iCancelRequested = EFalse;
 				}break;
 			}
-		
-			NotifyFeedUpdateComplete(aError);
-	
+			DBUpdateFeedL(*iActiveFeed);
+			NotifyFeedUpdateComplete(iActiveFeed->Uid(), aError);
+
 			// we will wait until the image has been downloaded to start the next feed update.
 			if (iClientState == EIdle)
 				{
@@ -599,8 +627,16 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 			{
 			// change client state to not updating
 			iClientState = EIdle;
-	
-			NotifyFeedUpdateComplete(aError);
+			if(aError == KErrNone)
+				{
+				// now the image has been downloaded, so we set it again in the FeedInfo to start
+				// converting it
+				HBufC *fileNameCopy = iActiveFeed->ImageFileName().AllocLC();
+				TRAP_IGNORE(iActiveFeed->SetImageFileNameL(*fileNameCopy, &iPodcastModel));
+				CleanupStack::PopAndDestroy(fileNameCopy);
+				}
+			DBUpdateFeedL(*iActiveFeed);
+			NotifyFeedUpdateComplete(iActiveFeed->Uid(), aError);
 			UpdateNextFeedL();
 			}break;
 		case ESearching: 
@@ -620,22 +656,27 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 				}
 			else
 				{
-				NotifyOpmlParsingComplete(aError, 0);
+				NotifyOpmlParsingCompleteL(aError, 0);
 				}
 			
 			BaflUtils::DeleteFile(iPodcastModel.FsSession(), iSearchResultsFileName);
 			}break;
+		case EIdle:
+			UpdateNextFeedL();	
+			break;
+		default:
+			Panic(EPodcatcherPanicFeedEngineState);
+			break;
 		}
 	DP("CFeedEngine::CompleteL END");
 	}
 
-void CFeedEngine::NotifyFeedUpdateComplete(TInt aError)
+void CFeedEngine::NotifyFeedUpdateComplete(TInt aFeedUid, TInt aError)
 	{
-	DP("CFeedEngine::NotifyFeedUpdateComplete");
-	DBUpdateFeed(*iActiveFeed);
+	DP("CFeedEngine::NotifyFeedUpdateComplete");	
 	for (TInt i=0;i<iObservers.Count();i++) 
 		{
-		TRAP_IGNORE(iObservers[i]->FeedDownloadFinishedL(iAutoUpdatedInitiator?MFeedEngineObserver::EFeedAutoUpdate:MFeedEngineObserver::EFeedManualUpdate, iActiveFeed->Uid(), aError));
+		TRAP_IGNORE(iObservers[i]->FeedDownloadFinishedL(MFeedEngineObserver::EFeedAutoUpdate, aFeedUid, aError));
 		}
 	}
 
@@ -772,49 +813,13 @@ TInt CFeedEngine::CompareFeedsByTitle(const CFeedInfo &a, const CFeedInfo &b)
 		return a.Title().CompareF(b.Title());
 	}
 
-EXPORT_C void CFeedEngine::GetDownloadedStats(TUint &aNumShows, TUint &aNumUnplayed)
-	{
-	DP("CFeedEngine::GetDownloadedStats");
-	_LIT(KSqlStatement, "select count(*) from shows where downloadstate=%u");
-	iSqlBuffer.Format(KSqlStatement, EDownloaded);
-
-	sqlite3_stmt *st;
-	 
-	int rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st,	(const void**) NULL);
-	
-	if( rc==SQLITE_OK ){
-	  	rc = sqlite3_step(st);
-	  	
-	  	if (rc == SQLITE_ROW) {
-	  		aNumShows = sqlite3_column_int(st, 0);
-	  	}
-	}
-		  
-	sqlite3_finalize(st);
-
-	_LIT(KSqlStatement2, "select count(*) from shows where downloadstate=%u and playstate=%u");
-	iSqlBuffer.Format(KSqlStatement2, EDownloaded, ENeverPlayed);
-
-	rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st,	(const void**) NULL);
-		
-	if( rc==SQLITE_OK ){
-	  	rc = sqlite3_step(st);
-	  	
-	  	if (rc == SQLITE_ROW) {
-	  		aNumUnplayed = sqlite3_column_int(st, 0);
-	  	}
-	}
-		  
-	sqlite3_finalize(st);
-	}
-
-EXPORT_C void CFeedEngine::GetStatsByFeed(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed)
+EXPORT_C void CFeedEngine::GetStatsByFeedL(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed)
 	{
 	//DP1("CFeedEngine::GetStatsByFeed, aFeedUid=%u", aFeedUid);
-	DBGetStatsByFeed(aFeedUid, aNumShows, aNumUnplayed);
+	DBGetStatsByFeedL(aFeedUid, aNumShows, aNumUnplayed);
 	}
 
-void CFeedEngine::DBGetStatsByFeed(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed)
+void CFeedEngine::DBGetStatsByFeedL(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed)
 	{
 	//DP1("CFeedEngine::DBGetStatsByFeed, feedUid=%u", aFeedUid);
 	_LIT(KSqlStatement, "select count(*) from shows where feeduid=%u");
@@ -824,50 +829,77 @@ void CFeedEngine::DBGetStatsByFeed(TUint aFeedUid, TUint &aNumShows, TUint &aNum
 	 
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st,	(const void**) NULL);
 	
-	if( rc==SQLITE_OK ){
+	if( rc==SQLITE_OK)
+		{
+		Cleanup_sqlite3_finalize_PushL(st);
 	  	rc = sqlite3_step(st);
 	  	
-	  	if (rc == SQLITE_ROW) {
+	  	if (rc == SQLITE_ROW)
+	  		{
 	  		aNumShows = sqlite3_column_int(st, 0);
-	  	}
-	}
+	  		}
+	  	else
+	  		{
+			User::Leave(KErrNotFound);
+	  		}
+	  	CleanupStack::PopAndDestroy(); // st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 		  
-	sqlite3_finalize(st);
-
 	_LIT(KSqlStatement2, "select count(*) from shows where feeduid=%u and playstate=0");
 	iSqlBuffer.Format(KSqlStatement2, aFeedUid);
 
 	rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st,	(const void**) NULL);
 		
-	if( rc==SQLITE_OK ){
+	if(rc==SQLITE_OK)
+		{
+		Cleanup_sqlite3_finalize_PushL(st);
 	  	rc = sqlite3_step(st);
 	  	
-	  	if (rc == SQLITE_ROW) {
+	  	if (rc == SQLITE_ROW)
+	  		{
 	  		aNumUnplayed = sqlite3_column_int(st, 0);
-	  	}
+	  		}
+	  	else
+	  		{
+			User::Leave(KErrNotFound);
+	  		}
+	  	CleanupStack::PopAndDestroy(); // st
 	}
-		  
-	sqlite3_finalize(st);
 }
 
-TUint CFeedEngine::DBGetFeedCount()
+TUint CFeedEngine::DBGetFeedCountL()
 	{
-	 DP("DBGetFeedCount BEGIN");
-	 sqlite3_stmt *st;
-	 int rc = sqlite3_prepare_v2(&iDB,"select count(*) from feeds" , -1, &st, (const char**) NULL);
-	 TUint size = 0;
+	DP("DBGetFeedCount BEGIN");
+	sqlite3_stmt *st;
+	int rc = sqlite3_prepare_v2(&iDB,"select count(*) from feeds" , -1, &st, (const char**) NULL);
+	TUint size = 0;
 	 
-	 if( rc==SQLITE_OK ){
-	  	rc = sqlite3_step(st);
-	  	
-	  	if (rc == SQLITE_ROW) {
+	if( rc==SQLITE_OK )
+		{
+		Cleanup_sqlite3_finalize_PushL(st);
+		rc = sqlite3_step(st);
+			
+		if (rc == SQLITE_ROW)
+			{
 	  		size = sqlite3_column_int(st, 0);
-	  	}
-	  }
-	  
-	  sqlite3_finalize(st);
-	  DP1("DBGetFeedCount END=%d", size);
-	  return size;
+	  		}
+		else
+			{
+	  		User::Leave(KErrCorrupt);
+	  		}
+		CleanupStack::PopAndDestroy(); // st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
+
+	DP1("DBGetFeedCount END=%d", size);
+	return size;
 }
 
 void CFeedEngine::DBLoadFeedsL()
@@ -876,7 +908,7 @@ void CFeedEngine::DBLoadFeedsL()
 	iSortedFeeds.Reset();
 	CFeedInfo *feedInfo = NULL;
 	
-	_LIT(KSqlStatement, "select url, title, description, imageurl, imagefile, link, built, lastupdated, uid, feedtype, customtitle from feeds");
+	_LIT(KSqlStatement, "select url, title, description, imageurl, imagefile, link, built, lastupdated, uid, feedtype, customtitle, lasterror from feeds");
 	iSqlBuffer.Format(KSqlStatement);
 
 	sqlite3_stmt *st;
@@ -884,11 +916,13 @@ void CFeedEngine::DBLoadFeedsL()
 	TLinearOrder<CFeedInfo> sortOrder( CFeedEngine::CompareFeedsByTitle);
 
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st,	(const void**) NULL);
-	Cleanup_sqlite3_finalize_PushL(st);
 	
-	if (rc==SQLITE_OK) {
+	if (rc==SQLITE_OK)
+		{
+		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		while(rc == SQLITE_ROW) {
+		while(rc == SQLITE_ROW) 
+			{
 			feedInfo = CFeedInfo::NewLC();
 			
 			const void *urlz = sqlite3_column_text16(st, 0);
@@ -909,8 +943,11 @@ void CFeedEngine::DBLoadFeedsL()
 
 			const void *imagefilez = sqlite3_column_text16(st, 4);
 			TPtrC16 imagefile((const TUint16*)imagefilez);
-			feedInfo->SetImageFileNameL(imagefile);
-						
+			if (imagefile.Length() > 0)
+				{
+				feedInfo->SetImageFileNameL(imagefile, &iPodcastModel);
+				}
+			
 			const void *linkz = sqlite3_column_text16(st, 5);
 			TPtrC16 link((const TUint16*)linkz);
 			feedInfo->SetDescriptionL(link);
@@ -924,11 +961,12 @@ void CFeedEngine::DBLoadFeedsL()
 			feedInfo->SetLastUpdated(lastupdatedtime);
 			
 			sqlite3_int64 customtitle = sqlite3_column_int64(st, 10);
-			if (customtitle) {
+			if (customtitle)
+				{
 				feedInfo->SetCustomTitle();
-			}
+				}
 			
-			TInt lasterror = sqlite3_column_int(st, 11);
+			sqlite3_int64 lasterror = sqlite3_column_int(st, 11);
 			feedInfo->SetLastError(lasterror);
 			
 			TLinearOrder<CFeedInfo> sortOrder( CFeedEngine::CompareFeedsByTitle);
@@ -938,10 +976,13 @@ void CFeedEngine::DBLoadFeedsL()
 			CleanupStack::Pop(feedInfo);
 				
 			rc = sqlite3_step(st);
+			}	
+		CleanupStack::PopAndDestroy();//st
 		}
-	}
-
-	CleanupStack::PopAndDestroy();//st
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
 
 	DP("DBLoadFeeds END");
 	}
@@ -954,15 +995,15 @@ CFeedInfo* CFeedEngine::DBGetFeedInfoByUidL(TUint aFeedUid)
 	iSqlBuffer.Format(KSqlStatement, aFeedUid);
 
 	sqlite3_stmt *st;
-	 
-	//DP1("SQL statement length=%d", iSqlBuffer.Length());
-
+	
 	int rc = sqlite3_prepare16_v2(&iDB, (const void*)iSqlBuffer.PtrZ() , -1, &st,	(const void**) NULL);
 	
-	if (rc==SQLITE_OK) {
+	if (rc==SQLITE_OK)
+		{
 		Cleanup_sqlite3_finalize_PushL(st);
 		rc = sqlite3_step(st);
-		if (rc == SQLITE_ROW) {
+		if (rc == SQLITE_ROW)
+			{
 			feedInfo = CFeedInfo::NewLC();
 			
 			const void *urlz = sqlite3_column_text16(st, 0);
@@ -1006,16 +1047,29 @@ CFeedInfo* CFeedEngine::DBGetFeedInfoByUidL(TUint aFeedUid)
 			feedInfo->SetLastError(lasterror);
 						
 			CleanupStack::Pop(feedInfo);
-		}
+			}
+		else
+			{
+			User::Leave(KErrNotFound);
+			}
 		CleanupStack::PopAndDestroy();//st	
-	}
+		}
+	else
+		{
+		User::Leave(KErrNotFound);
+		}
 	
 	return feedInfo;
 }
 
-EXPORT_C void CFeedEngine::UpdateFeed(CFeedInfo *aItem)
+EXPORT_C void CFeedEngine::UpdateFeedInfoL(CFeedInfo *aItem)
 	{
-	DBUpdateFeed(*aItem);
+	if (iActiveFeed && iActiveFeed->Uid() == aItem->Uid())
+		{
+		User::Leave(KErrInUse);
+		}
+	
+	DBUpdateFeedL(*aItem);
 	}
 
 EXPORT_C void CFeedEngine::SearchForFeedL(TDesC& aSearchString)
@@ -1071,12 +1125,12 @@ EXPORT_C const RFeedInfoArray& CFeedEngine::GetSearchResults()
 	}
 
 
-EXPORT_C void CFeedEngine::OpmlParsingComplete(TInt aError, TUint aNumFeedsAdded)
+EXPORT_C void CFeedEngine::OpmlParsingCompleteL(TInt aError, TUint aNumFeedsAdded)
 	{
-	NotifyOpmlParsingComplete(aError, aNumFeedsAdded);
+	NotifyOpmlParsingCompleteL(aError, aNumFeedsAdded);
 	}
 
-void CFeedEngine::NotifyOpmlParsingComplete(TInt aError, TUint aNumFeedsAdded)
+void CFeedEngine::NotifyOpmlParsingCompleteL(TInt aError, TUint aNumFeedsAdded)
 	{
 	for (TInt i=0;i<iObservers.Count();i++) 
 		{

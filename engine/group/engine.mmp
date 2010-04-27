@@ -31,13 +31,18 @@ USERINCLUDE ..\inc
 SYSTEMINCLUDE \epoc32\include 
 SYSTEMINCLUDE \epoc32\include\mw 		// needed for S^3
 
+#ifdef SQLITE_INCLUDED
+SYSTEMINCLUDE ..\..\engine\sqlite\inc
+#else
+SYSTEMINCLUDE \epoc32\include\stdapis
+#endif
+
 // Engine
 SOURCE			HttpClient.cpp
 SOURCE			HttpEventHandler.cpp 
 SOURCE			FeedParser.cpp 
 SOURCE			FeedEngine.cpp 
 SOURCE			ShowInfo.cpp
-SOURCE			SoundEngine.cpp
 SOURCE			FeedInfo.cpp
 SOURCE			FeedTimer.cpp
 SOURCE			ShowEngine.cpp
@@ -75,3 +80,5 @@ LIBRARY cmmanager.lib
 LIBRARY fbscli.lib
 LIBRARY imageconversion.lib 
 LIBRARY bitmaptransforms.lib 
+LIBRARY eikcore.lib 
+//staticlibrary sqlite_podcatcher.lib

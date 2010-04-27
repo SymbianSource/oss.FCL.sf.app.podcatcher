@@ -306,3 +306,15 @@ EXPORT_C void PodcastUtils::XMLEncode(TDes &aString)
 	ReplaceString(aString, _L(">"), _L("&gt;"));
 	ReplaceString(aString, _L("&"), _L("&amp;"));
 	}
+
+EXPORT_C TBool PodcastUtils::IsVideoShow(TDesC &aUrl)
+	{
+	if (aUrl.Find(KVideoFormat1) != KErrNotFound ||
+			aUrl.Find(KVideoFormat2) != KErrNotFound ||
+			aUrl.Find(KVideoFormat3) != KErrNotFound)
+		{
+		return ETrue;
+		}
+
+	return EFalse;
+	}

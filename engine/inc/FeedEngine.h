@@ -28,7 +28,7 @@
 #include "Constants.h"
 #include "FeedEngineObserver.h"
 #include "FeedTimer.h"
-#include "sqlite3.h"
+#include <sqlite3.h>
 
 class CPodcastModel;
 class COpmlParser;
@@ -70,15 +70,14 @@ public:
 	IMPORT_C void CancelUpdateAllFeeds();
 	IMPORT_C const RFeedInfoArray& GetSortedFeeds();
 	IMPORT_C CFeedInfo* GetFeedInfoByUid(TUint aFeedUid);	
-	IMPORT_C void GetStatsByFeed(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed);
-	IMPORT_C void GetDownloadedStats(TUint &aNumShows, TUint &aNumUnplayed);
+	IMPORT_C void GetStatsByFeedL(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed);
 
 	IMPORT_C void AddObserver(MFeedEngineObserver *observer);
 	IMPORT_C void RemoveObserver(MFeedEngineObserver *observer);
 
 	void RunFeedTimer();
 	
-	IMPORT_C void UpdateFeed(CFeedInfo *aItem);
+	IMPORT_C void UpdateFeedInfoL(CFeedInfo *aItem);
 	/**
 	 * Returns the current internal state of the feed engine4
 	 */
@@ -94,7 +93,8 @@ public:
 	IMPORT_C void AddSearchResultL(CFeedInfo *item);
 	IMPORT_C const RFeedInfoArray& GetSearchResults();
 
-	IMPORT_C void OpmlParsingComplete(TInt aError, TUint aNumFeedsAdded);
+	IMPORT_C void OpmlParsingCompleteL(TInt aError, TUint aNumFeedsAdded);
+	void NotifyFeedUpdateComplete(TInt aFeedUid, TInt aError);
 protected:
 	
 	static TInt CompareFeedsByTitle(const CFeedInfo &a, const CFeedInfo &b);
@@ -117,18 +117,17 @@ private:
 	void GetFeedImageL(CFeedInfo *aFeedInfo);
 	
 	void UpdateNextFeedL();
-	void NotifyFeedUpdateComplete(TInt aError);
-	void NotifyOpmlParsingComplete(TInt aError, TUint aNumFeedsAdded);
+	void NotifyOpmlParsingCompleteL(TInt aError, TUint aNumFeedsAdded);
 
 	
 private:
 	void DBLoadFeedsL();
-	TBool DBRemoveFeed(TUint aUid);
-	TBool DBAddFeedL(const CFeedInfo& aTtem);
+	void DBRemoveFeedL(TUint aUid);
+	void DBAddFeedL(const CFeedInfo& aTtem);
 	CFeedInfo* DBGetFeedInfoByUidL(TUint aFeedUid);	
-	TUint DBGetFeedCount();
-	TBool DBUpdateFeed(const CFeedInfo& aItem);
-	void DBGetStatsByFeed(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed);
+	TUint DBGetFeedCountL();
+	void DBUpdateFeedL(const CFeedInfo& aItem);
+	void DBGetStatsByFeedL(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed);
 
 		
 private:
@@ -147,7 +146,7 @@ private:
 	CFeedInfo *iActiveFeed;
 	TFileName iUpdatingFeedFileName;
 	TFileName iSearchResultsFileName;
-	RFeedInfoArray iFeedsUpdating;
+	RArray<TUint> iFeedsUpdating;
 	
 	// observers that will receive callbacks, not owning
     RArray<MFeedEngineObserver*> iObservers;

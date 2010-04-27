@@ -90,7 +90,7 @@ protected:
 	// UI Setting
 	TBool ConnectionSettingL();
 	
-	void ReportConnection(TInt aError);
+	void ReportConnectionL(TInt aError);
 	void ReportConnectionSelectionStart();
 	void ReportConnectionSelectionEnd();
 	

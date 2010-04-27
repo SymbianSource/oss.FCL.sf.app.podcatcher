@@ -19,7 +19,6 @@
 #include <bautils.h>
 #include <s32file.h>
 #include "SettingsEngine.h"
-#include "SoundEngine.h"
 #include "FeedEngine.h"
 #include "ShowEngine.h"
 
@@ -224,6 +223,7 @@ TFileName CSettingsEngine::PrivatePath()
 	{
 	TFileName privatePath;
 	iPodcastModel.FsSession().PrivatePath(privatePath);
+
 	TRAP_IGNORE(BaflUtils::EnsurePathExistsL(iPodcastModel.FsSession(), privatePath));
 	return privatePath;
 	}
