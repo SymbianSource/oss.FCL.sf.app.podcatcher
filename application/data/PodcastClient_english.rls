@@ -73,10 +73,6 @@ rls_string STRING_podcast_autoupdate_option3 "Four times a day"
 rls_string STRING_podcast_autoupdate_option4 "Twice a day"
 rls_string STRING_podcast_autoupdate_option5 "Daily"
 
-// Auto download settings
-rls_string STRING_r_on "On"
-rls_string STRING_r_off "Off"
-
 // Feed import/export
 rls_string STRING_r_view_import_feeds_title "Select OPML file"
 rls_string STRING_r_enter_filename "Enter file name"
