@@ -29,10 +29,13 @@ EPOCHEAPSIZE 1024000 32768000
 
 SYSTEMINCLUDE \epoc32\include
 SYSTEMINCLUDE \epoc32\include\mmf\common 
+#ifdef SYMBIAN_1
 SYSTEMINCLUDE \epoc32\include\domain\middleware
+#else
 SYSTEMINCLUDE \epoc32\include\mw					// for Symbian^3
 SYSTEMINCLUDE \epoc32\include\platform\mw			// for Symbian^3
-
+SYSTEMINCLUDE \epoc32\include\platform
+#endif
 #ifdef SQLITE_INCLUDED
 SYSTEMINCLUDE ..\..\engine\sqlite\inc
 #else

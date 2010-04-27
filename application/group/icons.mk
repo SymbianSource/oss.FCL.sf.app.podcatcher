@@ -25,23 +25,23 @@ CLEANLIB : do_nothing
 RESOURCE :	
 		mifconv $(ICONTARGETFILENAME) /h$(HEADERFILE) /c16,1\
 		$(DPATH)\podcatcher_64px.svg\
-		$(DPATH)\new\Audio.svg\
-		$(DPATH)\new\Audio_new.svg\
-		$(DPATH)\new\Audio_queued.svg\
-		$(DPATH)\new\Audio_downloading.svg\
-		$(DPATH)\new\Audio_downloaded.svg\
-		$(DPATH)\new\Audio_downloaded_new.svg\
-		$(DPATH)\new\Audio_failed.svg\
-		$(DPATH)\new\Audio_suspended.svg\
-		$(DPATH)\new\Video.svg\
-		$(DPATH)\new\Video_new.svg\
-		$(DPATH)\new\Video_queued.svg\
-		$(DPATH)\new\Video_downloading.svg\
-		$(DPATH)\new\Video_downloaded.svg\
-		$(DPATH)\new\Video_downloaded_new.svg\
-		$(DPATH)\new\Video_failed.svg\
-		$(DPATH)\new\Video_suspended.svg\
-		$(DPATH)\new\Feed.svg
+		$(DPATH)\Audio.svg\
+		$(DPATH)\Audio_new.svg\
+		$(DPATH)\Audio_queued.svg\
+		$(DPATH)\Audio_downloading.svg\
+		$(DPATH)\Audio_downloaded.svg\
+		$(DPATH)\Audio_downloaded_new.svg\
+		$(DPATH)\Audio_failed.svg\
+		$(DPATH)\Audio_suspended.svg\
+		$(DPATH)\Video.svg\
+		$(DPATH)\Video_new.svg\
+		$(DPATH)\Video_queued.svg\
+		$(DPATH)\Video_downloading.svg\
+		$(DPATH)\Video_downloaded.svg\
+		$(DPATH)\Video_downloaded_new.svg\
+		$(DPATH)\Video_failed.svg\
+		$(DPATH)\Video_suspended.svg\
+		$(DPATH)\Feed.svg
 
 FREEZE : do_nothing
 

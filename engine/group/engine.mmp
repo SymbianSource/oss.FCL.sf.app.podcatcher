@@ -30,6 +30,8 @@ SOURCEPATH ..\src
 USERINCLUDE ..\inc
 SYSTEMINCLUDE \epoc32\include 
 SYSTEMINCLUDE \epoc32\include\mw 		// needed for S^3
+SYSTEMINCLUDE \epoc32\include\platform
+SYSTEMINCLUDE \epoc32\include\platform\mw
 
 #ifdef SQLITE_INCLUDED
 SYSTEMINCLUDE ..\..\engine\sqlite\inc
