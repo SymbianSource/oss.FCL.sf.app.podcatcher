@@ -16,5 +16,14 @@
  *
  */
 
-#include "..\engine\group\bld.inf"
-#include "..\application\group\bld.inf"
+PRJ_PLATFORMS
+GCCE
+WINSCW
+
+PRJ_MMPFILES
+
+gnumakefile icons.mk
+Podcast.mmp
+
+PRJ_EXPORTS
+..\help\podcatcher.hlp \epoc32\winscw\c\resource\help\podcatcher.hlp

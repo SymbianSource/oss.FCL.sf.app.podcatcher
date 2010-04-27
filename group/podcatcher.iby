@@ -8,13 +8,15 @@
  * at the URL "http://www.eclipse.org/legal/epl-v10.html".
  *
  * Initial Contributors:
- * EmbedDev AB - initial contribution.
+ * Sebastian Brannstrom
  *
  * Contributors:
  *
  * Description:
  *
  */
+ 
+#ifndef __PODCATCHER_IBY__
+#define __PODCATCHER_IBY__
 
-#include "..\engine\group\bld.inf"
-#include "..\application\group\bld.inf"
+#endif
