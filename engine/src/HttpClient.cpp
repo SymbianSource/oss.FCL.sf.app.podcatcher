@@ -192,8 +192,12 @@ void  CHttpClient::DoGetAfterConnectL()
 
 TBool CHttpClient::GetL(const TDesC& aUrl, const TDesC& aFileName,  TBool aSilent) {
 	DP("CHttpClient::Get START");
-	DP2("Getting '%S' to '%S'", &aUrl, &aFileName);	
-	__ASSERT_DEBUG((iIsActive==EFalse), Panic(EPodcatcherPanicAlreadyActive));
+	DP2("Getting '%S' to '%S'", &aUrl, &aFileName);
+	
+	if (iIsActive)
+		{
+		return EFalse;
+		}
 	iCurrentURL.Copy(aUrl);	
 		
 	TInt urlError = iUriParser.Parse(iCurrentURL);
