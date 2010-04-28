@@ -161,4 +161,6 @@ EXPORTS
 	?Url@CShowInfo@@QBEABVTDesC16@@XZ @ 160 NONAME ; class TDesC16 const & CShowInfo::Url(void) const
 	?XMLEncode@PodcastUtils@@SAXAAVTDes16@@@Z @ 161 NONAME ; void PodcastUtils::XMLEncode(class TDes16 &)
 	?DropDB@CPodcastModel@@QAEXXZ @ 162 NONAME ; void CPodcastModel::DropDB(void)
+	?CheckForDeletedShows@CShowEngine@@QAEXI@Z @ 163 NONAME ; void CShowEngine::CheckForDeletedShows(unsigned int)
+	?IsVideoShow@PodcastUtils@@SAHAAVTDesC16@@@Z @ 164 NONAME ; int PodcastUtils::IsVideoShow(class TDesC16 &)
 
