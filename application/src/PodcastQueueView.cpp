@@ -67,15 +67,6 @@ void CPodcastQueueView::ConstructL()
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);
 	
-
-	// no popup options apply to S^1
-#ifndef SYMBIAN1_UI
-	iStylusPopupMenu = CAknStylusPopUpMenu::NewL( this , TPoint(0,0));
-	TResourceReader reader;
-	iCoeEnv->CreateResourceReaderLC(reader,R_QUEUEVIEW_POPUP_MENU);
-	iStylusPopupMenu->ConstructFromResourceL(reader);
-	CleanupStack::PopAndDestroy();
-#endif
 	SetEmptyTextL(R_PODCAST_EMPTY_QUEUE);
 	}
 
@@ -145,9 +136,6 @@ void CPodcastQueueView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 	{
 	switch (aEventType)
 		{
-#ifndef SYMBIAN1_UI
-		case EEventItemClicked:
-#endif
 		case EEventEnterKeyPressed:		
 		case EEventItemActioned:
 		case EEventItemDoubleClicked:

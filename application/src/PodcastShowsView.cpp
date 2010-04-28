@@ -315,9 +315,6 @@ void CPodcastShowsView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 	{
 	switch (aEventType)
 		{
-#ifndef SYMBIAN1_UI
-		case EEventItemClicked:
-#endif
 		case EEventEnterKeyPressed:		
 		case EEventItemActioned:
 		case EEventItemDoubleClicked:
@@ -670,12 +667,6 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 	
 		toolbar->HideItem(EPodcastUpdateFeed, updatingState, ETrue ); 
 		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !updatingState, ETrue );
-#ifndef SYMBIAN1_UI
-		// there seems to be drawing bugs in the toolbar if there is only
-		// one or two buttons defined in the resource, so we have download
-		// there but always hidden
-		toolbar->HideItem(EPodcastDownloadShow, ETrue, ETrue );
-#else SYMBIAN1_UI
 		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
 		TInt itemCnt = fItems.Count();
 	
@@ -731,7 +722,6 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 			toolbar->HideItem(EPodcastMarkAsUnplayed, ETrue, ETrue );
 			toolbar->SetItemDimmed(EPodcastMarkAsPlayed, updatingState, ETrue);
 		}
-#endif
 	}
 }
 

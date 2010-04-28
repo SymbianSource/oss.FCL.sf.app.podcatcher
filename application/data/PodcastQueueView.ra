@@ -95,7 +95,6 @@ RESOURCE AVKON_TOOLBAR r_queueview_toolbar
 					};
 				};
 			},
-#ifdef SYMBIAN1_UI
 		TBAR_CTRL
 			{
 			type = EAknCtButton;
@@ -114,7 +113,6 @@ RESOURCE AVKON_TOOLBAR r_queueview_toolbar
 					};
 				};
 			},
-#endif
 		TBAR_CTRL
 			{
 			type = EAknCtButton;

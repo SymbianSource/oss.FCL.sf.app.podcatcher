@@ -21,12 +21,7 @@ GCCE
 WINSCW
 
 PRJ_MMPFILES
-
-#ifdef SQLITE_INCLUDED
 ..\sqlite\group\sqlite.mmp
-#endif
-
-PRJ_MMPFILES
 engine.mmp
 
 PRJ_EXPORTS
