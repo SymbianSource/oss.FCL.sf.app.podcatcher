@@ -21,10 +21,15 @@ GCCE
 WINSCW
 
 PRJ_MMPFILES
-..\sqlite\group\sqlite.mmp
+//..\sqlite\group\sqlite.mmp
 engine.mmp
 
 PRJ_EXPORTS
+// export pre-build sqlite
+..\sqlite\sqlite_podcatcher_winscw.lib \epoc32\release\winscw\udeb\sqlite_podcatcher.lib
+..\sqlite\sqlite_podcatcher_gcce.lib \epoc32\release\gcce\udeb\sqlite_podcatcher.lib
+..\sqlite\sqlite_podcatcher_gcce.lib \epoc32\release\gcce\urel\sqlite_podcatcher.lib
+
 ..\config\podcatcher.sqlite \epoc32\winscw\c\private\A0009D00\podcatcher.sqlite.template
 ..\config\defaultfeeds.xml \epoc32\winscw\c\private\A0009D00\defaultfeeds.xml
 ..\config\testfeeds.xml \epoc32\winscw\c\data\testfeeds.xml
