@@ -27,8 +27,8 @@ engine.mmp
 PRJ_EXPORTS
 // export pre-build sqlite
 ..\sqlite\sqlite_podcatcher_winscw.lib \epoc32\release\winscw\udeb\sqlite_podcatcher.lib
-..\sqlite\sqlite_podcatcher_gcce.lib \epoc32\release\gcce\udeb\sqlite_podcatcher.lib
-..\sqlite\sqlite_podcatcher_gcce.lib \epoc32\release\gcce\urel\sqlite_podcatcher.lib
+..\sqlite\sqlite_podcatcher_gcce.lib \epoc32\release\armv5\udeb\sqlite_podcatcher.lib
+..\sqlite\sqlite_podcatcher_gcce.lib \epoc32\release\armv5\urel\sqlite_podcatcher.lib
 
 ..\config\podcatcher.sqlite \epoc32\winscw\c\private\A0009D00\podcatcher.sqlite.template
 ..\config\defaultfeeds.xml \epoc32\winscw\c\private\A0009D00\defaultfeeds.xml

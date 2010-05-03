@@ -193,12 +193,14 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 		case THTTPEvent::ESucceeded:
 			{
 			DP("Transaction Successful");
+			iRespBodyFile.Close();
 			aTransaction.Close();
 			iHttpClient->ClientRequestCompleteL(KErrNone);
 			} break;
 		case THTTPEvent::EFailed:
 			{
 			DP("Transaction Failed");
+			iRespBodyFile.Close();
 			aTransaction.Close();
 			
 			if(iLastStatusCode == HTTPStatus::EOk || iLastStatusCode == HTTPStatus::ECreated || iLastStatusCode == HTTPStatus::EAccepted)
@@ -222,6 +224,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 			// close off the transaction if it's an error
 			if (aEvent.iStatus < 0)
 				{
+				iRespBodyFile.Close();
 				aTransaction.Close();
 				iHttpClient->ClientRequestCompleteL(aEvent.iStatus);
 				}

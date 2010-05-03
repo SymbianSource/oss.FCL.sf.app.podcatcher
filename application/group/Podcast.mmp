@@ -65,8 +65,7 @@ TARGETPATH 	  \private\10003a3f\import\apps
 END
 
 STATICLIBRARY PodCastEngine.lib
-//STATICLIBRARY sqlite_podcatcher.lib
-LIBRARY sqlite3.lib
+STATICLIBRARY sqlite_podcatcher.lib
 LIBRARY	mediaclientaudio.lib
 LIBRARY	inetprotutil.lib
 LIBRARY	xmlframework.lib
