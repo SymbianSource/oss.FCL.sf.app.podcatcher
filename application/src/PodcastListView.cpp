@@ -31,6 +31,8 @@
 #include <barsread.h>
 #include <akntitle.h>
 
+#include "buildno.h"
+
 const TInt KDefaultGran = 5;
 
 CPodcastListContainer::CPodcastListContainer()
@@ -318,6 +320,11 @@ TBool CPodcastListView::IsVisible()
 void CPodcastListView::RunAboutDialogL()
 {
 	CAknNoteDialog* dlg = new(ELeave) CAknNoteDialog();
+	HBufC *aboutTextTemplate = iEikonEnv->AllocReadResourceLC(R_ABOUT_TEXT);
+	TBuf<255> aboutText;
+	aboutText.Format(*aboutTextTemplate, BUILD_NO);
+	dlg->SetTextL(aboutText);
+	CleanupStack::PopAndDestroy(aboutTextTemplate);
 	dlg->ExecuteLD(R_DLG_ABOUT);
 }
 
