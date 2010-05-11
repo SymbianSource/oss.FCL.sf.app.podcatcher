@@ -592,11 +592,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 							iActiveFeed->SetLastError(parserErr);
 							DP1("CFeedEngine::Complete()\t Failed to parse feed. Leave with error code=%d", parserErr);
 							}
-						else
-							{
-							iPodcastModel.ShowEngine().DeleteOldShowsByFeedL(iActiveFeed->Uid());
-							}
-	
+
 						// delete the downloaded XML file as it is no longer needed
 						BaflUtils::DeleteFile(iPodcastModel.FsSession(),iUpdatingFeedFileName);			
 	
