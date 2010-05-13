@@ -16,8 +16,6 @@
  *
  */
 
-MACRO SYMBIAN1_UI
-
 TARGET			Podcast.exe
 TARGETTYPE  	exe
 UID				0x100039CE 0xA0009D00  
@@ -29,15 +27,10 @@ EPOCHEAPSIZE 1024000 32768000
 
 SYSTEMINCLUDE \epoc32\include
 SYSTEMINCLUDE \epoc32\include\mmf\common 
-SYSTEMINCLUDE \epoc32\include\domain\middleware
 SYSTEMINCLUDE \epoc32\include\mw					// for Symbian^3
 SYSTEMINCLUDE \epoc32\include\platform\mw			// for Symbian^3
-
-#ifdef SQLITE_INCLUDED
-SYSTEMINCLUDE ..\..\engine\sqlite\inc
-#else
+SYSTEMINCLUDE \epoc32\include\platform
 SYSTEMINCLUDE \epoc32\include\stdapis
-#endif
 
 USERINCLUDE ..\..\engine\inc
 USERINCLUDE . 
@@ -74,25 +67,8 @@ TARGETPATH 	  \private\10003a3f\import\apps
 #endif
 END
 
-#ifdef SQLITE_INCLUDED
-STATICLIBRARY PodCastEngine.lib
-STATICLIBRARY sqlite_podcatcher.lib
-LIBRARY	mediaclientaudio.lib
-LIBRARY	inetprotutil.lib
-LIBRARY	xmlframework.lib
-LIBRARY	http.lib 
-LIBRARY	ezlib.lib
-LIBRARY	commdb.lib
-LIBRARY esock.lib
-LIBRARY mmfcontrollerframework.lib 
-LIBRARY cmmanager.lib
-LIBRARY libc.lib
-LIBRARY imageconversion.lib 
-LIBRARY bitmaptransforms.lib 
-#else
 LIBRARY PodCastEngine.lib
 LIBRARY sqlite3.lib
-#endif
 LIBRARY	euser.lib 
 LIBRARY	apparc.lib
 LIBRARY	cone.lib
@@ -121,3 +97,4 @@ LIBRARY form.lib
 LIBRARY ws32.lib 
 LIBRARY hlplch.lib
 LIBRARY bitgdi.lib 
+LIBRARY cmmanager.lib 

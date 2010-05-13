@@ -72,21 +72,25 @@ void CPodcastModel::ConstructL()
 {
 	DP("CPodcastModel::ConstructL BEGIN");
 	User::LeaveIfError(iFsSession.Connect());
-	
 	iCommDB = CCommsDatabase::NewL (EDatabaseTypeUnspecified);
-	//iCommDB ->ShowHiddenRecords(); // magic
 	iIapNameArray = new (ELeave) CDesCArrayFlat(KDefaultGranu);
 	iSNAPNameArray = new (ELeave) CDesCArrayFlat(KDefaultGranu);
-	iCmManager.OpenL();
+
 	iImageHandler = CImageHandler::NewL(FsSession(), *this);
+
+	TRAPD(err,iCmManager.OpenL());
+	DP1("iCmManager.OpenL(),err=%d;", err);
 	
-	UpdateIAPListL();
-	UpdateSNAPListL();
+	if (err == KErrNone)
+		{
+		UpdateIAPListL();
+		UpdateSNAPListL();
+		}
 	
 	iSettingsEngine = CSettingsEngine::NewL(*this);
 	iConnectionEngine = CConnectionEngine::NewL(*this);	
 	
-	TRAPD(err, OpenDBL());
+	TRAP(err, OpenDBL());
 	
 	if (err != KErrNone)
 		{
@@ -435,6 +439,7 @@ EXPORT_C void CPodcastModel::GetShowsDownloadingL()
 EXPORT_C void CPodcastModel::GetShowsByFeedL(TUint aFeedUid)
 	{
 	iActiveShowList.ResetAndDestroy();
+	iShowEngine->DeleteOldShowsByFeedL(aFeedUid);
 	iShowEngine->CheckForDeletedShows(aFeedUid);
 	iShowEngine->GetShowsByFeedL(iActiveShowList, aFeedUid);
 	}

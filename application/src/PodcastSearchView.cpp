@@ -39,13 +39,13 @@
 #include <akntoolbarextension.h>
 
 const TInt KMaxFeedNameLength = 100;
-const TInt KDefaultGran = 5;
-const TInt KNumberOfFilesMaxLength = 4;
+//const TInt KDefaultGran = 5;
+//const TInt KNumberOfFilesMaxLength = 4;
 #define KMaxMessageLength 200
 #define KMaxTitleLength 100
-const TInt KMimeBufLength = 100;
+//const TInt KMimeBufLength = 100;
 
-_LIT(KUnknownUpdateDateString, "?/?");
+//_LIT(KUnknownUpdateDateString, "?/?");
 _LIT(KSearchResultFormat, "%d\t%S\t%S");
 
 CPodcastSearchView* CPodcastSearchView::NewL(CPodcastModel& aPodcastModel)

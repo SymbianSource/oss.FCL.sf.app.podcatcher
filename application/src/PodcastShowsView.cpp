@@ -38,8 +38,8 @@ _LIT(KSizeDownloadingOf, "%.1f/%.1f MB");
 _LIT(KShowsSizeFormatS60, "%.1f MB");
 
 _LIT(KShowFormat, "%d\t%S\t%S%S\t");
-_LIT(KShowErrorFormat, "%d\t%S\t%S\t");
-_LIT(KShowQueueFormat, "%d\t%S\t%S%S\t");
+//_LIT(KShowErrorFormat, "%d\t%S\t%S\t");
+//_LIT(KShowQueueFormat, "%d\t%S\t%S%S\t");
 
 // these must correspond with TShowsIconIndex
 
@@ -315,9 +315,7 @@ void CPodcastShowsView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 	{
 	switch (aEventType)
 		{
-#ifndef SYMBIAN1_UI
 		case EEventItemClicked:
-#endif
 		case EEventEnterKeyPressed:		
 		case EEventItemActioned:
 		case EEventItemDoubleClicked:
@@ -670,68 +668,10 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 	
 		toolbar->HideItem(EPodcastUpdateFeed, updatingState, ETrue ); 
 		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !updatingState, ETrue );
-#ifndef SYMBIAN1_UI
 		// there seems to be drawing bugs in the toolbar if there is only
 		// one or two buttons defined in the resource, so we have download
 		// there but always hidden
 		toolbar->HideItem(EPodcastDownloadShow, ETrue, ETrue );
-#else SYMBIAN1_UI
-		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
-		TInt itemCnt = fItems.Count();
-	
-		TBool hideDownloadShowCmd = EFalse;
-		TBool dimDownloadShowCmd = EFalse;
-		TBool hideSetPlayed = EFalse;
-	
-		if(iListContainer->Listbox() != NULL)
-		{
-			TInt index = iListContainer->Listbox()->CurrentItemIndex();
-			
-			if(index>= 0 && index < itemCnt)
-			{
-				switch(fItems[index]->DownloadState())
-					{
-					case ENotDownloaded:
-					case EFailedDownload:
-						hideDownloadShowCmd = EFalse;
-						dimDownloadShowCmd = EFalse;
-						break;
-					case EQueued:
-					case EDownloading:
-						hideDownloadShowCmd = EFalse;
-						dimDownloadShowCmd = ETrue;
-						break;
-					case EDownloaded:
-						hideDownloadShowCmd = ETrue;
-						break;
-					}
-					
-				if(fItems[index]->PlayState() == EPlayed) {
-					hideSetPlayed = ETrue;
-				}
-			}
-		}
-		
-		if (hideDownloadShowCmd) {
-			toolbar->HideItem(EPodcastDownloadShow, ETrue, ETrue );
-			toolbar->HideItem(EPodcastDeleteShow, EFalse, ETrue);
-			toolbar->SetItemDimmed(EPodcastDeleteShow, updatingState, ETrue);
-		} else {
-			toolbar->HideItem(EPodcastDownloadShow, EFalse, ETrue );
-			toolbar->HideItem(EPodcastDeleteShow, ETrue, ETrue);
-			toolbar->SetItemDimmed(EPodcastDownloadShow, updatingState || dimDownloadShowCmd, ETrue);	
-		}
-		
-		if (hideSetPlayed) {
-			toolbar->HideItem(EPodcastMarkAsPlayed, ETrue, ETrue );
-			toolbar->HideItem(EPodcastMarkAsUnplayed, EFalse, ETrue );
-			toolbar->SetItemDimmed(EPodcastMarkAsUnplayed, updatingState, ETrue);
-		} else {
-			toolbar->HideItem(EPodcastMarkAsPlayed, EFalse, ETrue );
-			toolbar->HideItem(EPodcastMarkAsUnplayed, ETrue, ETrue );
-			toolbar->SetItemDimmed(EPodcastMarkAsPlayed, updatingState, ETrue);
-		}
-#endif
 	}
 }
 

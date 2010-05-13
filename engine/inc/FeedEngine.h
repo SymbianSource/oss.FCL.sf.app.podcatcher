@@ -151,8 +151,9 @@ private:
 	// observers that will receive callbacks, not owning
     RArray<MFeedEngineObserver*> iObservers;
     
-    TBool iCatchupMode;
-    TUint iCatchupCounter;
+    // new feeds only add one show to download list when auto downloading
+    TBool newFeed;
+    TUint showsAdded;
     
     sqlite3& iDB;
     

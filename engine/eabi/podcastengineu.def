@@ -197,4 +197,6 @@ EXPORTS
 	_ZTV17CHttpEventHandler @ 196 NONAME
 	_ZTV9CFeedInfo @ 197 NONAME
 	_ZTV9CShowInfo @ 198 NONAME
+	_ZN11CShowEngine20CheckForDeletedShowsEj @ 199 NONAME
+	_ZN12PodcastUtils11IsVideoShowER7TDesC16 @ 200 NONAME
 

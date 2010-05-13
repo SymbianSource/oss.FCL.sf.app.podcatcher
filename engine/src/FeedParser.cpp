@@ -281,8 +281,8 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 				iActiveShow = NULL;
 				
 				iItemsParsed++;
-				//DP2("iItemsParsed: %d, iMaxItems: %d", iItemsParsed, iMaxItems);
-				if (iItemsParsed > iMaxItems) 
+				DP2("iItemsParsed: %d, iMaxItems: %d", iItemsParsed, iMaxItems);
+				if (iItemsParsed >= iMaxItems) 
 					{
 					iStoppedParsing = ETrue;
 					DP("*** Too many items, aborting parsing");

@@ -16,8 +16,16 @@
  *
  */
 
-#include "..\engine\group\bld.inf"
-#include "..\application\group\bld.inf"
+PRJ_PLATFORMS
+GCCE
+WINSCW
+
+PRJ_MMPFILES
+
+PRJ_MMPFILES
+engine.mmp
 
 PRJ_EXPORTS
-podcatcher.iby CORE_APP_LAYER_IBY_EXPORT_PATH(podcatcher.iby)
+..\config\podcatcher.sqlite z:\private\A0009D00\podcatcher.sqlite.template
+..\config\defaultfeeds.xml z:\private\A0009D00\defaultfeeds.xml
+..\config\testfeeds.xml c:\data\testfeeds.xml

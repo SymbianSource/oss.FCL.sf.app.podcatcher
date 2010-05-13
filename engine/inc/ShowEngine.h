@@ -28,8 +28,11 @@
 #include "ShowEngineObserver.h"
 #include "MetaDataReader.h"
 #include <sqlite3.h>
+#include "mpxcollectionhelper.h"
+#include "mpxcollectionhelperobserver.h"
 
-class CShowEngine : public CBase, public MHttpClientObserver, public MMetaDataReaderObserver
+class CShowEngine : public CBase, public MHttpClientObserver, public MMetaDataReaderObserver,
+					public MMPXCollectionHelperObserver
 {
 public:
 	IMPORT_C static CShowEngine* NewL(CPodcastModel& aPodcastModel);
@@ -84,7 +87,9 @@ private:
 	// from MetaDataReaderObserver
 	void ReadMetaDataL(CShowInfo& aShowInfo);
 	void ReadMetaDataCompleteL();
-	
+	// from MMPXCollectionHelperObserver
+    void HandleAddFileCompleteL( TInt /*aErr*/ ) {}  
+
 private:
 	CShowEngine(CPodcastModel& aPodcastModel);
 	void ConstructL();
@@ -142,6 +147,8 @@ private:
 	
 	sqlite3& iDB;
     TBuf<KDefaultSQLDataBufferLength> iSqlBuffer;
+    
+    MMPXCollectionHelper* iCollectionHelper;
 };
 
 #endif /*SHOWENGINE_H_*/

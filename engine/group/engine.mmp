@@ -16,28 +16,18 @@
  *
  */
  
-#ifdef SQLITE_INCLUDED
-// must build a .lib since sqlite uses "initialized writable data"
-TARGET podcastengine.lib
-TARGETTYPE LIB
-#else
 TARGET podcastengine.dll
 TARGETTYPE DLL
 UID             0x1000008d 0xA11F867F
-#endif
 
 SOURCEPATH ..\src
 USERINCLUDE ..\inc
 SYSTEMINCLUDE \epoc32\include 
-SYSTEMINCLUDE \epoc32\include\mw 		// needed for S^3
-
-#ifdef SQLITE_INCLUDED
-SYSTEMINCLUDE ..\..\engine\sqlite\inc
-#else
+SYSTEMINCLUDE \epoc32\include\mw
+SYSTEMINCLUDE \epoc32\include\platform
+SYSTEMINCLUDE \epoc32\include\platform\mw
 SYSTEMINCLUDE \epoc32\include\stdapis
-#endif
 
-// Engine
 SOURCE			HttpClient.cpp
 SOURCE			HttpEventHandler.cpp 
 SOURCE			FeedParser.cpp 
@@ -53,12 +43,8 @@ SOURCE			PodcastUtils.cpp
 SOURCE			PodCastModel.cpp  
 SOURCE			ImageHandler.cpp
 SOURCE 			ConnectionEngine.cpp
-CAPABILITY NetworkServices UserEnvironment
 
-#ifndef SQLITE_INCLUDED
 LIBRARY	sqlite3.lib
-#endif
-
 LIBRARY	euser.lib 
 LIBRARY	bafl.lib
 LIBRARY	efsrv.lib
@@ -81,4 +67,6 @@ LIBRARY fbscli.lib
 LIBRARY imageconversion.lib 
 LIBRARY bitmaptransforms.lib 
 LIBRARY eikcore.lib 
-//staticlibrary sqlite_podcatcher.lib
+LIBRARY mpxcollectionhelper.lib
+
+CAPABILITY NetworkServices UserEnvironment

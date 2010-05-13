@@ -37,11 +37,11 @@
 const TInt KMaxFeedNameLength = 100;
 const TInt KMaxUnplayedFeedsLength =64;
 const TInt KADayInHours = 24;
-const TInt KDefaultGran = 5;
-const TInt KNumberOfFilesMaxLength = 4;
+//const TInt KDefaultGran = 5;
+//const TInt KNumberOfFilesMaxLength = 4;
 #define KMaxMessageLength 200
 #define KMaxTitleLength 100
-const TInt KMimeBufLength = 100;
+//const TInt KMimeBufLength = 100;
 
 _LIT(KFeedFormat, "%d\t%S\t%S%S");
 enum 
@@ -203,9 +203,7 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 
 	switch(aEventType)
 		{
-#ifndef SYMBIAN1_UI
 	case EEventItemClicked:
-#endif
 	case EEventEnterKeyPressed:
 	case EEventItemDoubleClicked:
 	case EEventItemActioned:

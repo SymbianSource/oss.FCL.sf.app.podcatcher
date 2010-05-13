@@ -26,10 +26,7 @@
 #include <httperr.h>
 #include "debug.h"
 #include "PodcastUtils.h"
-
-//#include <mpxmedia.h>
-//#include <mpxattribute.h>
-//#include <mpxmediageneraldefs.h>
+#include <mpxcollectionhelperfactory.h>
 
 const TUint KMaxDownloadErrors = 3;
 const TInt KMimeBufLength = 100;
@@ -47,6 +44,9 @@ EXPORT_C CShowEngine::~CShowEngine()
 	delete iShowDownloading;
 	delete iMetaDataReader;
 	iApaSession.Close();
+	
+	if (iCollectionHelper)
+		delete iCollectionHelper;
 	}
 
 EXPORT_C CShowEngine* CShowEngine::NewL(CPodcastModel& aPodcastModel)
@@ -239,15 +239,14 @@ EXPORT_C void CShowEngine::RemoveObserver(MShowEngineObserver *observer)
 		}
 	}
 
-void CShowEngine::AddShowToMpxCollection(CShowInfo &/*aShowInfo*/)
+void CShowEngine::AddShowToMpxCollection(CShowInfo &aShowInfo)
 	{
-/*	RArray<TInt> contentIDs;
-	contentIDs.AppendL( KMPXMediaIdGeneral );
+	if (!iCollectionHelper)
+		iCollectionHelper = CMPXCollectionHelperFactory::NewCollectionHelperL();
 	
-	CMPXMedia* media = CMPXMedia::NewL( contentIDs.Array() );
-	CleanupStack::PushL( media );
-	contentIDs.Close();
-	CleanupStack::PopAndDestroy(media);   */
+	// if this leaves, not much we can do anyway
+	TRAP_IGNORE(iCollectionHelper->AddL(aShowInfo.FileName(), this));
+
 	}
 
 void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
@@ -683,8 +682,7 @@ void CShowEngine::DBDeleteOldShowsByFeedL(TUint aFeedUid)
 	// 2. select the first MaxListItems shows
 	// 3. delete the rest if downloadstate is ENotDownloaded
 	
-	_LIT(KSqlStatement,"delete from shows where feeduid=%u and downloadstate=0 and uid not in " \
-			"(select uid from shows where feeduid=%u order by pubdate desc limit %u)");
+	_LIT(KSqlStatement,"delete from shows where feeduid=%u and downloadstate=0 and uid not in (select uid from shows where feeduid=%u order by pubdate desc limit %u)");
 	iSqlBuffer.Format(KSqlStatement, aFeedUid, aFeedUid, iPodcastModel.SettingsEngine().MaxListItems());
 
 	sqlite3_stmt *st;
@@ -786,8 +784,7 @@ void CShowEngine::DBAddShowL(const CShowInfo& aItem)
 	descPtr.Copy(aItem.Description());
 	PodcastUtils::SQLEncode(descPtr);
 	
-	_LIT(KSqlStatement, "insert into shows (url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype)"
-			" values (\"%S\",\"%S\", \"%S\", \"%S\", \"%Lu\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%Lu\", \"%d\")");
+	_LIT(KSqlStatement, "insert into shows (url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype) values (\"%S\",\"%S\", \"%S\", \"%S\", \"%Lu\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%Lu\", \"%d\")");
 	
 	iSqlBuffer.Format(KSqlStatement, &aItem.Url(), &titlePtr, &descPtr,
 			&aItem.FileName(), aItem.Position().Int64(), aItem.PlayTime(),
@@ -860,9 +857,7 @@ void CShowEngine::DBUpdateShowL(CShowInfo& aItem)
 	descPtr.Copy(aItem.Description());
 	PodcastUtils::SQLEncode(descPtr);
 
-	_LIT(KSqlStatement, "update shows set url=\"%S\", title=\"%S\", description=\"%S\", filename=\"%S\", position=\"%Lu\","
-			"playtime=\"%u\", playstate=\"%u\", downloadstate=\"%u\", feeduid=\"%u\", showsize=\"%u\", trackno=\"%u\","
-			"pubdate=\"%Lu\", showtype=\"%d\", lasterror=\"%d\" where uid=\"%u\"");
+	_LIT(KSqlStatement, "update shows set url=\"%S\", title=\"%S\", description=\"%S\", filename=\"%S\", position=\"%Lu\" playtime=\"%u\", playstate=\"%u\", downloadstate=\"%u\", feeduid=\"%u\", showsize=\"%u\", trackno=\"%u\",pubdate=\"%Lu\", showtype=\"%d\", lasterror=\"%d\" where uid=\"%u\"");
 	iSqlBuffer.Format(KSqlStatement, &aItem.Url(), &titlePtr, &descPtr,
 			&aItem.FileName(), aItem.Position().Int64(), aItem.PlayTime(),
 			aItem.PlayState(), aItem.DownloadState(), aItem.FeedUid(),

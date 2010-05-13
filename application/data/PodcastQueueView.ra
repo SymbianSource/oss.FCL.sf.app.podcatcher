@@ -95,26 +95,6 @@ RESOURCE AVKON_TOOLBAR r_queueview_toolbar
 					};
 				};
 			},
-#ifdef SYMBIAN1_UI
-		TBAR_CTRL
-			{
-			type = EAknCtButton;
-			id = EPodcastRemoveDownload;
-			control = AVKON_BUTTON
-				{
-				states =
-					{
-					AVKON_BUTTON_STATE
-						{
-						//bmpfile = AVKON_BITMAP_FILE;
-						//bmpid = EMbmAvkonQgn_indi_find_goto;
-						txt = STRING_r_view_remove_download_short_cmd;
-						helptxt = STRING_r_view_remove_download_cmd;
-						}  
-					};
-				};
-			},
-#endif
 		TBAR_CTRL
 			{
 			type = EAknCtButton;

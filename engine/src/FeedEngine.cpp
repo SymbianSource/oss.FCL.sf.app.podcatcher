@@ -144,6 +144,11 @@ void CFeedEngine::RunFeedTimer()
 
 EXPORT_C void CFeedEngine::UpdateAllFeedsL(TBool aAutoUpdate)
 	{
+	if (iClientState != EIdle)
+		{
+		User::Leave(KErrInUse);
+		}
+
 	iAutoUpdatedInitiator = aAutoUpdate;
 	if (iFeedsUpdating.Count() > 0)
 		{
@@ -175,6 +180,11 @@ EXPORT_C void CFeedEngine::CancelUpdateAllFeeds()
 void CFeedEngine::UpdateNextFeedL()
 	{
 	DP1("UpdateNextFeed. %d feeds left to update", iFeedsUpdating.Count());
+	
+	if (iClientState != EIdle)
+		{
+		User::Leave(KErrInUse);
+		}
 	
 	// reset active feed, will be set again in UpdateFeedL if needed
 	iActiveFeed = NULL;
@@ -229,9 +239,10 @@ EXPORT_C TBool CFeedEngine::UpdateFeedL(TUint aFeedUid)
 
 	if (iActiveFeed->LastUpdated() == 0)
 		{
-		iCatchupMode = ETrue;
-		iCatchupCounter = 0;
+		newFeed = ETrue;	
 		}
+	
+	showsAdded = 0;
 	
 	iActiveFeed->SetLastError(KErrNone);
 	DBUpdateFeedL(*iActiveFeed);
@@ -273,10 +284,12 @@ void CFeedEngine::NewShowL(CShowInfo& aItem)
 	aItem.SetDescriptionL(*description);
 	CleanupStack::PopAndDestroy(description);
 
-	if (iCatchupMode) {
-		// in catchup mode, we let one show be unplayed
-		if (++iCatchupCounter > 1) {
-			aItem.SetPlayState(EPlayed);
+	if (newFeed) {
+		// for new feeds, set all shows played
+		aItem.SetPlayState(EPlayed);
+		// except the first one
+		if (showsAdded == 0) {
+			aItem.SetPlayState(ENeverPlayed);	
 		}
 	}
 	
@@ -286,7 +299,9 @@ void CFeedEngine::NewShowL(CShowInfo& aItem)
 			iPodcastModel.SettingsEngine().DownloadAutomatically()) 
 		{
 		iPodcastModel.ShowEngine().AddDownloadL(aItem);
-		}	
+		}
+	
+	showsAdded++;
 	}
 
 void CFeedEngine::GetFeedImageL(CFeedInfo *aFeedInfo)
@@ -577,11 +592,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 							iActiveFeed->SetLastError(parserErr);
 							DP1("CFeedEngine::Complete()\t Failed to parse feed. Leave with error code=%d", parserErr);
 							}
-						else
-							{
-							iPodcastModel.ShowEngine().DeleteOldShowsByFeedL(iActiveFeed->Uid());
-							}
-	
+
 						// delete the downloaded XML file as it is no longer needed
 						BaflUtils::DeleteFile(iPodcastModel.FsSession(),iUpdatingFeedFileName);			
 	
