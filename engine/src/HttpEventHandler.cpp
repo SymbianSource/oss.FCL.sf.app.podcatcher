@@ -222,7 +222,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 			{
 			DP1("<unrecognised event: %d>", aEvent.iStatus);
 			// close off the transaction if it's an error
-			if (aEvent.iStatus < 0)
+			if (aEvent.iStatus < 100)
 				{
 				iRespBodyFile.Close();
 				aTransaction.Close();

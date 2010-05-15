@@ -25,6 +25,8 @@
 #include <es_sock.h>
 #include <http/rhttpsession.h>
 #include <cmmanager.h>
+#include <aknserverapp.h>  // MAknServerAppExitObserver
+#include <DocumentHandler.h>
 
 #include "FeedInfo.h"
 #include "ShowInfo.h"
@@ -52,7 +54,7 @@ public:
 /**
  * This class handles application storage needs and ownership of audioplayer, resource lists etc.
  */
-class CPodcastModel : public CBase, public MImageHandlerCallback
+class CPodcastModel : public CBase, public MImageHandlerCallback, public MAknServerAppExitObserver
 {
 public:
 	IMPORT_C static CPodcastModel* NewL();
@@ -101,6 +103,17 @@ protected:
 	void OpenDBL();
 	// From ImageHandler
 	void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel);
+
+private:  // Functions from base classes
+    /**
+     * From MAknServerAppExitObserver.
+     * Handles the exit of a connected server application.
+     */ 
+    void HandleServerAppExit(TInt aReason);
+
+private:  // Private functions
+    void LaunchFileEmbeddedL(const TDesC& aFilename);
+    
 private:	
    CShowInfo* iPlayingPodcast;
    
@@ -123,6 +136,7 @@ private:
    RCmManager iCmManager;
    TBool iIsFirstStartup;
    CImageHandler* iImageHandler;
+   CDocumentHandler* iDocHandler;
 };
 
 #endif // PODCASTMODEL_H

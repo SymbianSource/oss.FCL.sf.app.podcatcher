@@ -145,7 +145,7 @@ rls_string STRING_r_view_remove_download_short_cmd "Remove"
 rls_string STRING_r_view_remove_download_cmd "Remove download"
 
 rls_string STRING_r_error_notfound "Error: Not found on server"
-rls_string STRING_r_error_invalid_address "Error: Invalid address"
+rls_string STRING_r_error_invalid_address "Error: Connection failed"
 rls_string STRING_r_error_general "Error: General error %d"
 rls_string STRING_r_error_http "Error: HTTP error %d"
 rls_string STRING_r_error_disk_full "Error: Disk full"
