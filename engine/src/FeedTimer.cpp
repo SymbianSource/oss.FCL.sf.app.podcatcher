@@ -35,13 +35,26 @@ void CFeedTimer::ConstructL()
 
 void CFeedTimer::RunL() 
 	{
-	DP("CFeedTimer::RunL");
+	DP("CFeedTimer::RunL BEGIN");
 
-	// We need to trap this, otherwise we will not reschedule the timer
-	TRAP_IGNORE(iFeedEngine->UpdateAllFeedsL(ETrue));
+	TTime time;
+	time.UniversalTime();
 
-	// run again
-	RunPeriodically();
+	if (time < iTriggerTime)
+		{
+		// timer was probably reset, this happens on Nokia every 30 minutes
+		DP("Timer reset");
+		AtUTC(iTriggerTime);
+		}
+	else 
+		{
+		// We need to trap this, otherwise we will not reschedule the timer
+		TRAP_IGNORE(iFeedEngine->UpdateAllFeedsL(ETrue));
+	
+		// run again
+		RunPeriodically();
+		}
+	DP("CFeedTimer::RunL END");
 	}
 
 void CFeedTimer::SetPeriod(TInt aPeriodMinutes) 
@@ -93,8 +106,8 @@ void CFeedTimer::RunPeriodically()
 
 	TTimeIntervalMinutes tmi;
 	tmi = iPeriodMinutes;
-	time = time + tmi;
+	iTriggerTime = time + tmi;
 	DP("Running timer");
 
-	AtUTC(time);
+	AtUTC(iTriggerTime);
 	}
