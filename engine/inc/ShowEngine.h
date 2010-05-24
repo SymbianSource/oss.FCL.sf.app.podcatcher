@@ -29,6 +29,14 @@
 #include "MetaDataReader.h"
 #include <sqlite3.h>
 
+typedef enum TShowFilter
+	{
+	EAllShows,
+	ENewShows,
+	EDownloadedShows,
+	ENewAndDownloadedShows
+	};
+
 class CShowEngine : public CBase, public MHttpClientObserver, public MMetaDataReaderObserver
 {
 public:
@@ -72,7 +80,7 @@ public:
 
 	IMPORT_C void CheckForDeletedShows(TUint aFeedUid);
 	IMPORT_C CMetaDataReader& MetaDataReader();
-
+	IMPORT_C void SetShowFilter(TShowFilter aFilter);
 private:
 	// from HttpClientObserver, dont have to be public
 	void Connected(CHttpClient* aClient);
@@ -142,6 +150,7 @@ private:
 	
 	sqlite3& iDB;
     TBuf<KDefaultSQLDataBufferLength> iSqlBuffer;
+    TShowFilter iShowFilter;
 };
 
 #endif /*SHOWENGINE_H_*/

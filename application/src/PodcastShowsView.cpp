@@ -573,9 +573,11 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 		{
 		case EPodcastMarkAsPlayed:
 			HandleSetShowPlayedL(ETrue);
+			UpdateListboxItemsL();
 			break;
 		case EPodcastMarkAsUnplayed:
 			HandleSetShowPlayedL(EFalse);
+			UpdateListboxItemsL();
 			break;
 		case EPodcastMarkAllPlayed:
 			iPodcastModel.MarkSelectionPlayedL();
@@ -583,6 +585,7 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 			break;
 		case EPodcastDeleteShow:
 			HandleDeleteShowL();
+			UpdateListboxItemsL();
 			break;
 		case EPodcastDownloadShow:
 			{
@@ -619,6 +622,22 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 			{
 			DisplayShowInfoDialogL();
 			}break;
+		case EPodcastFilterShowsAll:
+			iPodcastModel.ShowEngine().SetShowFilter(EAllShows);
+			UpdateListboxItemsL();
+			break;
+		case EPodcastFilterShowsDownloaded:
+			iPodcastModel.ShowEngine().SetShowFilter(EDownloadedShows);
+			UpdateListboxItemsL();
+			break;			
+		case EPodcastFilterShowsNew:
+			iPodcastModel.ShowEngine().SetShowFilter(ENewShows);
+			UpdateListboxItemsL();
+			break;
+		case EPodcastFilterShowsNewAndDownloaded:
+			iPodcastModel.ShowEngine().SetShowFilter(ENewAndDownloadedShows);
+			UpdateListboxItemsL();
+			break;	
 		default:
 			CPodcastListView::HandleCommandL(aCommand);
 			break;

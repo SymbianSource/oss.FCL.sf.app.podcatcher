@@ -136,6 +136,7 @@ void CFeedEngine::RunFeedTimer()
 	
 		if (interval != 0)
 			{
+			DP1("Running feed timer with interval %d", interval);
 			iFeedTimer.SetPeriod(interval);
 			iFeedTimer.RunPeriodically();
 			}
