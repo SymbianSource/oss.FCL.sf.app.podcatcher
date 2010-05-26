@@ -338,7 +338,8 @@ void CPodcastShowsView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 					((CPodcastAppUi*)AppUi())->SetActiveTab(KTabIdQueue);
 					break;
 				case EDownloaded:
-					#pragma message("LAPER Replace activate playview with activate playback in mpx")
+					iPodcastModel.PlayPausePodcastL(showInfo, ETrue);
+					UpdateListboxItemsL();
 					break;
 				default:
 					break;

@@ -28,6 +28,9 @@
 #include <cmdestination.h>
 #include <cmmanager.h>
 #include <bautils.h>
+#include <aknserverapp.h>  // MAknServerAppExitObserver
+#include <DocumentHandler.h>
+
 
 const TInt KDefaultGranu = 5;
 _LIT(KDBFileName, "podcatcher.sqlite");
@@ -62,6 +65,7 @@ CPodcastModel::~CPodcastModel()
 	delete iConnectionEngine;
 	iCmManager.Close();
 	delete iImageHandler;
+	delete iDocHandler;
 }
 
 CPodcastModel::CPodcastModel()
@@ -77,6 +81,7 @@ void CPodcastModel::ConstructL()
 	iSNAPNameArray = new (ELeave) CDesCArrayFlat(KDefaultGranu);
 
 	iImageHandler = CImageHandler::NewL(FsSession(), *this);
+	iDocHandler = CDocumentHandler::NewL(CEikonEnv::Static()->Process());
 
 	TRAPD(err,iCmManager.OpenL());
 	DP1("iCmManager.OpenL(),err=%d;", err);
@@ -227,9 +232,16 @@ EXPORT_C CConnectionEngine& CPodcastModel::ConnectionEngine()
 	return *iConnectionEngine;
 }
 
-EXPORT_C void CPodcastModel::PlayPausePodcastL(CShowInfo* aPodcast, TBool aPlayOnInit) 
+EXPORT_C void CPodcastModel::PlayPausePodcastL(CShowInfo* aPodcast, TBool /* aPlayOnInit */) 
 	{
-	// TODO: interact with MPX
+	TRAPD(err, LaunchFileEmbeddedL(aPodcast->FileName()));
+	
+	if (err == KErrNone)
+		{
+		aPodcast->SetPlayState(EPlayed);
+		iShowEngine->UpdateShowL(*aPodcast);
+		}
+	
 	}
 
 EXPORT_C CFeedInfo* CPodcastModel::ActiveFeedInfo()
@@ -480,3 +492,20 @@ EXPORT_C CImageHandler& CPodcastModel::ImageHandler()
 	{
 	return *iImageHandler;
 	}
+
+void CPodcastModel::LaunchFileEmbeddedL(const TDesC& aFilename)
+    {
+    //Set the exit observer so HandleServerAppExit will be called
+    iDocHandler->SetExitObserver(this);   
+ 
+    TDataType emptyDataType = TDataType();
+    //Open a file embedded
+    iDocHandler->OpenFileEmbeddedL(aFilename, emptyDataType);             
+    }
+ 
+void CPodcastModel::HandleServerAppExit(TInt aReason)
+    {
+    //Handle closing the handler application
+    MAknServerAppExitObserver::HandleServerAppExit(aReason);
+    }
+

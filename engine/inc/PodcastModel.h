@@ -31,6 +31,8 @@
 #include "debug.h"
 #include <sqlite3.h>
 #include "ImageHandler.h"
+#include <aknserverapp.h>  // MAknServerAppExitObserver
+#include <DocumentHandler.h>
 
 // SQLite leaks memory when sorting, so to test our own memory leaks we need to disable this
 //#define DONT_SORT_SQL
@@ -52,7 +54,7 @@ public:
 /**
  * This class handles application storage needs and ownership of audioplayer, resource lists etc.
  */
-class CPodcastModel : public CBase, public MImageHandlerCallback
+class CPodcastModel : public CBase, public MImageHandlerCallback, public MAknServerAppExitObserver
 {
 public:
 	IMPORT_C static CPodcastModel* NewL();
@@ -100,7 +102,19 @@ protected:
 	void ResetDB();
 	void OpenDBL();
 	// From ImageHandler
-	void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel);
+	void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel);	
+
+private:  // Functions from base classes
+
+   /**
+     * From MAknServerAppExitObserver.
+     * Handles the exit of a connected server application.
+     */ 
+    void HandleServerAppExit(TInt aReason);
+
+private:  // Private functions
+    void LaunchFileEmbeddedL(const TDesC& aFilename);
+    
 private:	
    CShowInfo* iPlayingPodcast;
    
@@ -123,6 +137,7 @@ private:
    RCmManager iCmManager;
    TBool iIsFirstStartup;
    CImageHandler* iImageHandler;
+   CDocumentHandler* iDocHandler;
 };
 
 #endif // PODCASTMODEL_H

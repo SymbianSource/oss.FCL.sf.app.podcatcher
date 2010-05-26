@@ -68,5 +68,9 @@ LIBRARY imageconversion.lib
 LIBRARY bitmaptransforms.lib 
 LIBRARY eikcore.lib 
 LIBRARY mpxcollectionhelper.lib
+LIBRARY apmime.lib    // TDataType
+LIBRARY commonui.lib  // CDocumentHandler
+LIBRARY apparc.lib
+LIBRARY avkon.lib
 
 CAPABILITY NetworkServices UserEnvironment
