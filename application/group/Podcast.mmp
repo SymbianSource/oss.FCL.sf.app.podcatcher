@@ -20,7 +20,7 @@ TARGET			Podcast.exe
 TARGETTYPE  	exe
 UID				0x100039CE 0xA0009D00  
 
-CAPABILITY NetworkServices UserEnvironment
+CAPABILITY NetworkServices UserEnvironment WriteUserData ReadDeviceData WriteDeviceData MultimediaDD
 
 EPOCSTACKSIZE 81920
 EPOCHEAPSIZE 1024000 32768000

@@ -234,6 +234,7 @@ EXPORT_C CConnectionEngine& CPodcastModel::ConnectionEngine()
 
 EXPORT_C void CPodcastModel::PlayPausePodcastL(CShowInfo* aPodcast, TBool /* aPlayOnInit */) 
 	{
+	DP("CPodcastModel::PlayPausePodcastL BEGIN");
 	TRAPD(err, LaunchFileEmbeddedL(aPodcast->FileName()));
 	
 	if (err == KErrNone)
@@ -241,7 +242,11 @@ EXPORT_C void CPodcastModel::PlayPausePodcastL(CShowInfo* aPodcast, TBool /* aPl
 		aPodcast->SetPlayState(EPlayed);
 		iShowEngine->UpdateShowL(*aPodcast);
 		}
-	
+	else
+		{
+		User::Leave(err);
+		}
+	DP("CPodcastModel::PlayPausePodcastL END");
 	}
 
 EXPORT_C CFeedInfo* CPodcastModel::ActiveFeedInfo()

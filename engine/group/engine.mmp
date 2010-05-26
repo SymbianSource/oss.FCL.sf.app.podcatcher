@@ -73,4 +73,4 @@ LIBRARY commonui.lib  // CDocumentHandler
 LIBRARY apparc.lib
 LIBRARY avkon.lib
 
-CAPABILITY NetworkServices UserEnvironment
+CAPABILITY All -TCB

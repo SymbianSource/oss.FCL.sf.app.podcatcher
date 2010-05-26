@@ -338,8 +338,16 @@ void CPodcastShowsView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 					((CPodcastAppUi*)AppUi())->SetActiveTab(KTabIdQueue);
 					break;
 				case EDownloaded:
-					iPodcastModel.PlayPausePodcastL(showInfo, ETrue);
+					{
+					TRAPD(err, iPodcastModel.PlayPausePodcastL(showInfo, ETrue));
+					if (err != KErrNone)
+						{
+						HBufC *error = iEikonEnv->AllocReadResourceLC(R_ERROR_PLAYBACK_FAILED);
+						ShowErrorMessageL(*error);
+						CleanupStack::PopAndDestroy(error);
+						}
 					UpdateListboxItemsL();
+					}
 					break;
 				default:
 					break;

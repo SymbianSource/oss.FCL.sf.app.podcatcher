@@ -132,6 +132,7 @@ rls_string STRING_r_view_mark_as_unplayed_cmd_short "Mark new"
 rls_string STRING_r_view_download_show_cmd "Get"
 rls_string STRING_r_view_delete_show_cmd "Delete"
 rls_string STRING_r_view_show_info_cmd "Info"
+rls_string STRING_r_error_playback_failed "Could not play show"
 
 // Download queue operations
 rls_string STRING_r_suspend_download_cmd "Suspend"
