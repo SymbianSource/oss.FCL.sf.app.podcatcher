@@ -76,4 +76,5 @@ RESOURCE TBUF r_reset_db_query {buf = STRING_r_podcast_setting_reset_db_query;}
 
 RESOURCE TBUF r_error_disk_full {buf = STRING_r_error_disk_full; }
 RESOURCE TBUF r_about_text {buf = STRING_r_about_text_s60;}
+RESOURCE TBUF r_error_playback_failed {buf = STRING_r_error_playback_failed; }
 
