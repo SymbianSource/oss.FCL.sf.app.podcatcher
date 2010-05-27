@@ -149,6 +149,7 @@ void CPodcastSearchView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListB
 	switch(aEventType)
 	{
 	case EEventEnterKeyPressed:
+	case EEventItemSingleClicked:
 	case EEventItemDoubleClicked:
 	case EEventItemActioned:
 		{

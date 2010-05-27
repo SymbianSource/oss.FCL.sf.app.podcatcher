@@ -43,7 +43,7 @@ CPodcastAppUi::CPodcastAppUi(CPodcastModel* aPodcastModel):iPodcastModel(aPodcas
 void CPodcastAppUi::ConstructL()
     {
     DP("CPodcastAppUi::ConstructL() BEGIN");
-    BaseConstructL(CAknAppUi::EAknEnableSkin); 
+    BaseConstructL(CAknAppUi::EAknEnableSkin | CAknAppUi::EAknEnableMSK | CAknAppUi::EAknSingleClickCompatible); 
 
     iPodcastModel->ConnectionEngine().AddObserver(this);
     

@@ -203,7 +203,7 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 
 	switch(aEventType)
 		{
-	case EEventItemClicked:
+	case EEventItemSingleClicked:
 	case EEventEnterKeyPressed:
 	case EEventItemDoubleClicked:
 	case EEventItemActioned:

@@ -144,7 +144,7 @@ void CPodcastQueueView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 	{
 	switch (aEventType)
 		{
-		case EEventItemClicked:
+		case EEventItemSingleClicked:
 		case EEventEnterKeyPressed:		
 		case EEventItemActioned:
 		case EEventItemDoubleClicked:
