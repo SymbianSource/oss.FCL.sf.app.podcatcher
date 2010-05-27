@@ -20,7 +20,6 @@ RESOURCE AVKON_VIEW r_podcast_searchview
 {
 	menubar = r_podcast_searchview_menubar;
 	cba = R_AVKON_SOFTKEYS_OPTIONS_BACK;
-//	toolbar = r_searchview_toolbar;
 }
 
 
@@ -55,69 +54,6 @@ RESOURCE MENU_PANE r_podcast_searchview_menu
     }
 
 
-RESOURCE AVKON_TOOLBAR r_searchview_toolbar
-    {
-    flags = KAknToolbarFixed;
-    items =
-        {
-        TBAR_CTRL
-            {
-            type = EAknCtButton;
-            id = EPodcastSearch;
-            control = AVKON_BUTTON
-                {
-                states =
-                    {
-                    AVKON_BUTTON_STATE
-                        {
-                        //bmpfile = AVKON_BITMAP_FILE;
-                        //bmpid = EMbmAvkonQgn_indi_find_goto;
-                        txt = STRING_r_search;
-                        helptxt = STRING_r_update_all_feeds_cmd;
-                        }  
-                    };
-                };
-            },
-		TBAR_CTRL
-			  {
-			  type = EAknCtButton;
-			  id = EPodcastCancelUpdateAllFeeds;
-			  control = AVKON_BUTTON
-				  {
-				  states =
-					  {
-					  AVKON_BUTTON_STATE
-						  {
-						  //bmpfile = AVKON_BITMAP_FILE;
-						  //bmpid = EMbmAvkonQgn_indi_find_goto;
-						  txt = STRING_r_cancel_update_all_feeds_short_cmd;
-						  helptxt = STRING_r_cancel_update_all_feeds_cmd;
-						  }  
-					  };
-				  };
-			  }/*,
-		TBAR_CTRL
-			{
-			type = EAknCtButton;
-			id = EPodcastAddSearchResult;
-			control = AVKON_BUTTON
-				{
-				states =
-					{
-					AVKON_BUTTON_STATE
-						{
-						//bmpfile = AVKON_BITMAP_FILE;
-						//bmpid = EMbmAvkonQgn_indi_find_goto;
-						txt = STRING_r_view_add_feed_cmd_short;
-						helptxt = STRING_r_view_add_feed_cmd;
-					   }  
-					};
-				};
-			}*/
-			};// items
-    }
-
-
 RESOURCE CBA r_podcast_search_cba
 	{
 	buttons =
@@ -128,6 +64,7 @@ RESOURCE CBA r_podcast_search_cba
 			{id=EAknSoftkeyCancel; txt = STRING_r_cba_cancel;}
 		};
 	}
+
 RESOURCE DIALOG r_podcast_search_dlg
 {
 	buttons = r_podcast_search_cba;
@@ -155,7 +92,6 @@ RESOURCE DIALOG r_podcast_search_dlg
 	};
 }
 
-
 RESOURCE DIALOG r_waitdlg
 {
     flags = EAknWaitNoteFlags;
@@ -179,4 +115,3 @@ RESOURCE DIALOG r_waitdlg
             }
         };
 }
-
