@@ -29,6 +29,12 @@
 #include "MetaDataReader.h"
 #include <sqlite3.h>
 
+struct TDownload
+	{
+	TUint iIndex;
+	TUint iUid;
+	};
+
 class CShowEngine : public CBase, public MHttpClientObserver, public MMetaDataReaderObserver
 {
 public:
@@ -72,6 +78,9 @@ public:
 
 	IMPORT_C void CheckForDeletedShows(TUint aFeedUid);
 	IMPORT_C CMetaDataReader& MetaDataReader();
+	
+	IMPORT_C void MoveDownloadUpL(TUint aUid);
+	IMPORT_C void MoveDownloadDownL(TUint aUid);
 
 private:
 	// from HttpClientObserver, dont have to be public
@@ -122,6 +131,7 @@ private:
 	TUint DBGetDownloadsCountL();
 	void DBAddDownloadL(TUint aUid);
 	CShowInfo* DBGetNextDownloadL();
+	void DBSwapDownloadsL(TDownload aFirstDL, TDownload aSecondDL);
 	
 private:
 	CHttpClient* iShowClient;			

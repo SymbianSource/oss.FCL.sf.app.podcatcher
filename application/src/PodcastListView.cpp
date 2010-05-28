@@ -385,13 +385,14 @@ void CPodcastListView::PointerEventL(const TPointerEvent& aPointerEvent)
 void CPodcastListView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
 {
 	DP("CPodcastListView::HandleLongTapEventL BEGIN");
+	iListContainer->SetLongTapDetectedL(ETrue);
+	
 	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
 	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
 			iListContainer->Listbox()->Model()->NumberOfItems()) - KListboxDefaultHeight;
 
     if(iStylusPopupMenu && aPenEventLocation.iY < lbHeight)
     {
-		iListContainer->SetLongTapDetectedL(ETrue);
 		iStylusPopupMenu->ShowMenu();
 		iStylusPopupMenu->SetPosition(aPenEventLocation);
     }

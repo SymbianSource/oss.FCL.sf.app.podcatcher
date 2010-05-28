@@ -1025,6 +1025,52 @@ void CShowEngine::DBRemoveDownloadL(TUint aUid)
 		}
 	}
 
+void CShowEngine::DBSwapDownloadsL(TDownload aFirstDL, TDownload aSecondDL)
+	{
+	DP("CShowEngine::DBSwapDownloadsL");
+	_LIT(KSqlStatement, "update downloads set uid=%d where dl_index=%d");
+	
+	iSqlBuffer.Format(KSqlStatement, aFirstDL.iUid, aSecondDL.iIndex);
+	sqlite3_stmt *st;
+	int rc = sqlite3_prepare16_v2(&iDB, (const void*) iSqlBuffer.PtrZ(), -1,
+			&st, (const void**) NULL);
+	
+	if (rc == SQLITE_OK)
+		{
+		Cleanup_sqlite3_finalize_PushL(st);
+		rc = sqlite3_step(st);
+		if (rc != SQLITE_DONE)
+			{
+			User::Leave(KErrUnknown);
+			}
+		CleanupStack::PopAndDestroy(); // st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
+	
+	iSqlBuffer.Format(KSqlStatement, aSecondDL.iUid, aFirstDL.iIndex);
+	
+	rc = sqlite3_prepare16_v2(&iDB, (const void*) iSqlBuffer.PtrZ(), -1,
+			&st, (const void**) NULL);
+	
+	if (rc == SQLITE_OK)
+		{
+		Cleanup_sqlite3_finalize_PushL(st);
+		rc = sqlite3_step(st);
+		if (rc != SQLITE_DONE)
+			{
+			User::Leave(KErrUnknown);
+			}
+		CleanupStack::PopAndDestroy(); // st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
+	}
+
 EXPORT_C CShowInfo* CShowEngine::GetNextShowByTrackL(CShowInfo* aShowInfo)
 	{
 	CShowInfo* nextShow = NULL;
@@ -1384,6 +1430,132 @@ EXPORT_C void CShowEngine::CheckForDeletedShows(TUint aFeedUid)
 				TRAP_IGNORE(DBUpdateShowL(*shows[i]));
 				}
 			}
+		}
+	}
+
+EXPORT_C void CShowEngine::MoveDownloadUpL(TUint aUid)
+	{
+	DP("CShowEngine::MoveDownLoadUpL");
+	_LIT(KSqlStatement, "select * from downloads");
+	iSqlBuffer.Format(KSqlStatement);
+
+	sqlite3_stmt *st;
+
+	int rc = sqlite3_prepare16_v2(&iDB, (const void*) iSqlBuffer.PtrZ(), -1,
+			&st, (const void**) NULL);
+
+	if (rc == SQLITE_OK)
+		{
+		RArray<TDownload> downloads;
+		CleanupClosePushL(downloads);
+	
+		rc = sqlite3_step(st);
+		Cleanup_sqlite3_finalize_PushL(st);
+		
+		TInt selectedIdx = -1;
+		while (rc == SQLITE_ROW && selectedIdx == -1)
+			{
+			TDownload download;
+			
+			download.iIndex = sqlite3_column_int(st, 0);
+			download.iUid = sqlite3_column_int(st, 1);
+			
+			downloads.Append(download);
+			
+			if (download.iUid == aUid)
+				{
+				selectedIdx = downloads.Count()-1;
+				}
+			
+			rc = sqlite3_step(st);
+			}
+		CleanupStack::PopAndDestroy();//st, downloads
+		
+		// If the selected download was found in the database
+		if (selectedIdx != -1)
+			{
+			// Swap the specified download with the one above it
+			TDownload selectedDownload = downloads[selectedIdx];
+			TDownload previousDownload = downloads[selectedIdx - 1];
+			
+			// SQL - Update index (with index of selected download) where uid is of previous download
+			// and update index (with index of previous download) where uid if of selected download
+			DBSwapDownloadsL(selectedDownload, previousDownload);
+			}
+		else
+			{
+			User::Leave(KErrNotFound);
+			}
+		
+		CleanupStack::PopAndDestroy(); // downloads
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
+	}
+
+EXPORT_C void CShowEngine::MoveDownloadDownL(TUint aUid)
+	{
+	DP("CShowEngine::MoveDownLoadDownL");
+	
+	// An upside-down list will result in the download moving down
+	_LIT(KSqlStatement, "select * from downloads order by dl_index desc");
+	iSqlBuffer.Format(KSqlStatement);
+
+	sqlite3_stmt *st;
+
+	int rc = sqlite3_prepare16_v2(&iDB, (const void*) iSqlBuffer.PtrZ(), -1,
+			&st, (const void**) NULL);
+
+	if (rc == SQLITE_OK)
+		{
+		RArray<TDownload> downloads;
+		CleanupClosePushL(downloads);
+	
+		rc = sqlite3_step(st);
+		Cleanup_sqlite3_finalize_PushL(st);
+		
+		TInt selectedIdx = -1;
+		while (rc == SQLITE_ROW && selectedIdx == -1)
+			{
+			TDownload download;
+			
+			download.iIndex = sqlite3_column_int(st, 0);
+			download.iUid = sqlite3_column_int(st, 1);
+			
+			downloads.Append(download);
+			
+			if (download.iUid == aUid)
+				{
+				selectedIdx = downloads.Count()-1;
+				}
+			
+			rc = sqlite3_step(st);
+			}
+		CleanupStack::PopAndDestroy();//st, downloads
+		
+		// If the selected download was found in the database
+		if (selectedIdx != -1)
+			{
+			// Swap the specified download with the one above it
+			TDownload selectedDownload = downloads[selectedIdx];
+			TDownload previousDownload = downloads[selectedIdx - 1];
+			
+			// SQL - Update index (with index of selected download) where uid is of previous download
+			// and update index (with index of previous download) where uid if of selected download
+			DBSwapDownloadsL(selectedDownload, previousDownload);
+			}
+		else
+			{
+			User::Leave(KErrNotFound);
+			}
+		
+		CleanupStack::PopAndDestroy(); // downloads
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
 		}
 	}
 
