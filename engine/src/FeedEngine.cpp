@@ -378,8 +378,7 @@ void CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 	descPtr.Copy(aItem.Description());
 	PodcastUtils::SQLEncode(descPtr);
 	
-	_LIT(KSqlStatement, "insert into feeds (url, title, description, imageurl, imagefile, link, built, lastupdated, uid, feedtype, customtitle, lasterror)"
-			" values (\"%S\",\"%S\", \"%S\", \"%S\", \"%S\", \"%S\", \"%Ld\", \"%Ld\", \"%u\", \"%u\", \"%u\", \"%d\")");
+	_LIT(KSqlStatement, "insert into feeds (url, title, description, imageurl, imagefile, link, built, lastupdated, uid, feedtype, customtitle, lasterror) values (\"%S\",\"%S\", \"%S\", \"%S\", \"%S\", \"%S\", \"%Ld\", \"%Ld\", \"%u\", \"%u\", \"%u\", \"%d\")");
 	iSqlBuffer.Format(KSqlStatement,
 			&aItem.Url(), titleBuf, descBuf, &aItem.ImageUrl(), &aItem.ImageFileName(), &aItem.Link(),
 			aItem.BuildDate().Int64(), aItem.LastUpdated().Int64(), aItem.Uid(), EAudioPodcast, aItem.CustomTitle(), aItem.LastError());
@@ -491,8 +490,7 @@ void CFeedEngine::DBUpdateFeedL(const CFeedInfo &aItem)
 	descPtr.Copy(aItem.Description());
 	PodcastUtils::SQLEncode(descPtr);
 	
-	_LIT(KSqlStatement, "update feeds set url=\"%S\", title=\"%S\", description=\"%S\", imageurl=\"%S\", imagefile=\"%S\"," \
-			"link=\"%S\", built=\"%Lu\", lastupdated=\"%Lu\", feedtype=\"%u\", customtitle=\"%u\", lasterror=\"%d\" where uid=\"%u\"");
+	_LIT(KSqlStatement, "update feeds set url=\"%S\", title=\"%S\", description=\"%S\", imageurl=\"%S\", imagefile=\"%S\", link=\"%S\", built=\"%Lu\", lastupdated=\"%Lu\", feedtype=\"%u\", customtitle=\"%u\", lasterror=\"%d\" where uid=\"%u\"");
 	iSqlBuffer.Format(KSqlStatement,
 			&aItem.Url(), titleBuf, descBuf, &aItem.ImageUrl(), &aItem.ImageFileName(), &aItem.Link(),
 			aItem.BuildDate().Int64(), aItem.LastUpdated().Int64(), EAudioPodcast, aItem.CustomTitle(), aItem.LastError(), aItem.Uid());
