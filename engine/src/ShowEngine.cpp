@@ -540,6 +540,23 @@ void CShowEngine::DBGetShowsByFeedL(RShowInfoArray& aShowArray, TUint aFeedUid)
 	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype, lasterror from shows where feeduid=%u");
 	iSqlBuffer.Format(KSqlStatement, aFeedUid);
 
+	if (iShowFilter == ENewShows)
+		{
+		_LIT(KSqlStatementNewShows, " and playstate = 0"); // ENeverPlayed
+		iSqlBuffer.Append(KSqlStatementNewShows);
+		}
+	else if (iShowFilter == EDownloadedShows)
+		{
+	_LIT(KSqlStatementDownloadedShows, " and downloadstate = 4"); // EDownloaded
+		iSqlBuffer.Append(KSqlStatementDownloadedShows);
+		}
+	else if (iShowFilter == ENewAndDownloadedShows)
+		{
+	_LIT(KSqlStatementDownloadedAndNewShows, " and (downloadstate = 4 or playstate = 0)"); // EDownloaded or ENeverPlayed
+		iSqlBuffer.Append(KSqlStatementDownloadedAndNewShows);
+	
+		}
+	
 #ifndef DONT_SORT_SQL	
 	_LIT(KSqlOrderByDate, " order by pubdate desc");
 	iSqlBuffer.Append(KSqlOrderByDate);

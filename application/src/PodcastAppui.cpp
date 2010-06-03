@@ -173,6 +173,8 @@ CArrayFix<TCoeHelpContext>* CPodcastAppUi::HelpContextL() const
 		array->AppendL(TCoeHelpContext(KUidPodcast,KContextFeedsView));
     } else if (iShowsView->IsVisible()) {
 		array->AppendL(TCoeHelpContext(KUidPodcast,KContextShowsView));
+    } else if (iSearchView->IsVisible()) {
+		array->AppendL(TCoeHelpContext(KUidPodcast,KContextSearch));
     } else if (iQueueView->IsVisible()) {
 		array->AppendL(TCoeHelpContext(KUidPodcast,KContextDownloadQueue));
     } else {

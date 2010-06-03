@@ -36,6 +36,7 @@ class CFeedTimer : public CTimer
 	
 	private:
 		TInt iPeriodMinutes;
+		TTime iTriggerTime;
 		CFeedEngine *iFeedEngine;
 	};
 #endif

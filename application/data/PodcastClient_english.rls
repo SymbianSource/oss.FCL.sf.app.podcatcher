@@ -132,7 +132,12 @@ rls_string STRING_r_view_mark_as_unplayed_cmd_short "Mark new"
 rls_string STRING_r_view_download_show_cmd "Get"
 rls_string STRING_r_view_delete_show_cmd "Delete"
 rls_string STRING_r_view_show_info_cmd "Info"
-
+rls_string STRING_r_error_playback_failed "Could not play show"
+rls_string STRING_r_view_filter_shows_cmd "Show"
+rls_string STRING_r_view_filter_all_shows_cmd "All shows"
+rls_string STRING_r_view_filter_new_shows_cmd "Show new"
+rls_string STRING_r_view_filter_downloaded_shows_cmd "Show downloaded"
+rls_string STRING_r_view_filter_downloaded_new_shows_cmd "New and downloaded"
 // Download queue operations
 rls_string STRING_r_suspend_download_cmd "Suspend"
 rls_string STRING_r_view_resume_short_dls_cmd "Resume"
@@ -151,3 +156,4 @@ rls_string STRING_r_error_invalid_address "Error: Connection failed"
 rls_string STRING_r_error_general "Error: General error %d"
 rls_string STRING_r_error_http "Error: HTTP error %d"
 rls_string STRING_r_error_disk_full "Error: Disk full"
+

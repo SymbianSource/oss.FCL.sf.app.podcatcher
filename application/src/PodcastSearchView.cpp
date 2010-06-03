@@ -39,13 +39,8 @@
 #include <akntoolbarextension.h>
 
 const TInt KMaxFeedNameLength = 100;
-const TInt KDefaultGran = 5;
-const TInt KNumberOfFilesMaxLength = 4;
 #define KMaxMessageLength 200
 #define KMaxTitleLength 100
-const TInt KMimeBufLength = 100;
-
-_LIT(KUnknownUpdateDateString, "?/?");
 _LIT(KSearchResultFormat, "%d\t%S\t%S");
 
 CPodcastSearchView* CPodcastSearchView::NewL(CPodcastModel& aPodcastModel)
@@ -75,26 +70,16 @@ void CPodcastSearchView::ConstructL()
 	CArrayPtr< CGulIcon >* icons = new(ELeave) CArrayPtrFlat< CGulIcon >(1);
 	CleanupStack::PushL( icons );
 	
-	// Load the bitmap for empty icon	
 	CFbsBitmap* bitmap = NULL;
 	CFbsBitmap* mask = NULL;//	
 	
-	// Load the bitmap for feed icon	
-
-	// Load svg.-image and mask with a single call
-		AknIconUtils::CreateIconL(bitmap,
-		                          mask,
-		                          iEikonEnv->EikAppUi()->Application()->BitmapStoreName(),
-		                          EMbmPodcastFeed,
-		                          EMbmPodcastFeed_mask);
-		/*
-	bitmap = iEikonEnv->CreateBitmapL( _L("*"),EMbmPodcastFeed_40x40);*/
+	AknIconUtils::CreateIconL(bitmap,
+							  mask,
+							  iEikonEnv->EikAppUi()->Application()->BitmapStoreName(),
+							  EMbmPodcastFeed,
+							  EMbmPodcastFeed_mask);
 	CleanupStack::PushL( bitmap );		
-	// Load the mask for feed icon	
-	/*mask = iEikonEnv->CreateBitmapL( _L("*"),EMbmPodcastFeed_40x40m );	
-	*/
 	CleanupStack::PushL( mask );		
-	// Append the feed icon to icon array
 	icons->AppendL( CGulIcon::NewL( bitmap, mask ) );
 	CleanupStack::Pop(2); // bitmap, mask
 	
@@ -133,7 +118,6 @@ void CPodcastSearchView::DoActivateL(const TVwsViewId& aPrevViewId,
     ((CPodcastAppUi*)AppUi())->NaviSetTextL(R_SEARCH_RESULTS);
     
 	UpdateListboxItemsL();
-	UpdateToolbar();
 }
 
 void CPodcastSearchView::DoDeactivate()
@@ -273,20 +257,3 @@ void CPodcastSearchView::OpmlParsingComplete(TInt /*aError*/, TUint /*aNumFeedsI
 
 	DP("CPodcastSearchView::OpmlParsingComplete END");
 	}
-
-void CPodcastSearchView::UpdateToolbar(TBool aVisible)
-{
-	TBool disableAdd = iItemArray->MdcaCount() == 0 || iSearchRunning;
-	
-	CAknToolbar* toolbar = Toolbar();
-	
-	if (toolbar)
-		{
-		if (iListContainer->IsVisible()) {
-			toolbar->SetToolbarVisibility(aVisible);
-		}
-		toolbar->SetItemDimmed(EPodcastAddSearchResult, disableAdd, ETrue );
-		toolbar->HideItem(EPodcastSearch, iSearchRunning, ETrue );
-		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !iSearchRunning, ETrue);
-		}
-}

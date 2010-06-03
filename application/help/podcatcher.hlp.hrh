@@ -15,5 +15,6 @@ _LIT(KContextFeedsView,"ContextFeedsView"); //Feeds View
 _LIT(KContextShowsView,"ContextShowsView"); //Shows View
 _LIT(KContextDownloadQueue,"ContextDownloadQueue"); //Download Queue
 _LIT(KContextSettings,"ContextSettings"); //Settings
+_LIT(KContextSearch,"ContextSearch"); //Search
 
 #endif

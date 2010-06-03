@@ -34,6 +34,14 @@ struct TDownload
 	TUint iIndex;
 	TUint iUid;
 	};
+	
+typedef enum TShowFilter
+	{
+	EAllShows,
+	ENewShows,
+	EDownloadedShows,
+	ENewAndDownloadedShows
+	};
 
 class CShowEngine : public CBase, public MHttpClientObserver, public MMetaDataReaderObserver
 {
@@ -78,7 +86,7 @@ public:
 
 	IMPORT_C void CheckForDeletedShows(TUint aFeedUid);
 	IMPORT_C CMetaDataReader& MetaDataReader();
-	
+	IMPORT_C void SetShowFilter(TShowFilter aFilter);
 	IMPORT_C void MoveDownloadUpL(TUint aUid);
 	IMPORT_C void MoveDownloadDownL(TUint aUid);
 
@@ -139,19 +147,20 @@ private:
 	CPodcastModel& iPodcastModel;
 
 	// observers that will receive callbacks
-    RArray<MShowEngineObserver*> iObservers;
+    	RArray<MShowEngineObserver*> iObservers;
 
 	// The show we are currently downloading
 	CShowInfo* iShowDownloading;
-    TUint iDownloadErrors;
+    	TUint iDownloadErrors;
     
-    CMetaDataReader* iMetaDataReader;
+    	CMetaDataReader* iMetaDataReader;
     
-    RApaLsSession iApaSession;
+    	RApaLsSession iApaSession;
 	TBuf8<512> iRecogBuffer;
 	
 	sqlite3& iDB;
-    TBuf<KDefaultSQLDataBufferLength> iSqlBuffer;
+    	TBuf<KDefaultSQLDataBufferLength> iSqlBuffer;
+   	TShowFilter iShowFilter;
 };
 
 #endif /*SHOWENGINE_H_*/
