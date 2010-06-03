@@ -255,21 +255,25 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			break;
 		case EPodcastMoveDownloadUp:
 			{
+			//iPodcastModel.ShowEngine().SuspendDownloads();
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
 			if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
 				{
 				TRAP_IGNORE(iPodcastModel.ShowEngine().MoveDownloadUpL(iPodcastModel.ActiveShowList()[index]->Uid()));
 				}
+			//iPodcastModel.ShowEngine().ResumeDownloadsL();
 			UpdateListboxItemsL();
 			}
 			break;
 		case EPodcastMoveDownloadDown:
 			{
+			//iPodcastModel.ShowEngine().SuspendDownloads();			
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
 			if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
 				{
 				TRAP_IGNORE(iPodcastModel.ShowEngine().MoveDownloadDownL(iPodcastModel.ActiveShowList()[index]->Uid()));
 				}
+			//iPodcastModel.ShowEngine().ResumeDownloadsL();
 			UpdateListboxItemsL();
 			}
 			break;
