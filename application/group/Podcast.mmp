@@ -55,7 +55,7 @@ SOURCEPATH ..\data
 START RESOURCE Podcast.rss
 	HEADER
 	TARGETPATH resource\apps
-	LANG SC
+	LANG 01 04
 END
 
 START RESOURCE Podcast_reg.rss
