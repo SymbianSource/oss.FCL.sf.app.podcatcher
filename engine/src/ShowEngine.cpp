@@ -1450,6 +1450,11 @@ EXPORT_C void CShowEngine::CheckForDeletedShows(TUint aFeedUid)
 		}
 	}
 
+EXPORT_C void CShowEngine::SetShowFilter(TShowFilter aFilter)
+	{
+	iShowFilter = aFilter;
+	}
+
 EXPORT_C void CShowEngine::MoveDownloadUpL(TUint aUid)
 	{
 	DP("CShowEngine::MoveDownLoadUpL");

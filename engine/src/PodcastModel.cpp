@@ -226,7 +226,7 @@ EXPORT_C CConnectionEngine& CPodcastModel::ConnectionEngine()
 	return *iConnectionEngine;
 }
 
-EXPORT_C void CPodcastModel::PlayPausePodcastL(CShowInfo* aPodcast, TBool aPlayOnInit) 
+EXPORT_C void CPodcastModel::PlayPausePodcastL(CShowInfo* aPodcast, TBool /*aPlayOnInit*/) 
 	{
 	DP("CPodcastModel::PlayPausePodcastL BEGIN");
 	TRAPD(err, LaunchFileEmbeddedL(aPodcast->FileName()));

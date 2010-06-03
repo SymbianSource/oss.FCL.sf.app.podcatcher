@@ -44,7 +44,7 @@ typedef enum TShowFilter
 	};
 
 class CShowEngine : public CBase, public MHttpClientObserver, public MMetaDataReaderObserver
-{
+	{
 public:
 	IMPORT_C static CShowEngine* NewL(CPodcastModel& aPodcastModel);
 	IMPORT_C virtual ~CShowEngine();
@@ -151,17 +151,17 @@ private:
 
 	// The show we are currently downloading
 	CShowInfo* iShowDownloading;
-    	TUint iDownloadErrors;
+    TUint iDownloadErrors;
     
-    	CMetaDataReader* iMetaDataReader;
+    CMetaDataReader* iMetaDataReader;
     
-    	RApaLsSession iApaSession;
+    RApaLsSession iApaSession;
 	TBuf8<512> iRecogBuffer;
 	
 	sqlite3& iDB;
-    	TBuf<KDefaultSQLDataBufferLength> iSqlBuffer;
+    TBuf<KDefaultSQLDataBufferLength> iSqlBuffer;
    	TShowFilter iShowFilter;
-};
+	};
 
 #endif /*SHOWENGINE_H_*/
 
