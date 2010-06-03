@@ -132,6 +132,9 @@ TInt CT_PodcatcherEngine::AddFeedL( CStifItemParser& aItem )
         {
         TestModuleIf().Printf( i, KT_PodcatcherEngine, 
                                 KParam, i, &string );
+        
+        // Use this loop to gather the Feed Info
+        
         i++;
         }
 
