@@ -1045,7 +1045,7 @@ void CShowEngine::DBRemoveDownloadL(TUint aUid)
 void CShowEngine::DBSwapDownloadsL(TDownload aFirstDL, TDownload aSecondDL)
 	{
 	DP("CShowEngine::DBSwapDownloadsL");
-	_LIT(KSqlStatement, "update downloads set uid=%d where dl_index=%d");
+	_LIT(KSqlStatement, "update downloads set uid=%u where dl_index=%d");
 	
 	iSqlBuffer.Format(KSqlStatement, aFirstDL.iUid, aSecondDL.iIndex);
 	sqlite3_stmt *st;
