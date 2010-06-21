@@ -255,6 +255,52 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 				}
 			}
 			break;
+		case EPodcastMoveDownloadUp:
+			{
+			TInt index = iListContainer->Listbox()->CurrentItemIndex();
+			TBool resumeAfterMove = EFalse;
+			if (index == 1 && !iPodcastModel.SettingsEngine().DownloadSuspended())
+				{
+				iPodcastModel.ShowEngine().SuspendDownloads();
+				resumeAfterMove = ETrue;
+				}
+			
+			if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
+				{
+				TRAP_IGNORE(iPodcastModel.ShowEngine().MoveDownloadUpL(iPodcastModel.ActiveShowList()[index]->Uid()));
+				}
+			
+			if(resumeAfterMove)
+				{
+				iPodcastModel.ShowEngine().ResumeDownloadsL();
+				}
+				
+			UpdateListboxItemsL();
+			}
+			break;
+		case EPodcastMoveDownloadDown:
+			{
+			TInt index = iListContainer->Listbox()->CurrentItemIndex();
+			TBool resumeAfterMove = EFalse;
+			if (index == 0 && !iPodcastModel.SettingsEngine().DownloadSuspended())
+				{
+				iPodcastModel.ShowEngine().SuspendDownloads();
+				resumeAfterMove = ETrue;
+				}
+			
+			if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
+				{
+				TRAP_IGNORE(iPodcastModel.ShowEngine().MoveDownloadDownL(iPodcastModel.ActiveShowList()[index]->Uid()));
+				}
+			
+			if(resumeAfterMove)
+				{
+				iPodcastModel.ShowEngine().ResumeDownloadsL();
+				}
+			
+			UpdateListboxItemsL();
+			}
+			break;
 		case EPodcastSuspendDownloads:
 			{
 			iPodcastModel.ShowEngine().SuspendDownloads();
@@ -299,4 +345,30 @@ void CPodcastQueueView::UpdateToolbar(TBool aVisible)
 		toolbar->HideItem(EPodcastResumeDownloads,!iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);	
 		toolbar->SetItemDimmed(EPodcastRemoveDownload, itemCnt == 0, ETrue);		
 	}
+}
+
+void CPodcastQueueView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
+{
+	DP("CPodcastQueueView::HandleLongTapEventL BEGIN");
+	iListContainer->SetLongTapDetectedL(ETrue);
+	
+	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
+	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
+			iListContainer->Listbox()->Model()->NumberOfItems()) - KListboxDefaultHeight;
+
+    if(iStylusPopupMenu && aPenEventLocation.iY < lbHeight)
+    {
+		TBool dimDown = (iListContainer->Listbox()->CurrentItemIndex() >= iPodcastModel.ActiveShowList().Count() - 1 ?
+				ETrue : EFalse);
+		TBool dimUp = (iListContainer->Listbox()->CurrentItemIndex() <= 0 ?
+				ETrue : EFalse);
+		
+		iStylusPopupMenu->SetItemDimmed(EPodcastMoveDownloadDown, dimDown);
+		iStylusPopupMenu->SetItemDimmed(EPodcastMoveDownloadUp, dimUp);
+		
+		iStylusPopupMenu->ShowMenu();
+		iStylusPopupMenu->SetPosition(aPenEventLocation);
+    }
+    
+	DP("CPodcastQueueView::HandleLongTapEventL END");
 }

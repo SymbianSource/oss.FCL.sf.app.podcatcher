@@ -163,4 +163,6 @@ EXPORTS
 	?DropDB@CPodcastModel@@QAEXXZ @ 162 NONAME ; void CPodcastModel::DropDB(void)
 	?CheckForDeletedShows@CShowEngine@@QAEXI@Z @ 163 NONAME ; void CShowEngine::CheckForDeletedShows(unsigned int)
 	?IsVideoShow@PodcastUtils@@SAHAAVTDesC16@@@Z @ 164 NONAME ; int PodcastUtils::IsVideoShow(class TDesC16 &)
+	?MoveDownloadUpL@CShowEngine@@QAEXI@Z @ 165 NONAME ; void CShowEngine::MoveDownloadUpL(unsigned int)
+	?MoveDownloadDownL@CShowEngine@@QAEXI@Z @ 166 NONAME ; void CShowEngine::MoveDownloadDownL(unsigned int)
 

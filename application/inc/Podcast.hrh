@@ -44,6 +44,8 @@ enum TPodcastCommandIds
 	EPodcastDownloadShow,
 	EPodcastDeleteShow,
 	EPodcastRemoveDownload,
+	EPodcastMoveDownloadUp,
+	EPodcastMoveDownloadDown,
 	EPodcastRemoveAllDownloads,
 	EPodcastSuspendDownloads,
 	EPodcastResumeDownloads,

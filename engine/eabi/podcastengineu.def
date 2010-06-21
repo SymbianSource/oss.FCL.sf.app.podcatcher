@@ -199,4 +199,6 @@ EXPORTS
 	_ZTV9CShowInfo @ 198 NONAME
 	_ZN11CShowEngine20CheckForDeletedShowsEj @ 199 NONAME
 	_ZN12PodcastUtils11IsVideoShowER7TDesC16 @ 200 NONAME
+	_ZN11CShowEngine15MoveDownloadUpLEj @ 201 NONAME
+	_ZN11CShowEngine17MoveDownloadDownLEj @ 202 NONAME
 

@@ -143,6 +143,8 @@ rls_string STRING_r_view_remove_all_downloads_cmd_short "Clear"
 rls_string STRING_r_view_remove_all_downloads_cmd "Clear download queue"
 rls_string STRING_r_clear_query "Clear download queue?"
 rls_string STRING_r_view_remove_download_short_cmd "Remove"
+rls_string STRING_r_view_move_up_short_cmd "Move up"
+rls_string STRING_r_view_move_down_short_cmd "Move down"
 rls_string STRING_r_view_remove_download_cmd "Remove download"
 
 rls_string STRING_r_error_notfound "Error: Not found on server"
