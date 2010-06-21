@@ -357,7 +357,7 @@ EXPORT_C TBool CFeedEngine::AddFeedL(const CFeedInfo&aItem)
 
 void CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 	{
-	DP2("CFeedEngine::DBAddFeed, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
+	DP2("CFeedEngine::DBAddFeed BEGIN, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 	
 	CFeedInfo *info;
 	
@@ -405,6 +405,7 @@ void CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 		{
 		User::Leave(KErrCorrupt);
 		}
+	DP("CFeedEngine::DBAddFeed END");
 	}
 
 EXPORT_C void CFeedEngine::RemoveFeedL(TUint aUid) 
@@ -450,7 +451,7 @@ EXPORT_C void CFeedEngine::RemoveFeedL(TUint aUid)
 
 void CFeedEngine::DBRemoveFeedL(TUint aUid)
 	{
-	DP("CFeedEngine::DBRemoveFeed");
+	DP("CFeedEngine::DBRemoveFeed BEGIN");
 	_LIT(KSqlStatement, "delete from feeds where uid=%u");
 	iSqlBuffer.Format(KSqlStatement, aUid);
 
@@ -474,11 +475,12 @@ void CFeedEngine::DBRemoveFeedL(TUint aUid)
 		{
 		User::Leave(KErrCorrupt);
 		}
+	DP("CFeedEngine::DBRemoveFeed END");
 	}
 
 void CFeedEngine::DBUpdateFeedL(const CFeedInfo &aItem)
 	{
-	DP2("CFeedEngine::DBUpdateFeed, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
+	DP2("CFeedEngine::DBUpdateFeed BEGIN, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 	
 	HBufC* titleBuf = HBufC::NewLC(KMaxLineLength);
 	TPtr titlePtr(titleBuf->Des());
@@ -517,6 +519,7 @@ void CFeedEngine::DBUpdateFeedL(const CFeedInfo &aItem)
 		{
 		User::Leave(KErrCorrupt);
 		}
+	DP("CFeedEngine::DBUpdateFeed END");
 	}
 
 void CFeedEngine::ParsingCompleteL(CFeedInfo *item)
@@ -998,7 +1001,7 @@ void CFeedEngine::DBLoadFeedsL()
 
 CFeedInfo* CFeedEngine::DBGetFeedInfoByUidL(TUint aFeedUid)
 	{
-	DP("CFeedEngine::DBGetFeedInfoByUid");
+	DP("CFeedEngine::DBGetFeedInfoByUid BEGIN");
 	CFeedInfo *feedInfo = NULL;
 	_LIT(KSqlStatement, "select url, title, description, imageurl, imagefile, link, built, lastupdated, uid, feedtype, customtitle, lasterror from feeds where uid=%u");
 	iSqlBuffer.Format(KSqlStatement, aFeedUid);
@@ -1067,7 +1070,7 @@ CFeedInfo* CFeedEngine::DBGetFeedInfoByUidL(TUint aFeedUid)
 		{
 		User::Leave(KErrNotFound);
 		}
-	
+	DP("CFeedEngine::DBGetFeedInfoByUid END");
 	return feedInfo;
 }
 
