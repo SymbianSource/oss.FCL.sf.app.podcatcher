@@ -586,7 +586,13 @@ void CPodcastFeedView::HandleAddFeedL()
 			CleanupStack::PopAndDestroy(waitText);	
 	
 			iOpmlState = EOpmlSearching;
-			iPodcastModel.FeedEngine().SearchForFeedL(url);
+			TRAPD(err, iPodcastModel.FeedEngine().SearchForFeedL(url));
+			
+			if (err != KErrNone)
+				{
+				delete iWaitDialog;
+				iOpmlState = EOpmlIdle;
+				}
 			}
 		else
 			{
@@ -846,6 +852,8 @@ void CPodcastFeedView::OpmlParsingCompleteL(TInt aError, TUint aNumFeedsImported
 			{
 			TBuf<KMaxMessageLength> message;
 			iEikonEnv->ReadResourceL(message, R_PODCAST_CONNECTION_ERROR);
+			delete iWaitDialog;
+			iOpmlState = EOpmlIdle;
 			ShowErrorMessageL(message);
 			}
 			break;
