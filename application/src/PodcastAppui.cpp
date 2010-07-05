@@ -329,21 +329,22 @@ void CPodcastAppUi::TabRightL()
 
 void CPodcastAppUi::ConnectionSelectionStart()
 	{
-	DP("CPodcastAppUi::ConnectionSelectionStart()");
+	DP("CPodcastAppUi::ConnectionSelectionStart() BEGIN");
 	iFeedView->UpdateToolbar(EFalse);
 	iShowsView->UpdateToolbar(EFalse);
 	iQueueView->UpdateToolbar(EFalse);
 	iSearchView->UpdateToolbar(EFalse);
+	DP("CPodcastAppUi::ConnectionSelectionStart() END");
 	}
 
 void CPodcastAppUi::ConnectionSelectionEnd()
 	{
-	DP("CPodcastAppUi::ConnectionSelectionEnd()");
-	iFeedView->UpdateToolbar(ETrue);
+	DP("CPodcastAppUi::ConnectionSelectionEnd() BEGIN");
 	iFeedView->UpdateToolbar(ETrue);
 	iShowsView->UpdateToolbar(ETrue);
 	iQueueView->UpdateToolbar(ETrue);
 	iSearchView->UpdateToolbar(ETrue);
+	DP("CPodcastAppUi::ConnectionSelectionEnd() END");
 	}
 
 void CPodcastAppUi::GetErrorTextL(TDes &aErrorMessage, TInt aErrorCode)

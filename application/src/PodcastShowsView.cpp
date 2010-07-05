@@ -690,7 +690,7 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 			toolbar->SetToolbarVisibility(aVisible);
 		}
 	
-		TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && 
+		TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && iPodcastModel.ActiveFeedInfo() && 
 				iPodcastModel.FeedEngine().ActiveClientUid() == iPodcastModel.ActiveFeedInfo()->Uid();
 	
 		toolbar->HideItem(EPodcastUpdateFeed, updatingState, ETrue ); 
