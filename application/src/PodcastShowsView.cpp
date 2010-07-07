@@ -297,10 +297,9 @@ void CPodcastShowsView::FeedDownloadStartedL(TFeedState /*aState*/, TUint aFeedU
 void CPodcastShowsView::FeedDownloadFinishedL(TFeedState /*aState*/, TUint aFeedUid, TInt /*aError*/)
 	{
 	DP("CPodcastShowsView::FeedDownloadFinishedL BEGIN");
-	// TODO make use of the fact that we know that the feed download is
-	// finished instead of checking feed engine states in UpdateFeedUpdateStateL.
-	if (iPodcastModel.ActiveFeedInfo() != NULL
-			&& iPodcastModel.ActiveFeedInfo()->Uid() == aFeedUid)
+	if (iListContainer->IsVisible() &&
+			iPodcastModel.ActiveFeedInfo() != NULL &&
+			iPodcastModel.ActiveFeedInfo()->Uid() == aFeedUid)
 		{
 		UpdateFeedUpdateStateL();
 		UpdateViewTitleL();
