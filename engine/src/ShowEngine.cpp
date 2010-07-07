@@ -176,12 +176,7 @@ void CShowEngine::Disconnected(CHttpClient* /*aClient */)
 
 void CShowEngine::DownloadInfo(CHttpClient* aHttpClient, TInt aTotalBytes)
 	{
-	DP1("About to download %d bytes", aTotalBytes);
-	if (aHttpClient == iShowClient && iShowDownloading != NULL
-			&& aTotalBytes != -1)
-		{
-		iShowDownloading->SetShowSize(aTotalBytes);
-		}
+	DP1("CShowEngine::DownloadInfo, About to download %d bytes", aTotalBytes);
 	}
 
 void CShowEngine::GetShowL(CShowInfo *info)
