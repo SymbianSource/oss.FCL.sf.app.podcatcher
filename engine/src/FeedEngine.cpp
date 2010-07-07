@@ -698,10 +698,6 @@ void CFeedEngine::Disconnected(CHttpClient* /*aClient*/)
 
 void CFeedEngine::DownloadInfo(CHttpClient* /*aHttpClient */, int /*aTotalBytes*/)
 	{	
-	/*DP1("About to download %d bytes", aTotalBytes);
-	if(aHttpClient == iShowClient && iShowDownloading != NULL && aTotalBytes != -1) {
-		iShowDownloading->iShowSize = aTotalBytes;
-		}*/
 	}
 
 EXPORT_C void CFeedEngine::ImportFeedsL(const TDesC& aFile)

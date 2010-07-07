@@ -58,7 +58,7 @@ private:
 
 private:
 	TBool iVerbose;
-	TBool iSavingResponseBody;
+	TBool iFileOpen;
 	RFs& iFileServ;
 	RFile iRespBodyFile;
 	TFileName iFileName;
