@@ -208,6 +208,14 @@ void CConnectionEngine::StartL(TConnectionType aConnectionType)
 	iConnectionState = CConnectionEngine::EConnecting;
 	}
 
+void CConnectionEngine::Stop()
+	{
+	DP("CConnectionEngine::Stop");
+	iConnection.Stop();
+	iConnectionState = CConnectionEngine::ENotConnected;
+	}
+
+
 RConnection& CConnectionEngine::Connection()
 	{
 	return iConnection;	

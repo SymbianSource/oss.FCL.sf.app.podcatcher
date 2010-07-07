@@ -37,11 +37,8 @@
 const TInt KMaxFeedNameLength = 100;
 const TInt KMaxUnplayedFeedsLength =64;
 const TInt KADayInHours = 24;
-//const TInt KDefaultGran = 5;
-//const TInt KNumberOfFilesMaxLength = 4;
 #define KMaxMessageLength 200
 #define KMaxTitleLength 100
-//const TInt KMimeBufLength = 100;
 
 _LIT(KFeedFormat, "%d\t%S\t%S%S");
 enum 
@@ -228,13 +225,14 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 
 void CPodcastFeedView::FeedUpdateAllCompleteL(TFeedState /*aState*/)
 	{
-	iUpdatingAllRunning = EFalse;
+	iUpdatingRunning = EFalse;
 	UpdateToolbar();
 	}
 
 void CPodcastFeedView::FeedDownloadStartedL(TFeedState /*aState*/, TUint aFeedUid)
 	{
 	// Update status text
+	iUpdatingRunning = ETrue;
 	UpdateFeedInfoStatusL(aFeedUid, ETrue);
 	
 	UpdateToolbar();
@@ -503,7 +501,6 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 			break;
 		case EPodcastUpdateAllFeeds:
 			{
-			iUpdatingAllRunning = ETrue;			
 			iPodcastModel.FeedEngine().UpdateAllFeedsL();
 			UpdateToolbar();
 			}break;
@@ -513,9 +510,8 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 			}break;
 		case EPodcastCancelUpdateAllFeeds:
 			{
-			if(iUpdatingAllRunning)
+			if(iUpdatingRunning)
 				{
-				iUpdatingAllRunning = EFalse;
 				iPodcastModel.FeedEngine().CancelUpdateAllFeeds();
 				}
 			}break;
@@ -564,10 +560,10 @@ void CPodcastFeedView::UpdateToolbar(TBool aVisible)
 		if (iListContainer->IsVisible()) {
 			toolbar->SetToolbarVisibility(aVisible);
 		}
-		toolbar->HideItem(EPodcastUpdateAllFeeds, iUpdatingAllRunning, ETrue);
-		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !iUpdatingAllRunning, ETrue );
-		toolbar->SetItemDimmed(EPodcastAddFeed, iUpdatingAllRunning, ETrue );
-		toolbar->SetItemDimmed(EPodcastSettings, iUpdatingAllRunning, ETrue );
+		toolbar->HideItem(EPodcastUpdateAllFeeds, iUpdatingRunning, ETrue);
+		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !iUpdatingRunning, ETrue );
+		toolbar->SetItemDimmed(EPodcastAddFeed, iUpdatingRunning, ETrue );
+		toolbar->SetItemDimmed(EPodcastSettings, iUpdatingRunning, ETrue );
 		}
 	DP("CPodcastFeedView::UpdateToolbar END");
 }

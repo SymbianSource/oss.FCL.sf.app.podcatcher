@@ -38,8 +38,6 @@ _LIT(KSizeDownloadingOf, "%.1f/%.1f MB");
 _LIT(KShowsSizeFormatS60, "%.1f MB");
 
 _LIT(KShowFormat, "%d\t%S\t%S%S\t");
-//_LIT(KShowErrorFormat, "%d\t%S\t%S\t");
-//_LIT(KShowQueueFormat, "%d\t%S\t%S%S\t");
 
 // these must correspond with TShowsIconIndex
 

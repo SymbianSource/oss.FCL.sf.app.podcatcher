@@ -381,26 +381,32 @@ public:
 			case EPodcastSettingShowDir:
 				DP("EPodcastSettingShowDir");
 				return new (ELeave) CAknTextSettingItem(aSettingId, iShowDir);
+				break;
 			case EPodcastSettingAutoUpdate:
 				DP("EPodcastSettingAutoUpdate");
 				iSettingAutoUpdate = new (ELeave) CAknEnumeratedTextPopupSettingItem(aSettingId, iAutoUpdate);
 				return iSettingAutoUpdate;
+				break;
 			case EPodcastSettingConnection:
 				DP("EPodcastSettingConnection");
 				return new (ELeave) CConnectionSetting (aSettingId, iConnection, iPodcastModel);
+				break;
 			case EPodcastSettingIAPList:
 				DP("EPodcastSettingIAPList");
 				iSettingIAP = new (ELeave) CIapSetting (aSettingId, iIap, iPodcastModel);
 				return iSettingIAP;
+				break;
 			case EPodcastSettingAutoDownload:
 				DP("EPodcastSettingAutoDownload");
 				iSettingAutoDownload = new (ELeave) CAknBinaryPopupSettingItem (aSettingId, iAutoDownload);
 				return iSettingAutoDownload;
+				break;
 			default:
 				return CAknSettingItemList::CreateSettingItemL(aSettingId);
+				break;
 			}
-		//DP("CreateSettingItemL END");
-		//return NULL;
+		DP("CreateSettingItemL END");
+		return NULL;	
 		}
 	
 	TFileName iShowDir;

@@ -67,12 +67,11 @@ void CPodcastQueueView::ConstructL()
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);
 	
-
-	// no popup options apply to S^1
 	iStylusPopupMenu = CAknStylusPopUpMenu::NewL( this , TPoint(0,0));
 	TResourceReader reader;
 	iCoeEnv->CreateResourceReaderLC(reader,R_QUEUEVIEW_POPUP_MENU);
 	iStylusPopupMenu->ConstructFromResourceL(reader);
+
 	CleanupStack::PopAndDestroy();
 
 	SetEmptyTextL(R_PODCAST_EMPTY_QUEUE);
@@ -322,30 +321,33 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 	}
 	
 void CPodcastQueueView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane)
-{
+	{
 	if(aResourceId == R_PODCAST_SHOWSVIEW_MENU)
 		{
 		aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, ETrue);
 		}
-}
+	}
 
 void CPodcastQueueView::UpdateToolbar(TBool aVisible)
-{
+	{
 	CAknToolbar* toolbar = Toolbar();
 	
-	if (toolbar) {
+	if (toolbar)
+		{
 		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
 		TInt itemCnt = fItems.Count();
-		if (iListContainer->IsVisible()) {
+		if (iListContainer->IsVisible()) 
+			{
 			toolbar->SetToolbarVisibility(aVisible);
-		}
+			}
+		
 		toolbar->HideItem(EPodcastRemoveAllDownloads, EFalse, ETrue);
 		toolbar->SetItemDimmed(EPodcastRemoveAllDownloads, itemCnt == 0, ETrue);
 		toolbar->HideItem(EPodcastSuspendDownloads,iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);
 		toolbar->HideItem(EPodcastResumeDownloads,!iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);	
 		toolbar->SetItemDimmed(EPodcastRemoveDownload, itemCnt == 0, ETrue);		
+		}
 	}
-}
 
 void CPodcastQueueView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
 {

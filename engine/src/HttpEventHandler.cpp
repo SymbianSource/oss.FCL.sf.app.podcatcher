@@ -114,7 +114,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 						TInt err = iRespBodyFile.Open(iFileServ, iParsedFileName.FullName(),EFileWrite);
 						if (err)
 							{
-							DP2("There was an error opening file '%S', err=%d", &iParsedFileName.FullName(), err);
+							DP2("There was an error=%d opening file '%S'", err, &iParsedFileName.FullName());
 							iSavingResponseBody = EFalse;
 							iHttpClient->ClientRequestCompleteL(KErrInUse);
 							User::Leave(err);
@@ -242,6 +242,7 @@ TInt CHttpEventHandler::MHFRunError(TInt aError, RHTTPTransaction aTransaction, 
 
 void CHttpEventHandler::SetSaveFileName(const TDesC &fName, TBool aContinue)
 	{
+	DP1("CHttpEventHandler::SetSaveFileName, aContinue=%d", aContinue);
 	iFileName.Copy(fName);
 	iContinue = aContinue;
 	}
