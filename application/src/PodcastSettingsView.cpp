@@ -543,6 +543,7 @@ void CPodcastSettingsView::HandleCommandL(TInt aCommand)
 		}
 		break;
 	case EPodcastResetDb:
+		{
 		CAknQueryDialog* dlg= new(ELeave) CAknQueryDialog();
 		
 		CleanupStack::PushL(dlg);
@@ -555,9 +556,12 @@ void CPodcastSettingsView::HandleCommandL(TInt aCommand)
 			iPodcastModel.DropDB();
 			AppUi()->Exit();
 			}
+		}
 		break;
 	default:
+		{
 		AppUi()->HandleCommandL(aCommand);
+		}
 		break;
 	}
 }

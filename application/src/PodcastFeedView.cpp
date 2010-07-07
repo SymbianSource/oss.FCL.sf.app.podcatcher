@@ -37,11 +37,8 @@
 const TInt KMaxFeedNameLength = 100;
 const TInt KMaxUnplayedFeedsLength =64;
 const TInt KADayInHours = 24;
-const TInt KDefaultGran = 5;
-const TInt KNumberOfFilesMaxLength = 4;
 #define KMaxMessageLength 200
 #define KMaxTitleLength 100
-const TInt KMimeBufLength = 100;
 
 _LIT(KFeedFormat, "%d\t%S\t%S%S");
 enum 
@@ -227,13 +224,14 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 
 void CPodcastFeedView::FeedUpdateAllCompleteL(TFeedState /*aState*/)
 	{
-	iUpdatingAllRunning = EFalse;
+	iUpdatingRunning = EFalse;
 	UpdateToolbar();
 	}
 
 void CPodcastFeedView::FeedDownloadStartedL(TFeedState /*aState*/, TUint aFeedUid)
 	{
 	// Update status text
+	iUpdatingRunning = ETrue;
 	UpdateFeedInfoStatusL(aFeedUid, ETrue);
 	
 	UpdateToolbar();
@@ -420,6 +418,7 @@ void CPodcastFeedView::UpdateFeedInfoDataL(CFeedInfo* aFeedInfo, TInt aIndex, TB
 
 void CPodcastFeedView::UpdateListboxItemsL()
 	{
+	DP("CPodcastFeedView::UpdateListboxItemsL BEGIN");
 	// No reason to do any work if it isn't going to show..
 	if(!iListContainer->IsVisible())
 		{
@@ -465,7 +464,8 @@ void CPodcastFeedView::UpdateListboxItemsL()
 		itemProps.SetHiddenSelection(ETrue);								
 		iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(0, itemProps);
 		}
-	iListContainer->Listbox()->HandleItemAdditionL();		
+	iListContainer->Listbox()->HandleItemAdditionL();
+	DP("CPodcastFeedView::UpdateListboxItemsL END");
 	}
 
 /** 
@@ -475,7 +475,8 @@ void CPodcastFeedView::UpdateListboxItemsL()
  */
 void CPodcastFeedView::HandleCommandL(TInt aCommand)
 	{
-	//CloseToolbarExtension();
+	DP("CPodcastFeedView::HandleCommandL BEGIN");
+
 	switch(aCommand)
 		{
         case EPodcastHide:
@@ -499,7 +500,6 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 			break;
 		case EPodcastUpdateAllFeeds:
 			{
-			iUpdatingAllRunning = ETrue;			
 			iPodcastModel.FeedEngine().UpdateAllFeedsL();
 			UpdateToolbar();
 			}break;
@@ -509,9 +509,8 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 			}break;
 		case EPodcastCancelUpdateAllFeeds:
 			{
-			if(iUpdatingAllRunning)
+			if(iUpdatingRunning)
 				{
-				iUpdatingAllRunning = EFalse;
 				iPodcastModel.FeedEngine().CancelUpdateAllFeeds();
 				}
 			}break;
@@ -547,10 +546,12 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 	
 	iListContainer->SetLongTapDetectedL(EFalse); // in case we got here by long tapping
 	UpdateToolbar();
+	DP("CPodcastFeedView::HandleCommandL END");
 	}
 
 void CPodcastFeedView::UpdateToolbar(TBool aVisible)
 {
+	DP("CPodcastFeedView::UpdateToolbar BEGIN");
 	CAknToolbar* toolbar = Toolbar();
 	
 	if (toolbar)
@@ -558,11 +559,12 @@ void CPodcastFeedView::UpdateToolbar(TBool aVisible)
 		if (iListContainer->IsVisible()) {
 			toolbar->SetToolbarVisibility(aVisible);
 		}
-		toolbar->HideItem(EPodcastUpdateAllFeeds, iUpdatingAllRunning, ETrue);
-		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !iUpdatingAllRunning, ETrue );
-		toolbar->SetItemDimmed(EPodcastAddFeed, iUpdatingAllRunning, ETrue );
-		toolbar->SetItemDimmed(EPodcastSettings, iUpdatingAllRunning, ETrue );
+		toolbar->HideItem(EPodcastUpdateAllFeeds, iUpdatingRunning, ETrue);
+		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !iUpdatingRunning, ETrue );
+		toolbar->SetItemDimmed(EPodcastAddFeed, iUpdatingRunning, ETrue );
+		toolbar->SetItemDimmed(EPodcastSettings, iUpdatingRunning, ETrue );
 		}
+	DP("CPodcastFeedView::UpdateToolbar END");
 }
 
 void CPodcastFeedView::HandleAddFeedL()

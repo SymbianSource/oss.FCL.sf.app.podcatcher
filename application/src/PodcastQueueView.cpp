@@ -73,7 +73,7 @@ void CPodcastQueueView::ConstructL()
 	iStylusPopupMenu->ConstructFromResourceL(reader);
 
 	CleanupStack::PopAndDestroy();
-	
+
 	SetEmptyTextL(R_PODCAST_EMPTY_QUEUE);
 	}
 

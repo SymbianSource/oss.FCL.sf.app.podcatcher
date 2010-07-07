@@ -40,12 +40,12 @@ RESOURCE MENU_PANE r_podcast_showsview_menu
 			command = EPodcastMarkAllPlayed;
 			txt = STRING_r_view_mark_all_played_cmd;
 			},
-		MENU_ITEM
-			{
-			command = EPodcastFilterShows;
-			txt = STRING_r_view_filter_shows_cmd;
-			cascade = r_filtershows_menu;
-			},
+//		MENU_ITEM
+//			{
+//			command = EPodcastFilterShows;
+//			txt = STRING_r_view_filter_shows_cmd;
+//			cascade = r_filtershows_menu;
+//			},
 		MENU_ITEM
 			{
 			command = EPodcastAbout;

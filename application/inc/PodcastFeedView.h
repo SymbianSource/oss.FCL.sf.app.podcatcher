@@ -113,7 +113,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 
 	private:
 		CPodcastModel& iPodcastModel;		
-		TBool iUpdatingAllRunning;
+		TBool iUpdatingRunning;
 		HBufC* iFeedsFormat;
 		HBufC* iNeverUpdated;
 		CPodcastFeedViewUpdater* iUpdater;

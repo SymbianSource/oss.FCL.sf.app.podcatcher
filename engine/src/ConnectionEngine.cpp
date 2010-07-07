@@ -117,9 +117,9 @@ void CConnectionEngine::NewCarrierActive( TAccessPointInfo /*aNewAPInfo*/, TBool
 		}
 	}
 
-void CConnectionEngine::Error( TInt aError )
+void CConnectionEngine::Error( TInt /*aError*/ )
 	{
-	DP1("CConnectionEngine::Error, aError=%d", aError)
+
 	}
 
 TBool CConnectionEngine::ConnectionSettingL()

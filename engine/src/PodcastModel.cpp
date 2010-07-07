@@ -31,6 +31,7 @@
 #include <aknserverapp.h>  // MAknServerAppExitObserver
 #include <DocumentHandler.h>
 
+
 const TInt KDefaultGranu = 5;
 _LIT(KDBFileName, "podcatcher.sqlite");
 _LIT(KDBTemplateFileName, "podcatcher.sqlite.template");
@@ -75,21 +76,26 @@ void CPodcastModel::ConstructL()
 {
 	DP("CPodcastModel::ConstructL BEGIN");
 	User::LeaveIfError(iFsSession.Connect());
-	
 	iCommDB = CCommsDatabase::NewL (EDatabaseTypeUnspecified);
-	//iCommDB ->ShowHiddenRecords(); // magic
 	iIapNameArray = new (ELeave) CDesCArrayFlat(KDefaultGranu);
 	iSNAPNameArray = new (ELeave) CDesCArrayFlat(KDefaultGranu);
-	iCmManager.OpenL();
+
 	iImageHandler = CImageHandler::NewL(FsSession(), *this);
 	iDocHandler = CDocumentHandler::NewL(CEikonEnv::Static()->Process());
-	UpdateIAPListL();
-	UpdateSNAPListL();
+
+	TRAPD(err,iCmManager.OpenL());
+	DP1("iCmManager.OpenL(),err=%d;", err);
+	
+	if (err == KErrNone)
+		{
+		UpdateIAPListL();
+		UpdateSNAPListL();
+		}
 	
 	iSettingsEngine = CSettingsEngine::NewL(*this);
 	iConnectionEngine = CConnectionEngine::NewL(*this);	
 	
-	TRAPD(err, OpenDBL());
+	TRAP(err, OpenDBL());
 	
 	if (err != KErrNone)
 		{
@@ -226,7 +232,7 @@ EXPORT_C CConnectionEngine& CPodcastModel::ConnectionEngine()
 	return *iConnectionEngine;
 }
 
-EXPORT_C void CPodcastModel::PlayPausePodcastL(CShowInfo* aPodcast, TBool /*aPlayOnInit*/) 
+EXPORT_C void CPodcastModel::PlayPausePodcastL(CShowInfo* aPodcast, TBool /* aPlayOnInit */) 
 	{
 	DP("CPodcastModel::PlayPausePodcastL BEGIN");
 	TRAPD(err, LaunchFileEmbeddedL(aPodcast->FileName()));
@@ -507,3 +513,4 @@ void CPodcastModel::HandleServerAppExit(TInt aReason)
     //Handle closing the handler application
     MAknServerAppExitObserver::HandleServerAppExit(aReason);
     }
+
