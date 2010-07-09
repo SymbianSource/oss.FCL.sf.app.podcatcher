@@ -273,8 +273,8 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 				iPodcastModel.ShowEngine().ResumeDownloadsL();
 				}
 				
-			iListContainer->Listbox()->SetCurrentItemIndex(index - 1);
 			UpdateListboxItemsL();
+			iListContainer->Listbox()->SetCurrentItemIndex(index - 1);
 			}
 			break;
 		case EPodcastMoveDownloadDown:
@@ -297,8 +297,8 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 				iPodcastModel.ShowEngine().ResumeDownloadsL();
 				}
 			
-			iListContainer->Listbox()->SetCurrentItemIndex(index - 1);
 			UpdateListboxItemsL();
+			iListContainer->Listbox()->SetCurrentItemIndex(index + 1);
 			}
 			break;
 		case EPodcastSuspendDownloads:
