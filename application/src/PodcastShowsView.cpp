@@ -115,11 +115,6 @@ void CPodcastShowsView::ConstructL()
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);
 	
-	iStylusPopupMenu = CAknStylusPopUpMenu::NewL( this , TPoint(0,0));
-	TResourceReader reader;
-	iCoeEnv->CreateResourceReaderLC(reader,R_SHOWVIEW_POPUP_MENU);
-	iStylusPopupMenu->ConstructFromResourceL(reader);
-
 	CleanupStack::PopAndDestroy();	
 	}
 
@@ -188,7 +183,6 @@ TKeyResponse CPodcastShowsView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEvent
 			default:
 				break;
 			}
-			UpdateToolbar();
 		}
 	}
 		return CPodcastListView::OfferKeyEventL(aKeyEvent, aType);
@@ -199,8 +193,6 @@ CPodcastShowsView::~CPodcastShowsView()
 	iPodcastModel.ShowEngine().RemoveObserver(this);
 	iPodcastModel.FeedEngine().RemoveObserver(this);
 	
-    if(iStylusPopupMenu)
-        delete iStylusPopupMenu, iStylusPopupMenu = NULL;
 	}
 
 
@@ -219,7 +211,6 @@ void CPodcastShowsView::DoActivateL(const TVwsViewId& aPrevViewId,
 	
 	UpdateViewTitleL();
 	UpdateFeedUpdateStateL();
-	UpdateToolbar();
 	DP("CPodcastShowsView::DoActivateL END");
 	}
 
@@ -290,7 +281,6 @@ void CPodcastShowsView::FeedDownloadStartedL(TFeedState /*aState*/, TUint aFeedU
 			&& iPodcastModel.ActiveFeedInfo()->Uid() == aFeedUid)
 		{
 		UpdateFeedUpdateStateL();
-		UpdateToolbar();
 		}	
 	}
 
@@ -354,7 +344,6 @@ void CPodcastShowsView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 		default:
 			break;
 		}
-		UpdateToolbar();
 	}
 
 void CPodcastShowsView::GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex)
@@ -410,7 +399,6 @@ void CPodcastShowsView::UpdateFeedUpdateStateL()
 		iListContainer->Listbox()->SetDimmed(listboxDimmed);
 		}
 	UpdateListboxItemsL();
-	UpdateToolbar();
 	}
 
 void CPodcastShowsView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aSizeDownloaded)
@@ -644,9 +632,6 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 			CPodcastListView::HandleCommandL(aCommand);
 			break;
 		}
-	iListContainer->SetLongTapDetectedL(EFalse);
-
-	UpdateToolbar();
 	}
 	
 void CPodcastShowsView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane)
@@ -674,111 +659,6 @@ void CPodcastShowsView::DisplayShowInfoDialogL()
 		note->RunLD();
 		}
 	}
-
-void CPodcastShowsView::UpdateToolbar(TBool aVisible)
-{
-	CAknToolbar* toolbar = Toolbar();
-
-	if (toolbar) {
-		if (iListContainer->IsVisible()) {
-			toolbar->SetToolbarVisibility(aVisible);
-		}
-	
-		TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && iPodcastModel.ActiveFeedInfo() && 
-				iPodcastModel.FeedEngine().ActiveClientUid() == iPodcastModel.ActiveFeedInfo()->Uid();
-	
-		toolbar->HideItem(EPodcastUpdateFeed, updatingState, ETrue ); 
-		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !updatingState, ETrue );
-		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
-		TInt itemCnt = fItems.Count();
-	
-		TBool hideDownloadShowCmd = EFalse;
-		TBool dimDownloadShowCmd = EFalse;
-		TBool hideSetPlayed = EFalse;
-	
-		if(iListContainer->Listbox() != NULL)
-		{
-			TInt index = iListContainer->Listbox()->CurrentItemIndex();
-			
-			if(index>= 0 && index < itemCnt)
-			{
-				switch(fItems[index]->DownloadState())
-					{
-					case ENotDownloaded:
-					case EFailedDownload:
-						hideDownloadShowCmd = EFalse;
-						dimDownloadShowCmd = EFalse;
-						break;
-					case EQueued:
-					case EDownloading:
-						hideDownloadShowCmd = EFalse;
-						dimDownloadShowCmd = ETrue;
-						break;
-					case EDownloaded:
-						hideDownloadShowCmd = ETrue;
-						break;
-					}
-					
-				if(fItems[index]->PlayState() == EPlayed) {
-					hideSetPlayed = ETrue;
-				}
-			}
-		}
-		
-		if (hideDownloadShowCmd) {
-			toolbar->HideItem(EPodcastDownloadShow, ETrue, ETrue );
-			toolbar->HideItem(EPodcastDeleteShow, EFalse, ETrue);
-			toolbar->SetItemDimmed(EPodcastDeleteShow, updatingState, ETrue);
-		} else {
-			toolbar->HideItem(EPodcastDownloadShow, EFalse, ETrue );
-			toolbar->HideItem(EPodcastDeleteShow, ETrue, ETrue);
-			toolbar->SetItemDimmed(EPodcastDownloadShow, updatingState || dimDownloadShowCmd, ETrue);	
-		}
-		
-		if (hideSetPlayed) {
-			toolbar->HideItem(EPodcastMarkAsPlayed, ETrue, ETrue );
-			toolbar->HideItem(EPodcastMarkAsUnplayed, EFalse, ETrue );
-			toolbar->SetItemDimmed(EPodcastMarkAsUnplayed, updatingState, ETrue);
-		} else {
-			toolbar->HideItem(EPodcastMarkAsPlayed, EFalse, ETrue );
-			toolbar->HideItem(EPodcastMarkAsUnplayed, ETrue, ETrue );
-			toolbar->SetItemDimmed(EPodcastMarkAsPlayed, updatingState, ETrue);
-		}
-	}
-}
-
-void CPodcastShowsView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
-{
-	DP("CPodcastShowsView::HandleLongTapEventL BEGIN");
-
-	iListContainer->SetLongTapDetectedL(ETrue);
-
-	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
-	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
-			iListContainer->Listbox()->Model()->NumberOfItems()) - KListboxDefaultHeight;
-
-    if(iStylusPopupMenu && aPenEventLocation.iY < lbHeight)
-    {
-		TInt index = iListContainer->Listbox()->CurrentItemIndex();
-		if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
-			{
-			CShowInfo *info = iPodcastModel.ActiveShowList()[index];
-			TBool hideDownloadShowCmd = info->DownloadState() != ENotDownloaded;
-			TBool hideDeleteShowCmd = info->DownloadState() != EDownloaded;
-			TBool hideMarkOld = info->PlayState() == EPlayed;
-			
-			iStylusPopupMenu->SetItemDimmed(EPodcastMarkAsPlayed, hideMarkOld);
-			iStylusPopupMenu->SetItemDimmed(EPodcastMarkAsUnplayed, !hideMarkOld);
-						
-			iStylusPopupMenu->SetItemDimmed(EPodcastDownloadShow, hideDownloadShowCmd);
-			iStylusPopupMenu->SetItemDimmed(EPodcastDeleteShow, hideDeleteShowCmd);
-			}
-
-		iStylusPopupMenu->ShowMenu();
-		iStylusPopupMenu->SetPosition(aPenEventLocation);
-    }
-	DP("CPodcastShowsView::HandleLongTapEventL END");
-}
 
 void CPodcastShowsView::HandleSetShowPlayedL(TBool aPlayed)
 	{
@@ -831,7 +711,6 @@ void CPodcastShowsView::DownloadQueueUpdatedL(TInt aDownloadingShows, TInt aQueu
 void CPodcastShowsView::FeedUpdateAllCompleteL(TFeedState /*aState*/)
 	{
 	UpdateListboxItemsL();
-	UpdateToolbar();
 	}
 
 void CPodcastShowsView::UpdateViewTitleL()

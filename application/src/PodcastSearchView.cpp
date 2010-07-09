@@ -36,7 +36,6 @@
 #include <BAUTILS.H> 
 #include <pathinfo.h> 
 #include <f32file.h>
-#include <akntoolbarextension.h>
 
 const TInt KMaxFeedNameLength = 100;
 #define KMaxMessageLength 200
@@ -94,14 +93,7 @@ void CPodcastSearchView::ConstructL()
 CPodcastSearchView::~CPodcastSearchView()
     {
 	iPodcastModel.FeedEngine().RemoveObserver(this);
- 
-    if(iLongTapDetector)
-        delete iLongTapDetector, iLongTapDetector = NULL;
-
-    if(iStylusPopupMenu)
-        delete iStylusPopupMenu, iStylusPopupMenu = NULL;
-
-    }
+     }
 
 TUid CPodcastSearchView::Id() const
 {
@@ -248,7 +240,6 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 			CPodcastListView::HandleCommandL(aCommand);
 			break;
 		}
-		UpdateToolbar();
 	}
 
 void CPodcastSearchView::OpmlParsingComplete(TInt /*aError*/, TUint /*aNumFeedsImported*/)

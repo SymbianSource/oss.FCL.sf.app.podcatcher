@@ -22,8 +22,6 @@
 #include <aknview.h>
 #include <aknlists.h> 
 #include <eiklbo.h>
-#include <AknToolbarObserver.h>
-#include <AknToolbar.h>
 #include "ShowEngine.h"
 #include "FeedEngine.h"
 #include "PodcastModel.h"
@@ -37,7 +35,6 @@ public:
 	static CPodcastShowsView* NewL(CPodcastModel& aPodcastModel);
 	static CPodcastShowsView* NewLC(CPodcastModel& aPodcastModel);
 	~CPodcastShowsView();
-	void UpdateToolbar(TBool aVisible=ETrue);
 
 protected:
 	void ConstructL();
@@ -95,8 +92,6 @@ protected:
 	void UpdateShowItemDataL(CShowInfo* aShowInfo,TInt aIndex, TInt aSizeDownloaded = KErrNotFound);
 	void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);
 	void FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aSizeDownloaded = 0);
-
-	virtual void HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& aPenEventScreenLocation);
 	void GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex);
 	void CreateIconsL();
 

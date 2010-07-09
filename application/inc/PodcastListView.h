@@ -23,10 +23,6 @@
 #include <aknlists.h> 
 #include <eiklbo.h>
 #include <aknsbasicbackgroundcontrolcontext.h>
-#include <AknToolbarObserver.h>
-#include <AknToolbar.h>
-#include <aknlongtapdetector.h>
-#include <aknstyluspopupmenu.h>
 #include <aknprogressdialog.h> 
 #include <aknwaitdialog.h> 
 #include "PodcastModel.h"
@@ -63,8 +59,6 @@ class CPodcastListContainer : public CCoeControl
 		void ScrollToVisible();
     	void Draw(const TRect& aRect) const;
     	
-    	void SetLongTapDetectedL(TBool aLongTapDetected);
-
     	CEikFormattedCellListBox * iListbox;		
 
 	protected:
@@ -75,18 +69,15 @@ class CPodcastListContainer : public CCoeControl
 		MKeyEventListener* iKeyEventListener;
 		MPointerListener* iPointerListener;
         CAknsBasicBackgroundControlContext* iBgContext;
-		 TBool iLongTapDetected;
 
 	};
 
 
-class CPodcastListView : public CAknView, public MAknToolbarObserver,
-public MPointerListener, public MAknLongTapDetectorCallBack, 
+class CPodcastListView : public CAknView, public MPointerListener,
 public MProgressDialogCallback, public MKeyEventListener
     {
     public: 
         ~CPodcastListView();
-		virtual void UpdateToolbar(TBool aVisible=ETrue) = 0;
 		TBool IsVisible();
 		
 	protected:
@@ -137,12 +128,8 @@ public MProgressDialogCallback, public MKeyEventListener
         void ShowOkMessageL(TDesC &aText);
         void ShowErrorMessageL(TDesC &aText);
         TInt ShowQueryMessageL(TDesC &aText);
-		void CloseToolbarExtension();
 		void ShowWaitDialogL(TDesC &aWaitText);
 		void CloseWaitDialog();
-
-		// From MAknLongTapDetectorCallBack
-		virtual void HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& aPenEventScreenLocation );
 		 
 		// from MProgressDialogCallback		
 		void DialogDismissedL(TInt /*aButtonId*/) {}
@@ -166,9 +153,6 @@ public MProgressDialogCallback, public MKeyEventListener
 		 
 		 TBuf<1024> iListboxFormatbuffer;
 		 
-		 CAknToolbar *iToolbar;
-		 CAknStylusPopUpMenu* iStylusPopupMenu;
-		 CAknLongTapDetector* iLongTapDetector;
 		 CAknWaitDialog *iWaitDialog;
 
     };

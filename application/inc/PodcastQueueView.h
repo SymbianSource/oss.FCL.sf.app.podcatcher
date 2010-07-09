@@ -22,8 +22,6 @@
 #include <aknview.h>
 #include <aknlists.h> 
 #include <eiklbo.h>
-#include <AknToolbarObserver.h>
-#include <AknToolbar.h>
 #include "ShowEngine.h"
 #include "FeedEngine.h"
 #include "PodcastModel.h"
@@ -36,7 +34,6 @@ public:
 	static CPodcastQueueView* NewL(CPodcastModel& aPodcastModel);
 	static CPodcastQueueView* NewLC(CPodcastModel& aPodcastModel);
 	~CPodcastQueueView();
-	void UpdateToolbar(TBool aVisible=ETrue);
 protected:
 	void ConstructL();
 	CPodcastQueueView(CPodcastModel& aPodcastModel);
@@ -78,8 +75,6 @@ protected:
 	void HandleCommandL(TInt aCommand);
 	TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
 	void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);
-	
-	virtual void HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& aPenEventScreenLocation);
 	};
 
 #endif

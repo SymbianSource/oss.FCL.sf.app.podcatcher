@@ -106,13 +106,7 @@ void CPodcastFeedView::ConstructL()
 	CleanupStack::Pop(icons); // icons
 
 	iListContainer->Listbox()->SetListBoxObserver(this);
-	
-    iStylusPopupMenu = CAknStylusPopUpMenu::NewL( this , TPoint(0,0));
-    TResourceReader reader;
-    iCoeEnv->CreateResourceReaderLC(reader,R_FEEDVIEW_POPUP_MENU);
-    iStylusPopupMenu->ConstructFromResourceL(reader);
-    CleanupStack::PopAndDestroy();
-    
+	   
     iUpdater = CPodcastFeedViewUpdater::NewL(*this);
 	DP("CPodcastFeedView::ConstructL END");
 	}
@@ -122,7 +116,6 @@ CPodcastFeedView::~CPodcastFeedView()
 	iPodcastModel.FeedEngine().RemoveObserver(this);
 	delete iFeedsFormat;
 	delete iNeverUpdated;
-	delete iStylusPopupMenu;
 	delete iUpdater;
 	iFeedIdForIconArray.Close();
     }
@@ -179,7 +172,6 @@ void CPodcastFeedView::DoActivateL(const TVwsViewId& aPrevViewId,
 		}
 	
 		UpdateListboxItemsL();		
-		UpdateToolbar();
 
 	if (iFirstActivateAfterLaunch)
 		{
@@ -225,7 +217,6 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 void CPodcastFeedView::FeedUpdateAllCompleteL(TFeedState /*aState*/)
 	{
 	iUpdatingRunning = EFalse;
-	UpdateToolbar();
 	}
 
 void CPodcastFeedView::FeedDownloadStartedL(TFeedState /*aState*/, TUint aFeedUid)
@@ -233,8 +224,6 @@ void CPodcastFeedView::FeedDownloadStartedL(TFeedState /*aState*/, TUint aFeedUi
 	// Update status text
 	iUpdatingRunning = ETrue;
 	UpdateFeedInfoStatusL(aFeedUid, ETrue);
-	
-	UpdateToolbar();
 	}
 
 void CPodcastFeedView::FeedDownloadFinishedL(TFeedState aState,TUint aFeedUid, TInt aError)
@@ -501,7 +490,6 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 		case EPodcastUpdateAllFeeds:
 			{
 			iPodcastModel.FeedEngine().UpdateAllFeedsL();
-			UpdateToolbar();
 			}break;
 		case EPodcastUpdateFeed:
 			{
@@ -544,28 +532,8 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 			break;
 		}
 	
-	iListContainer->SetLongTapDetectedL(EFalse); // in case we got here by long tapping
-	UpdateToolbar();
 	DP("CPodcastFeedView::HandleCommandL END");
 	}
-
-void CPodcastFeedView::UpdateToolbar(TBool aVisible)
-{
-	DP("CPodcastFeedView::UpdateToolbar BEGIN");
-	CAknToolbar* toolbar = Toolbar();
-	
-	if (toolbar)
-		{
-		if (iListContainer->IsVisible()) {
-			toolbar->SetToolbarVisibility(aVisible);
-		}
-		toolbar->HideItem(EPodcastUpdateAllFeeds, iUpdatingRunning, ETrue);
-		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !iUpdatingRunning, ETrue );
-		toolbar->SetItemDimmed(EPodcastAddFeed, iUpdatingRunning, ETrue );
-		toolbar->SetItemDimmed(EPodcastSettings, iUpdatingRunning, ETrue );
-		}
-	DP("CPodcastFeedView::UpdateToolbar END");
-}
 
 void CPodcastFeedView::HandleAddFeedL()
 	{
@@ -914,24 +882,6 @@ void CPodcastFeedView::GetFeedErrorText(TDes &aErrorMessage, TInt aErrorCode)
 	{
 	TRAP_IGNORE(((CPodcastAppUi*)AppUi())->GetErrorTextL(aErrorMessage,aErrorCode));
 	}
-
-void CPodcastFeedView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
-{
-	DP("CPodcastListView::HandleLongTapEventL BEGIN");
-
-	iListContainer->SetLongTapDetectedL(ETrue);
-
-	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
-	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
-			iListContainer->Listbox()->Model()->NumberOfItems()) - KListboxDefaultHeight;
-
-    if(iStylusPopupMenu && aPenEventLocation.iY < lbHeight)
-    {
-		iStylusPopupMenu->ShowMenu();
-		iStylusPopupMenu->SetPosition(aPenEventLocation);
-    }
-	DP("CPodcastListView::HandleLongTapEventL END");
-}
 
 TBool CPodcastFeedView::ViewingShows()
 	{

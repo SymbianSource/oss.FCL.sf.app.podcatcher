@@ -32,7 +32,6 @@ class CPodcastSearchView : public CPodcastListView, public MEikListBoxObserver,
         static CPodcastSearchView* NewL(CPodcastModel& aPodcastModel);
         static CPodcastSearchView* NewLC(CPodcastModel& aPodcastModel);
         ~CPodcastSearchView();
-		void UpdateToolbar(TBool aVisible=EFalse) {};
 
 	protected:
 	    void ConstructL();

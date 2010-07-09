@@ -67,11 +67,6 @@ void CPodcastQueueView::ConstructL()
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);
 	
-	iStylusPopupMenu = CAknStylusPopUpMenu::NewL( this , TPoint(0,0));
-	TResourceReader reader;
-	iCoeEnv->CreateResourceReaderLC(reader,R_QUEUEVIEW_POPUP_MENU);
-	iStylusPopupMenu->ConstructFromResourceL(reader);
-
 	CleanupStack::PopAndDestroy();
 
 	SetEmptyTextL(R_PODCAST_EMPTY_QUEUE);
@@ -99,7 +94,6 @@ TKeyResponse CPodcastQueueView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEvent
 			default:
 				break;
 			}
-			UpdateToolbar();
 		}
 	}
 		return CPodcastListView::OfferKeyEventL(aKeyEvent, aType);
@@ -109,9 +103,6 @@ CPodcastQueueView::~CPodcastQueueView()
 	{
 	iPodcastModel.ShowEngine().RemoveObserver(this);
 	iPodcastModel.FeedEngine().RemoveObserver(this);
-	
-    if(iStylusPopupMenu)
-        delete iStylusPopupMenu, iStylusPopupMenu = NULL;
 	}
 
 
@@ -129,7 +120,6 @@ void CPodcastQueueView::DoActivateL(const TVwsViewId& aPrevViewId,
 	iPreviousView = aPrevViewId;
 	
 	UpdateFeedUpdateStateL();
-	UpdateToolbar();
 	DP("CPodcastQueueView::DoActivateL END");
 	}
 
@@ -150,7 +140,6 @@ void CPodcastQueueView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 		default:
 			break;
 		}
-		UpdateToolbar();
 	}
 
 void CPodcastQueueView::UpdateListboxItemsL()
@@ -317,8 +306,6 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			CPodcastListView::HandleCommandL(aCommand);
 			break;
 		}
-	iListContainer->SetLongTapDetectedL(EFalse); // in case we got here by long tapping
-	UpdateToolbar();
 	}
 	
 void CPodcastQueueView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane)
@@ -328,50 +315,3 @@ void CPodcastQueueView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPan
 		aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, ETrue);
 		}
 	}
-
-void CPodcastQueueView::UpdateToolbar(TBool aVisible)
-	{
-	CAknToolbar* toolbar = Toolbar();
-	
-	if (toolbar)
-		{
-		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
-		TInt itemCnt = fItems.Count();
-		if (iListContainer->IsVisible()) 
-			{
-			toolbar->SetToolbarVisibility(aVisible);
-			}
-		
-		toolbar->HideItem(EPodcastRemoveAllDownloads, EFalse, ETrue);
-		toolbar->SetItemDimmed(EPodcastRemoveAllDownloads, itemCnt == 0, ETrue);
-		toolbar->HideItem(EPodcastSuspendDownloads,iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);
-		toolbar->HideItem(EPodcastResumeDownloads,!iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);	
-		toolbar->SetItemDimmed(EPodcastRemoveDownload, itemCnt == 0, ETrue);		
-		}
-	}
-
-void CPodcastQueueView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
-{
-	DP("CPodcastQueueView::HandleLongTapEventL BEGIN");
-	iListContainer->SetLongTapDetectedL(ETrue);
-	
-	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
-	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
-			iListContainer->Listbox()->Model()->NumberOfItems()) - KListboxDefaultHeight;
-
-    if(iStylusPopupMenu && aPenEventLocation.iY < lbHeight)
-    {
-		TBool dimDown = (iListContainer->Listbox()->CurrentItemIndex() >= iPodcastModel.ActiveShowList().Count() - 1 ?
-				ETrue : EFalse);
-		TBool dimUp = (iListContainer->Listbox()->CurrentItemIndex() <= 0 ?
-				ETrue : EFalse);
-		
-		iStylusPopupMenu->SetItemDimmed(EPodcastMoveDownloadDown, dimDown);
-		iStylusPopupMenu->SetItemDimmed(EPodcastMoveDownloadUp, dimUp);
-		
-		iStylusPopupMenu->ShowMenu();
-		iStylusPopupMenu->SetPosition(aPenEventLocation);
-    }
-    
-	DP("CPodcastQueueView::HandleLongTapEventL END");
-}

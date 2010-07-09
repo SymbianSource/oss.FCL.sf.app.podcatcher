@@ -26,7 +26,6 @@
 #include <aknnotedialog.h>
 #include <aknsbasicbackgroundcontrolcontext.h>
 #include <akntabgrp.h>
-#include <akntoolbarextension.h>
 #include <aknquerydialog.h>
 #include <barsread.h>
 #include <akntitle.h>
@@ -97,20 +96,6 @@ CCoeControl* CPodcastListContainer::ComponentControl(TInt aIndex) const
         }
     }
 
-void CPodcastListContainer::SetLongTapDetectedL(TBool aLongTapDetected)
-	{
-	DP("CPodcastListContainer::SetLongTapDetectedL BEGIN");
-	iLongTapDetected = aLongTapDetected;
-	
-	if (aLongTapDetected == EFalse)
-		{
-		TPointerEvent event;
-		event.iType = TPointerEvent::EButton1Up;
-		//CCoeControl::HandlePointerEventL(event);
-		}
-	DP("CPodcastListContainer::SetLongTapDetectedL END");
-	}
-
 void CPodcastListContainer::HandleResourceChange(TInt aType)
 {
 	switch( aType )
@@ -173,10 +158,7 @@ void CPodcastListContainer::HandlePointerEventL(const TPointerEvent& aPointerEve
 		iPointerListener->PointerEventL(aPointerEvent);
 
 	// Call base class HandlePointerEventL() if not a long tap
-	if (!iLongTapDetected)
-		{
-		CCoeControl::HandlePointerEventL(aPointerEvent);
-		}
+	CCoeControl::HandlePointerEventL(aPointerEvent);
 	}
 
 
@@ -201,12 +183,6 @@ void CPodcastListView::ConstructL()
 	iListContainer->Listbox()->Model()->SetItemTextArray(iItemArray);
 	iListContainer->Listbox()->Model()->SetOwnershipType(ELbmDoesNotOwnItemArray);
 
-	if (Toolbar()) {
-		iToolbar = Toolbar();
-		iToolbar->SetToolbarObserver(this);
-	}
-	
-	iLongTapDetector = CAknLongTapDetector::NewL(this);
 	iListContainer->SetPointerListener(this);
 	iListContainer->SetKeyEventListener(this);
         
@@ -242,7 +218,6 @@ CPodcastListView::~CPodcastListView()
     	}
          
     delete iItemArray;
-    delete iLongTapDetector;
     iItemIdArray.Close();
     }
 
@@ -365,42 +340,11 @@ TInt CPodcastListView::ShowQueryMessageL(TDesC &aText)
 	return dlg->ExecuteLD(R_QUERYDLG);
 	}
 
-void CPodcastListView::CloseToolbarExtension()
-{
-	CAknToolbar* toolbar = Toolbar();
-	if (toolbar) {
-		CAknToolbarExtension* toolbarExtension = toolbar->ToolbarExtension();
-		if (toolbarExtension) {
-		toolbarExtension->SetShown( EFalse );
-		}
-	}
-}
-
 void CPodcastListView::PointerEventL(const TPointerEvent& aPointerEvent)
 	{
 	//DP1("CPodcastListView::PointerEventL, iType=%d", aPointerEvent.iType);
 	// Pass the pointer event to Long tap detector component
-	iLongTapDetector->PointerEventL(aPointerEvent);
 	}
-
-
-void CPodcastListView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
-{
-	DP("CPodcastListView::HandleLongTapEventL BEGIN");
-	iListContainer->SetLongTapDetectedL(ETrue);
-	
-	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
-	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
-			iListContainer->Listbox()->Model()->NumberOfItems()) - KListboxDefaultHeight;
-
-    if(iStylusPopupMenu && aPenEventLocation.iY < lbHeight)
-    {
-		iStylusPopupMenu->ShowMenu();
-		iStylusPopupMenu->SetPosition(aPenEventLocation);
-    }
-    
-	DP("CPodcastListView::HandleLongTapEventL END");
-}
 
 
 void CPodcastListView::DynInitToolbarL (TInt /*aResourceId*/, CAknToolbar * /*aToolbar*/)
