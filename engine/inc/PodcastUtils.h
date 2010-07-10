@@ -20,7 +20,7 @@
 #define PODCASTUTILS_H_
 
 #include <e32cmn.h>
-#include <sqlite3.h>
+#include "sqlite3.h"
 
 // Cleanup stack macro for SQLite3
 static void Cleanup_sqlite3_finalize_wrapper(TAny* handle)

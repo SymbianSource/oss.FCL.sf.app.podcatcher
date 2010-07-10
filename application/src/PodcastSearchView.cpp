@@ -192,7 +192,6 @@ void CPodcastSearchView::UpdateListboxItemsL()
  */
 void CPodcastSearchView::HandleCommandL(TInt aCommand)
 	{
-	//CloseToolbarExtension();
 	switch(aCommand)
 		{
 		case EPodcastAddSearchResult:

@@ -25,7 +25,7 @@
 #include <podcast.rsg>
 #include "SettingsEngine.h"
 
-#include <akncommondialogsdynmem.h> 
+//#include <akncommondialogsdynmem.h> 
 #include <pathinfo.h>
 #include <aknquerydialog.h>
 
@@ -288,40 +288,40 @@ public:
 	void  EditItemL (TInt aIndex, TBool aCalledFromMenu)
 		{
 		DP("EditItemL BEGIN");
-		if (aIndex == 0) {
-			TFileName selectedFolder;
-			selectedFolder.Copy(iShowDir);
-			TFileName startFolder;
-			startFolder.Zero();
-			TInt types = AknCommonDialogsDynMem::EMemoryTypePhone | AknCommonDialogsDynMem::EMemoryTypeMMC |AknCommonDialogsDynMem::EMemoryTypeInternalMassStorage| AknCommonDialogsDynMem::EMemoryTypeRemote;
-			
-			HBufC *title = iCoeEnv->AllocReadResourceLC(R_PODCAST_SELECT_FOLDER);
-			if (AknCommonDialogsDynMem::RunFolderSelectDlgLD (types, selectedFolder,
-					startFolder, NULL, NULL, *title))
-				{
-				_LIT(KPodcastsDir, "Podcasts");
-				TInt pos = selectedFolder.Find(KPodcastsDir);
-				if (pos == KErrNotFound || pos != selectedFolder.Length()-9)
-					{
-					// append "Podcasts" if the folder isn't already called this
-					selectedFolder.Append(KPodcastsDir);
-					}
-				
-				if (selectedFolder[selectedFolder.Length()-1] != '\\')
-					{
-					selectedFolder.Append(_L("\\"));
-					}
-				
-				iShowDir.Copy(selectedFolder);
-				LoadSettingsL();
-				}
-			CleanupStack::PopAndDestroy(title);
-			}
-		else {
-			CAknSettingItemList::EditItemL(aIndex,aCalledFromMenu);
-		}
-			StoreSettingsL();
-			UpdateSettingVisibility();
+//		if (aIndex == 0) {
+//			TFileName selectedFolder;
+//			selectedFolder.Copy(iShowDir);
+//			TFileName startFolder;
+//			startFolder.Zero();
+//			TInt types = AknCommonDialogsDynMem::EMemoryTypePhone | AknCommonDialogsDynMem::EMemoryTypeMMC |AknCommonDialogsDynMem::EMemoryTypeInternalMassStorage| AknCommonDialogsDynMem::EMemoryTypeRemote;
+//			
+//			HBufC *title = iCoeEnv->AllocReadResourceLC(R_PODCAST_SELECT_FOLDER);
+//			if (AknCommonDialogsDynMem::RunFolderSelectDlgLD (types, selectedFolder,
+//					startFolder, NULL, NULL, *title))
+//				{
+//				_LIT(KPodcastsDir, "Podcasts");
+//				TInt pos = selectedFolder.Find(KPodcastsDir);
+//				if (pos == KErrNotFound || pos != selectedFolder.Length()-9)
+//					{
+//					// append "Podcasts" if the folder isn't already called this
+//					selectedFolder.Append(KPodcastsDir);
+//					}
+//				
+//				if (selectedFolder[selectedFolder.Length()-1] != '\\')
+//					{
+//					selectedFolder.Append(_L("\\"));
+//					}
+//				
+//				iShowDir.Copy(selectedFolder);
+//				LoadSettingsL();
+//				}
+//			CleanupStack::PopAndDestroy(title);
+//			}
+//		else {
+//			CAknSettingItemList::EditItemL(aIndex,aCalledFromMenu);
+//		}
+//			StoreSettingsL();
+//			UpdateSettingVisibility();
 		DP("EditItemL END");
 		}
 	

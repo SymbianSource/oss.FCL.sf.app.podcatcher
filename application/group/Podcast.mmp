@@ -74,7 +74,7 @@ LIBRARY	ezlib.lib
 LIBRARY	commdb.lib
 LIBRARY esock.lib
 LIBRARY mmfcontrollerframework.lib 
-LIBRARY cmmanager.lib
+//LIBRARY cmmanager.lib
 LIBRARY imageconversion.lib 
 LIBRARY bitmaptransforms.lib 
 LIBRARY	euser.lib 

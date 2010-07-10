@@ -20,7 +20,7 @@ RESOURCE AVKON_VIEW r_podcast_showsview
 {
 	menubar = r_podcast_showsview_menubar;
 	cba = R_AVKON_SOFTKEYS_OPTIONS_BACK;
-	toolbar = r_showsview_toolbar;
+//	toolbar = r_showsview_toolbar;
 }
 
 RESOURCE MENU_BAR r_podcast_showsview_menubar
@@ -90,124 +90,124 @@ RESOURCE MENU_PANE r_filtershows_menu
 	};	
 	}
 
-RESOURCE AVKON_TOOLBAR r_showsview_toolbar
-    {
-    flags = KAknToolbarFixed;
-    items =
-        {
-        TBAR_CTRL
-            {
-            type = EAknCtButton;
-            id = EPodcastUpdateFeed;
-            control = AVKON_BUTTON
-                {
-                states =
-                    {
-                    AVKON_BUTTON_STATE
-                        {
-                        //bmpfile = AVKON_BITMAP_FILE;
-                        //bmpid = EMbmAvkonQgn_indi_find_goto;
-                        txt = STRING_r_update_feed_short_cmd;
-                        helptxt = STRING_r_update_feed_cmd;
-                        }  
-                    };
-                };
-            },
-            TBAR_CTRL
-                {
-                type = EAknCtButton;
-                id = EPodcastCancelUpdateAllFeeds;
-                control = AVKON_BUTTON
-                    {
-                    states =
-                        {
-                        AVKON_BUTTON_STATE
-                            {
-                            //bmpfile = AVKON_BITMAP_FILE;
-                            //bmpid = EMbmAvkonQgn_indi_find_goto;
-                            txt = STRING_r_cancel_update_all_feeds_short_cmd;
-                            helptxt = STRING_r_cancel_update_all_feeds_cmd;
-                           }  
-                        };
-                    };
-                },
-// we keep the download toolbar button in S^3, but always disable it
-// because there are drawing issues with only one item in the toolbar
-            TBAR_CTRL
-			{
-			type = EAknCtButton;
-			id = EPodcastDownloadShow;
-			control = AVKON_BUTTON
-				{
-				states =
-					{
-					AVKON_BUTTON_STATE
-						{
-						//bmpfile = AVKON_BITMAP_FILE;
-						//bmpid = EMbmAvkonQgn_indi_find_goto;
-						txt = STRING_r_view_download_show_cmd;
-						helptxt = STRING_r_view_download_show_cmd;
-						}  
-					};
-				};
-			}
-        ,		
-		TBAR_CTRL
-			{
-			type = EAknCtButton;
-			id =EPodcastDeleteShow;
-			control = AVKON_BUTTON
-				{
-				states =
-					{
-					AVKON_BUTTON_STATE
-						{
-						//bmpfile = AVKON_BITMAP_FILE;
-						//bmpid = EMbmAvkonQgn_indi_find_goto;
-						txt = STRING_r_view_delete_show_cmd;
-						helptxt = STRING_r_view_delete_show_cmd;
-						}  
-					};
-				};
-			},
-		TBAR_CTRL
-			{
-			type = EAknCtButton;
-			id = EPodcastMarkAsPlayed;
-			control = AVKON_BUTTON
-				{
-				states =
-					{
-					AVKON_BUTTON_STATE
-						{
-						//bmpfile = AVKON_BITMAP_FILE;
-						//bmpid = EMbmAvkonQgn_indi_find_goto;
-						txt = STRING_r_view_mark_as_played_cmd_short;
-						helptxt = STRING_r_view_mark_as_played_cmd_short;
-						}  
-					};
-				};
-			},
-			TBAR_CTRL
-				{
-				type = EAknCtButton;
-				id =EPodcastMarkAsUnplayed;
-				control = AVKON_BUTTON
-					{
-					states =
-						{
-						AVKON_BUTTON_STATE
-							{
-							//bmpfile = AVKON_BITMAP_FILE;
-							//bmpid = EMbmAvkonQgn_indi_find_goto;
-							txt = STRING_r_view_mark_as_unplayed_cmd_short;
-							helptxt = STRING_r_view_mark_as_unplayed_cmd_short;
-							}  
-						};
-					};
-				}
-        };
-    }
+//RESOURCE AVKON_TOOLBAR r_showsview_toolbar
+//    {
+//    flags = KAknToolbarFixed;
+//    items =
+//        {
+//        TBAR_CTRL
+//            {
+//            type = EAknCtButton;
+//            id = EPodcastUpdateFeed;
+//            control = AVKON_BUTTON
+//                {
+//                states =
+//                    {
+//                    AVKON_BUTTON_STATE
+//                        {
+//                        //bmpfile = AVKON_BITMAP_FILE;
+//                        //bmpid = EMbmAvkonQgn_indi_find_goto;
+//                        txt = STRING_r_update_feed_short_cmd;
+//                        helptxt = STRING_r_update_feed_cmd;
+//                        }  
+//                    };
+//                };
+//            },
+//            TBAR_CTRL
+//                {
+//                type = EAknCtButton;
+//                id = EPodcastCancelUpdateAllFeeds;
+//                control = AVKON_BUTTON
+//                    {
+//                    states =
+//                        {
+//                        AVKON_BUTTON_STATE
+//                            {
+//                            //bmpfile = AVKON_BITMAP_FILE;
+//                            //bmpid = EMbmAvkonQgn_indi_find_goto;
+//                            txt = STRING_r_cancel_update_all_feeds_short_cmd;
+//                            helptxt = STRING_r_cancel_update_all_feeds_cmd;
+//                           }  
+//                        };
+//                    };
+//                },
+//// we keep the download toolbar button in S^3, but always disable it
+//// because there are drawing issues with only one item in the toolbar
+//            TBAR_CTRL
+//			{
+//			type = EAknCtButton;
+//			id = EPodcastDownloadShow;
+//			control = AVKON_BUTTON
+//				{
+//				states =
+//					{
+//					AVKON_BUTTON_STATE
+//						{
+//						//bmpfile = AVKON_BITMAP_FILE;
+//						//bmpid = EMbmAvkonQgn_indi_find_goto;
+//						txt = STRING_r_view_download_show_cmd;
+//						helptxt = STRING_r_view_download_show_cmd;
+//						}  
+//					};
+//				};
+//			}
+//        ,		
+//		TBAR_CTRL
+//			{
+//			type = EAknCtButton;
+//			id =EPodcastDeleteShow;
+//			control = AVKON_BUTTON
+//				{
+//				states =
+//					{
+//					AVKON_BUTTON_STATE
+//						{
+//						//bmpfile = AVKON_BITMAP_FILE;
+//						//bmpid = EMbmAvkonQgn_indi_find_goto;
+//						txt = STRING_r_view_delete_show_cmd;
+//						helptxt = STRING_r_view_delete_show_cmd;
+//						}  
+//					};
+//				};
+//			},
+//		TBAR_CTRL
+//			{
+//			type = EAknCtButton;
+//			id = EPodcastMarkAsPlayed;
+//			control = AVKON_BUTTON
+//				{
+//				states =
+//					{
+//					AVKON_BUTTON_STATE
+//						{
+//						//bmpfile = AVKON_BITMAP_FILE;
+//						//bmpid = EMbmAvkonQgn_indi_find_goto;
+//						txt = STRING_r_view_mark_as_played_cmd_short;
+//						helptxt = STRING_r_view_mark_as_played_cmd_short;
+//						}  
+//					};
+//				};
+//			},
+//			TBAR_CTRL
+//				{
+//				type = EAknCtButton;
+//				id =EPodcastMarkAsUnplayed;
+//				control = AVKON_BUTTON
+//					{
+//					states =
+//						{
+//						AVKON_BUTTON_STATE
+//							{
+//							//bmpfile = AVKON_BITMAP_FILE;
+//							//bmpid = EMbmAvkonQgn_indi_find_goto;
+//							txt = STRING_r_view_mark_as_unplayed_cmd_short;
+//							helptxt = STRING_r_view_mark_as_unplayed_cmd_short;
+//							}  
+//						};
+//					};
+//				}
+//        };
+//    }
 
 RESOURCE STYLUS_POPUP_MENU r_showview_popup_menu
 	{

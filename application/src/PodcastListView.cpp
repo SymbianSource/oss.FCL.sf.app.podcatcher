@@ -346,17 +346,6 @@ void CPodcastListView::PointerEventL(const TPointerEvent& aPointerEvent)
 	// Pass the pointer event to Long tap detector component
 	}
 
-
-void CPodcastListView::DynInitToolbarL (TInt /*aResourceId*/, CAknToolbar * /*aToolbar*/)
-	{
-	}
-
-
-void CPodcastListView::OfferToolbarEventL(TInt aCommand)
-	{
-	HandleCommandL(aCommand);
-	}
-
 void CPodcastListView::ShowWaitDialogL(TDesC &aWaitText)
 	{
 	DP("CPodcastListView::ShowWaitDialogL BEGIN");

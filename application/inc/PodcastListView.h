@@ -118,9 +118,6 @@ public MProgressDialogCallback, public MKeyEventListener
 		*/
 		void HandleCommandL(TInt aCommand);
 
-		void OfferToolbarEventL(TInt aCommand);
-		void DynInitToolbarL (TInt aResourceId, CAknToolbar *aToolbar);
-
 		virtual void UpdateListboxItemsL() = 0;
 		
         void RunAboutDialogL();

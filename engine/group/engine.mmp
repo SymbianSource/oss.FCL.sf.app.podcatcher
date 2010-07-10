@@ -23,7 +23,7 @@ TARGETTYPE LIB
 SOURCEPATH ..\src
 USERINCLUDE ..\inc
 SYSTEMINCLUDE \epoc32\include 
-SYSTEMINCLUDE ..\..\engine\sqlite\inc
+INCLUDE ..\..\engine\sqlite\inc
 
 // Engine
 SOURCE			HttpClient.cpp

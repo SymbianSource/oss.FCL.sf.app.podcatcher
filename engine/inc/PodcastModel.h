@@ -24,14 +24,14 @@
 #include <CommDbConnPref.h>
 #include <es_sock.h>
 #include <http/rhttpsession.h>
-#include <cmmanager.h>
+//#include <cmmanager.h>
 #include <aknserverapp.h>  // MAknServerAppExitObserver
 #include <DocumentHandler.h>
 
 #include "FeedInfo.h"
 #include "ShowInfo.h"
 #include "debug.h"
-#include <sqlite3.h>
+#include "sqlite3.h"
 #include "ImageHandler.h"
 
 // SQLite leaks memory when sorting, so to test our own memory leaks we need to disable this
@@ -133,7 +133,7 @@ private:
    CCommsDatabase* iCommDB;  
    
    sqlite3* iDB;
-   RCmManager iCmManager;
+//   RCmManager iCmManager;
    TBool iIsFirstStartup;
    CImageHandler* iImageHandler;
    CDocumentHandler* iDocHandler;

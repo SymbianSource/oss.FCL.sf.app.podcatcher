@@ -24,9 +24,6 @@
 #include "connectionengine.h"
 #include "podcastutils.h"
 #include "Podcatcher.pan"
-
-#include <cmdestination.h>
-#include <cmmanager.h>
 #include <bautils.h>
 #include <aknserverapp.h>  // MAknServerAppExitObserver
 #include <DocumentHandler.h>
@@ -63,7 +60,6 @@ CPodcastModel::~CPodcastModel()
 	iActiveShowList.ResetAndDestroy();
 	iActiveShowList.Close();
 	delete iConnectionEngine;
-	iCmManager.Close();
 	delete iImageHandler;
 	delete iDocHandler;
 }
@@ -83,19 +79,12 @@ void CPodcastModel::ConstructL()
 	iImageHandler = CImageHandler::NewL(FsSession(), *this);
 	iDocHandler = CDocumentHandler::NewL(CEikonEnv::Static()->Process());
 
-	TRAPD(err,iCmManager.OpenL());
-	DP1("iCmManager.OpenL(),err=%d;", err);
-	
-	if (err == KErrNone)
-		{
-		UpdateIAPListL();
-		UpdateSNAPListL();
-		}
+	UpdateIAPListL();
 	
 	iSettingsEngine = CSettingsEngine::NewL(*this);
 	iConnectionEngine = CConnectionEngine::NewL(*this);	
 	
-	TRAP(err, OpenDBL());
+	TRAPD(err, OpenDBL());
 	
 	if (err != KErrNone)
 		{
@@ -143,37 +132,37 @@ EXPORT_C void CPodcastModel::UpdateIAPListL()
 
 EXPORT_C void CPodcastModel::UpdateSNAPListL()
 {
-	DP("CPodcastModel::UpdateSNAPListL BEGIN");
-	iSNAPNameArray->Reset();
-	iSNAPIdArray.Reset();
-	
-	RCmDestination destination;
-	TPodcastIAPItem IAPItem;
-	
-	RArray<TUint32> destArray;
-	CleanupClosePushL(destArray);
-	iCmManager.AllDestinationsL(destArray);
-	
-	TInt cnt = destArray.Count();
-	DP1("destArray.Count==%d", cnt);
-	for(TInt loop = 0;loop<cnt;loop++)
-		{
-		destination = iCmManager.DestinationL (destArray[loop]);
-		CleanupClosePushL(destination);
-		if(!destination.IsHidden())
-			{
-			IAPItem.iIapId = destArray[loop];
-			HBufC* name = destination.NameLC();
-			DP1(" destination.NameLC==%S", name);
-			iSNAPNameArray->AppendL(*name);
-			CleanupStack::PopAndDestroy(name);
-			iSNAPIdArray.Append(IAPItem);
-			}
-		CleanupStack::PopAndDestroy();//close destination
-		}
-	CleanupStack::PopAndDestroy();// close destArray
-
-	DP("CPodcastModel::UpdateSNAPListL END");
+//	DP("CPodcastModel::UpdateSNAPListL BEGIN");
+//	iSNAPNameArray->Reset();
+//	iSNAPIdArray.Reset();
+//	
+//	RCmDestination destination;
+//	TPodcastIAPItem IAPItem;
+//	
+//	RArray<TUint32> destArray;
+//	CleanupClosePushL(destArray);
+//	iCmManager.AllDestinationsL(destArray);
+//	
+//	TInt cnt = destArray.Count();
+//	DP1("destArray.Count==%d", cnt);
+//	for(TInt loop = 0;loop<cnt;loop++)
+//		{
+//		destination = iCmManager.DestinationL (destArray[loop]);
+//		CleanupClosePushL(destination);
+//		if(!destination.IsHidden())
+//			{
+//			IAPItem.iIapId = destArray[loop];
+//			HBufC* name = destination.NameLC();
+//			DP1(" destination.NameLC==%S", name);
+//			iSNAPNameArray->AppendL(*name);
+//			CleanupStack::PopAndDestroy(name);
+//			iSNAPIdArray.Append(IAPItem);
+//			}
+//		CleanupStack::PopAndDestroy();//close destination
+//		}
+//	CleanupStack::PopAndDestroy();// close destArray
+//
+//	DP("CPodcastModel::UpdateSNAPListL END");
 }
 
 EXPORT_C CDesCArrayFlat* CPodcastModel::IAPNames()

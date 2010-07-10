@@ -31,8 +31,6 @@ CConnectionEngine* CConnectionEngine::NewL(CPodcastModel& aPodcastModel)
 
 CConnectionEngine::~CConnectionEngine()
 	{
-	delete iMobility;
-
 	Cancel();
 	
 	iConnection.Close();
@@ -56,15 +54,15 @@ void CConnectionEngine::ConstructL()
 
 void CConnectionEngine::RunL()
 	{		
-	if ( iStatus.Int() == KErrNone )
-		{		
-		delete iMobility;
-		iMobility = NULL;
-		iMobility = CActiveCommsMobilityApiExt::NewL( iConnection, *this );
-		}
-	
-	iConnectionState = iStatus.Int() == KErrNone?CConnectionEngine::EConnected:CConnectionEngine::ENotConnected;
-	ReportConnectionL( iStatus.Int() );
+//	if ( iStatus.Int() == KErrNone )
+//		{		
+//		delete iMobility;
+//		iMobility = NULL;
+//		iMobility = CActiveCommsMobilityApiExt::NewL( iConnection, *this );
+//		}
+//	
+//	iConnectionState = iStatus.Int() == KErrNone?CConnectionEngine::EConnected:CConnectionEngine::ENotConnected;
+//	ReportConnectionL( iStatus.Int() );
 	}
 
 void CConnectionEngine::DoCancel()
@@ -96,7 +94,7 @@ void CConnectionEngine::PreferredCarrierAvailable( TAccessPointInfo /*aOldAPInfo
 		{       
 		// Sockets have to be closed at this point.        
 
-		iMobility->MigrateToPreferredCarrier();
+//		iMobility->MigrateToPreferredCarrier();
 		}
 
 	}
@@ -113,7 +111,7 @@ void CConnectionEngine::NewCarrierActive( TAccessPointInfo /*aNewAPInfo*/, TBool
 		// Sockets have to be re-opened and check they can connect
 		// to their server at this point.        
 
-		iMobility->NewCarrierAccepted();
+//		iMobility->NewCarrierAccepted();
 		}
 	}
 
@@ -125,22 +123,22 @@ void CConnectionEngine::Error( TInt /*aError*/ )
 TBool CConnectionEngine::ConnectionSettingL()
 	{
 	TBool selected( EFalse );
-
-	CCmApplicationSettingsUi* settings = CCmApplicationSettingsUi::NewL();
-	CleanupStack::PushL( settings );
-
-	TUint listedItems = 
-	CMManager::EShowDefaultConnection |
-	CMManager::EShowDestinations;
-
-	TBearerFilterArray filter;
-	ReportConnectionSelectionStart();
-	selected = settings->RunApplicationSettingsL( iUserSelection,
-			listedItems,
-			filter );
-
-	CleanupStack::PopAndDestroy( settings );
-	ReportConnectionSelectionEnd();
+//
+//	CCmApplicationSettingsUi* settings = CCmApplicationSettingsUi::NewL();
+//	CleanupStack::PushL( settings );
+//
+//	TUint listedItems = 
+//	CMManager::EShowDefaultConnection |
+//	CMManager::EShowDestinations;
+//
+//	TBearerFilterArray filter;
+//	ReportConnectionSelectionStart();
+//	selected = settings->RunApplicationSettingsL( iUserSelection,
+//			listedItems,
+//			filter );
+//
+//	CleanupStack::PopAndDestroy( settings );
+//	ReportConnectionSelectionEnd();
 	return selected;
 	}
 
@@ -151,59 +149,59 @@ void CConnectionEngine::StartL(TConnectionType aConnectionType)
 	
 	iConnection.Close();
 	User::LeaveIfError( iConnection.Open( iSocketServer ) );
-	// Connect using UI Setting
-	if(aConnectionType == EDefaultConnection)
-		{
-		iConnection.Start( iStatus );
-		SetActive();
-		}
-	else if(aConnectionType == EUserSelectConnection)
-		{				
-		TBool selected = ConnectionSettingL();
-
-		if ( selected )
-			{
-			switch ( iUserSelection.iResult )
-				{
-				case CMManager::EDestination:
-					{					
-					iSnapPreference.SetSnap( iUserSelection.iId );
-					iConnection.Start( iSnapPreference, iStatus );
-					aConnectionType = ESNAPConnection;
-					break;
-					}				
-				default: // CMManager::EAlwaysAsk
-				case CMManager::EDefaultConnection:
-					{					
-					iConnection.Start( iStatus );
-					break;
-					}									
-				}						
-			}
-		else
-			{
-			TRequestStatus* status = &iStatus;
-			User::RequestComplete(status, KErrCancel);
-			}
-		
-			SetActive();
-		}	
-	else if (aConnectionType == EIAPConnection)
-		{
-		iCommdbPreference.SetIapId((iPodcastModel.SettingsEngine().SpecificIAP()& KUseIAPMask));
-		iCommdbPreference.SetDialogPreference(ECommDbDialogPrefDoNotPrompt);
-		iCommdbPreference.SetDirection(ECommDbConnectionDirectionOutgoing);
-		iConnection.Start( iCommdbPreference, iStatus );
-		SetActive();
-		}
-	// Connect using SNAP 
-	else
-		{
-		iSnapPreference.SetSnap(iPodcastModel.SettingsEngine().SpecificIAP());
-		iConnection.Start( iSnapPreference, iStatus );
-		SetActive();	
-		}		
-	
+//	// Connect using UI Setting
+//	if(aConnectionType == EDefaultConnection)
+//		{
+//		iConnection.Start( iStatus );
+//		SetActive();
+//		}
+//	else if(aConnectionType == EUserSelectConnection)
+//		{				
+//		TBool selected = ConnectionSettingL();
+//
+//		if ( selected )
+//			{
+//			switch ( iUserSelection.iResult )
+//				{
+//				case CMManager::EDestination:
+//					{					
+//					iSnapPreference.SetSnap( iUserSelection.iId );
+//					iConnection.Start( iSnapPreference, iStatus );
+//					aConnectionType = ESNAPConnection;
+//					break;
+//					}				
+//				default: // CMManager::EAlwaysAsk
+//				case CMManager::EDefaultConnection:
+//					{					
+//					iConnection.Start( iStatus );
+//					break;
+//					}									
+//				}						
+//			}
+//		else
+//			{
+//			TRequestStatus* status = &iStatus;
+//			User::RequestComplete(status, KErrCancel);
+//			}
+//		
+//			SetActive();
+//		}	
+//	else if (aConnectionType == EIAPConnection)
+//		{
+//		iCommdbPreference.SetIapId((iPodcastModel.SettingsEngine().SpecificIAP()& KUseIAPMask));
+//		iCommdbPreference.SetDialogPreference(ECommDbDialogPrefDoNotPrompt);
+//		iCommdbPreference.SetDirection(ECommDbConnectionDirectionOutgoing);
+//		iConnection.Start( iCommdbPreference, iStatus );
+//		SetActive();
+//		}
+//	// Connect using SNAP 
+//	else
+//		{
+//		iSnapPreference.SetSnap(iPodcastModel.SettingsEngine().SpecificIAP());
+//		iConnection.Start( iSnapPreference, iStatus );
+//		SetActive();	
+//		}		
+//	
 	iConnectionType = aConnectionType;
 	iConnectionState = CConnectionEngine::EConnecting;
 	}

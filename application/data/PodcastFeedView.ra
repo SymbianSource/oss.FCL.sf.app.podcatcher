@@ -92,91 +92,91 @@ RESOURCE AVKON_VIEW r_podcast_feedview
 	hotkeys = r_podcast_feedview_hotkeys;
 	menubar = r_podcast_feedview_menubar;
 	cba = r_podcast_cba;
-	toolbar = r_feedview_toolbar;
+//	toolbar = r_feedview_toolbar;
 }
 
-RESOURCE AVKON_TOOLBAR r_feedview_toolbar
-    {
-    flags = KAknToolbarFixed;
-    items =
-        {
-        TBAR_CTRL
-            {
-            type = EAknCtButton;
-            id = EPodcastUpdateAllFeeds;
-            control = AVKON_BUTTON
-                {
-                states =
-                    {
-                    AVKON_BUTTON_STATE
-                        {
-                        //bmpfile = AVKON_BITMAP_FILE;
-                        //bmpid = EMbmAvkonQgn_indi_find_goto;
-                        txt = STRING_r_update_feed_short_cmd;
-                        helptxt = STRING_r_update_all_feeds_cmd;
-                        }  
-                    };
-                };
-            },
-		TBAR_CTRL
-			{
-			type = EAknCtButton;
-			id = EPodcastCancelUpdateAllFeeds;
-			control = AVKON_BUTTON
-				{
-				states =
-					{
-					AVKON_BUTTON_STATE
-						{
-						//bmpfile = AVKON_BITMAP_FILE;
-						//bmpid = EMbmAvkonQgn_indi_find_goto;
-						txt = STRING_r_cancel_update_all_feeds_short_cmd;
-						helptxt = STRING_r_cancel_update_all_feeds_cmd;
-					   }  
-					};
-				};
-		},
-		TBAR_CTRL
-			{
-			type = EAknCtButton;
-			id = EPodcastAddFeed;
-			control = AVKON_BUTTON
-				{
-				flags = KAknButtonTextInsideFrame;
-				states =
-					{
-					AVKON_BUTTON_STATE
-						{
-						//bmpfile = AVKON_BITMAP_FILE;
-						//bmpid = EMbmAvkonQgn_indi_find_goto;
-						//press_bmpid = EMbmAvkonQgn_indi_find_goto;
-						txt = STRING_r_view_add_feed_cmd_short;
-						helptxt = STRING_r_view_add_feed_cmd;
-						} 
-					};
-				};
-			},
-			TBAR_CTRL
-				{
-				type = EAknCtButton;
-				id = EPodcastSettings;
-				control = AVKON_BUTTON
-					{
-					states =
-						{
-						AVKON_BUTTON_STATE
-							{
-							//bmpfile = AVKON_BITMAP_FILE;
-							//bmpid = EMbmAvkonQgn_indi_find_goto;
-							//press_bmpid = EMbmAvkonQgn_indi_find_goto;
-							txt = STRING_r_settings_cmd;
-							helptxt = STRING_r_settings_cmd;
-						   }  
-						};
-					};
-			}
-			};// items
-    }
+//RESOURCE AVKON_TOOLBAR r_feedview_toolbar
+//    {
+//    flags = KAknToolbarFixed;
+//    items =
+//        {
+//        TBAR_CTRL
+//            {
+//            type = EAknCtButton;
+//            id = EPodcastUpdateAllFeeds;
+//            control = AVKON_BUTTON
+//                {
+//                states =
+//                    {
+//                    AVKON_BUTTON_STATE
+//                        {
+//                        //bmpfile = AVKON_BITMAP_FILE;
+//                        //bmpid = EMbmAvkonQgn_indi_find_goto;
+//                        txt = STRING_r_update_feed_short_cmd;
+//                        helptxt = STRING_r_update_all_feeds_cmd;
+//                        }  
+//                    };
+//                };
+//            },
+//		TBAR_CTRL
+//			{
+//			type = EAknCtButton;
+//			id = EPodcastCancelUpdateAllFeeds;
+//			control = AVKON_BUTTON
+//				{
+//				states =
+//					{
+//					AVKON_BUTTON_STATE
+//						{
+//						//bmpfile = AVKON_BITMAP_FILE;
+//						//bmpid = EMbmAvkonQgn_indi_find_goto;
+//						txt = STRING_r_cancel_update_all_feeds_short_cmd;
+//						helptxt = STRING_r_cancel_update_all_feeds_cmd;
+//					   }  
+//					};
+//				};
+//		},
+//		TBAR_CTRL
+//			{
+//			type = EAknCtButton;
+//			id = EPodcastAddFeed;
+//			control = AVKON_BUTTON
+//				{
+//				flags = KAknButtonTextInsideFrame;
+//				states =
+//					{
+//					AVKON_BUTTON_STATE
+//						{
+//						//bmpfile = AVKON_BITMAP_FILE;
+//						//bmpid = EMbmAvkonQgn_indi_find_goto;
+//						//press_bmpid = EMbmAvkonQgn_indi_find_goto;
+//						txt = STRING_r_view_add_feed_cmd_short;
+//						helptxt = STRING_r_view_add_feed_cmd;
+//						} 
+//					};
+//				};
+//			},
+//			TBAR_CTRL
+//				{
+//				type = EAknCtButton;
+//				id = EPodcastSettings;
+//				control = AVKON_BUTTON
+//					{
+//					states =
+//						{
+//						AVKON_BUTTON_STATE
+//							{
+//							//bmpfile = AVKON_BITMAP_FILE;
+//							//bmpid = EMbmAvkonQgn_indi_find_goto;
+//							//press_bmpid = EMbmAvkonQgn_indi_find_goto;
+//							txt = STRING_r_settings_cmd;
+//							helptxt = STRING_r_settings_cmd;
+//						   }  
+//						};
+//					};
+//			}
+//			};// items
+//    }
 
 RESOURCE DIALOG r_podcast_add_feed_dlg
 {

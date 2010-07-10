@@ -24,10 +24,10 @@
 #include <in_sock.h>
 #include <connpref.h>
 #include <commdbconnpref.h>
-#include <comms-infras/cs_mobility_apiext.h>
+//#include <comms-infras/cs_mobility_apiext.h>
 
 // Using connection manager settings UI
-#include <cmapplicationsettingsui.h>
+//#include <cmapplicationsettingsui.h>
 class CPodcastModel;
 
 class MConnectionObserver
@@ -43,7 +43,7 @@ public:
  * This class helps to connect using three available methods
  * SNAP, Mobility extension and Connection manager UI
  */
-class CConnectionEngine:public CActive, public MMobilityProtocolResp
+class CConnectionEngine:public CActive
 	{
 public:
 	enum TConnectionType
@@ -98,11 +98,6 @@ protected:
 private:
 	RConnection                   iConnection;
 	RSocketServ                   iSocketServer;
-	// Connect using mobility extension
-	CActiveCommsMobilityApiExt*   iMobility;
-
-	// Using connection manager settings UI
-	TCmSettingSelection   iUserSelection;
 	
 	// Connect using Commdb
 	TCommDbConnPref iCommdbPreference;
