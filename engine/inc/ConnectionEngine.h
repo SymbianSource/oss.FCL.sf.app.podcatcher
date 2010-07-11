@@ -49,8 +49,8 @@ public:
 	enum TConnectionType
 		{
 		EUserSelectConnection,		
-		ESNAPConnection,		
-		EMobilityConnection,
+//		ESNAPConnection,		
+//		EMobilityConnection,
 		EDefaultConnection,
 		EIAPConnection
 		};

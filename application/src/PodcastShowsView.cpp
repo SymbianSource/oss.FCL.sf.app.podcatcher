@@ -105,6 +105,7 @@ CPodcastShowsView::CPodcastShowsView(CPodcastModel& aPodcastModel) :
 
 void CPodcastShowsView::ConstructL()
 	{
+	DP("CPodcastShowsView::ConstructL BEGIN");
 	BaseConstructL(R_PODCAST_SHOWSVIEW);
 	CPodcastListView::ConstructL();
 	
@@ -115,7 +116,7 @@ void CPodcastShowsView::ConstructL()
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);
 	
-	CleanupStack::PopAndDestroy();	
+	DP("CPodcastShowsView::ConstructL END");
 	}
 
 void CPodcastShowsView::CreateIconsL()
@@ -172,9 +173,7 @@ TKeyResponse CPodcastShowsView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEvent
 				break;
 			case 106:
 			case '#':
-				if (activeShow->DownloadState() == ENotDownloaded) {
-					HandleCommandL(EPodcastDownloadShow);
-				}
+				HandleCommandL(EPodcastShowInfo);
 				break;
 			case EKeyBackspace:
 			case EKeyDelete:
@@ -636,10 +635,29 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 	
 void CPodcastShowsView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane)
 {
+	TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && iPodcastModel.ActiveFeedInfo() && 
+				iPodcastModel.FeedEngine().ActiveClientUid() == iPodcastModel.ActiveFeedInfo()->Uid();
+
 	if(aResourceId == R_PODCAST_SHOWSVIEW_MENU)
+		{	
+		aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, updatingState || iPodcastModel.ActiveShowList().Count() == 0);
+		aMenuPane->SetItemDimmed(EPodcastUpdateFeed, updatingState); 
+		aMenuPane->SetItemDimmed(EPodcastCancelUpdateAllFeeds, !updatingState);
+		aMenuPane->SetItemDimmed(EPodcastShowsShowMenu, updatingState || iPodcastModel.ActiveShowList().Count() == 0);
+		}
+	else if (aResourceId == R_SHOWS_SHOW_MENU)
 		{
-		TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && iPodcastModel.FeedEngine().ActiveClientUid() == iPodcastModel.ActiveFeedInfo()->Uid();
-		aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, updatingState);
+		TInt index = iListContainer->Listbox()->CurrentItemIndex();
+		if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
+			{
+			CShowInfo *info = iPodcastModel.ActiveShowList()[index];
+			TBool hideDeleteShowCmd = info->DownloadState() != EDownloaded;
+			TBool hideMarkOld = info->PlayState() == EPlayed;
+			
+			aMenuPane->SetItemDimmed(EPodcastMarkAsPlayed, hideMarkOld);
+			aMenuPane->SetItemDimmed(EPodcastMarkAsUnplayed, !hideMarkOld);			
+			aMenuPane->SetItemDimmed(EPodcastDeleteShow, hideDeleteShowCmd);
+			}
 		}
 }
 	

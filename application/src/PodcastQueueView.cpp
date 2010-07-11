@@ -67,8 +67,6 @@ void CPodcastQueueView::ConstructL()
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);
 	
-	CleanupStack::PopAndDestroy();
-
 	SetEmptyTextL(R_PODCAST_EMPTY_QUEUE);
 	}
 
@@ -310,8 +308,21 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 	
 void CPodcastQueueView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane)
 	{
-	if(aResourceId == R_PODCAST_SHOWSVIEW_MENU)
+	if(aResourceId == R_QUEUE_SHOW_MENU)
 		{
-		aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, ETrue);
+		TBool dimDown = (iListContainer->Listbox()->CurrentItemIndex() >= iPodcastModel.ActiveShowList().Count() - 1 ?
+				ETrue : EFalse);
+		TBool dimUp = (iListContainer->Listbox()->CurrentItemIndex() <= 0 ?
+				ETrue : EFalse);
+		
+		aMenuPane->SetItemDimmed(EPodcastMoveDownloadDown, dimDown);
+		aMenuPane->SetItemDimmed(EPodcastMoveDownloadUp, dimUp);
+		}
+	else if (aResourceId == R_PODCAST_QUEUEVIEW_MENU)
+		{
+		aMenuPane->SetItemDimmed(EPodcastQueueShowMenu, iPodcastModel.ActiveShowList().Count() == 0);
+		aMenuPane->SetItemDimmed(EPodcastRemoveAllDownloads, iPodcastModel.ActiveShowList().Count() == 0);
+		aMenuPane->SetItemDimmed(EPodcastSuspendDownloads, iPodcastModel.SettingsEngine().DownloadSuspended());
+		aMenuPane->SetItemDimmed(EPodcastResumeDownloads, !iPodcastModel.SettingsEngine().DownloadSuspended());				
 		}
 	}

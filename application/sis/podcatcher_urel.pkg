@@ -1,7 +1,7 @@
 &EN
 :"Symbian Foundation"
 %{"Podcatcher"}
-#{"Podcatcher"},(0xA0009D00), 1, 00, 28, TYPE=SA
+#{"Podcatcher"},(0xA0009D00), 1, 00, 3, TYPE=SA
 
 ;Supports S60 3rd edition
 [0x101F7961], 0, 0, 0, {"Series60ProductID"}

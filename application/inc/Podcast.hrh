@@ -67,7 +67,11 @@ enum TPodcastCommandIds
 	EPodcastFilterShowsAll,
 	EPodcastFilterShowsNew,
 	EPodcastFilterShowsDownloaded,
-	EPodcastFilterShowsNewAndDownloaded
+	EPodcastFilterShowsNewAndDownloaded,
+	EPodcastFeedFeedMenu,
+	EPodcastShowsShowMenu,
+	EPodcastQueueShowMenu,
+	EPodcastFeedHelpMenu
 	};
 
 enum TPodcastControl
@@ -80,7 +84,6 @@ enum TPodcastControl
 	EPodcastSettingConnection,
 	EPodcastSettingIAPList,
 	EPodcastAboutDlg,
-	EPodcastFeedsToolbarExtension,
 	EQueryControl,
 	EPodcastShowInfoImage,
 	EWaitDlg
@@ -100,9 +103,9 @@ enum TShowsIconIndex
 
 enum TConnectionSetting {
 	EConnectionDefault = 0,
-	EConnectionAlwaysAsk = 1,
-	EConnectionUseNetwork = 2,
-	EConnectionUseIap = 0x7FFF
+	EConnectionAlwaysAsk = -1
+//	EConnectionUseNetwork = 2,
+//	EConnectionUseIap = 0x7FFF
 };
 
 #endif

@@ -31,7 +31,9 @@
 #include <aknquerydialog.h>
 #include <BAUTILS.H> 
 #include <pathinfo.h> 
-//#include <akncommondialogsdynmem.h> 
+#include <caknmemoryselectiondialog.h> 
+#include <caknmemoryselectiondialog.h> 
+#include <caknfilenamepromptdialog.h> 
 #include "Podcatcher.pan"
 
 const TInt KMaxFeedNameLength = 100;
@@ -710,72 +712,89 @@ void CPodcastFeedView::HandleUpdateFeedL()
 
 void CPodcastFeedView::HandleImportFeedsL()
 	{
-//	TFileName fileName;
-//	fileName.Zero();
-//	TFileName startFolder;
-//	startFolder.Zero();
-//	TInt types = AknCommonDialogsDynMem::EMemoryTypePhone | AknCommonDialogsDynMem::EMemoryTypeMMC |AknCommonDialogsDynMem::EMemoryTypeInternalMassStorage| AknCommonDialogsDynMem::EMemoryTypeRemote;
-//	
-//	HBufC *title = iCoeEnv->AllocReadResourceLC(R_PODCAST_SELECT_OPML);
-//	if (AknCommonDialogsDynMem::RunSelectDlgLD (types, fileName,
-//			startFolder, NULL, NULL, *title))
-//		{
-//		
-//		if(fileName.Length()>0)
-//			{
-//			HBufC *waitText = iEikonEnv->AllocReadResourceLC(R_IMPORTING);
-//			iOpmlState = EOpmlImporting;
-//			ShowWaitDialogL(*waitText);
-//			CleanupStack::PopAndDestroy(waitText);	
-//
-//			TRAPD(err, iPodcastModel.FeedEngine().ImportFeedsL(fileName));
-//								
-//			if (err != KErrNone) {
-//				TBuf<KMaxMessageLength> message;
-//				iEikonEnv->ReadResourceL(message, R_IMPORT_FEED_FAILURE);
-//				ShowErrorMessageL(message);
-//				}
-//			}
-//
-//		}
-//	CleanupStack::PopAndDestroy(title);
+	CAknMemorySelectionDialog* memDlg = 
+		CAknMemorySelectionDialog::NewL(ECFDDialogTypeNormal, ETrue);
+	CleanupStack::PushL(memDlg);
+	CAknMemorySelectionDialog::TMemory memory = 
+		CAknMemorySelectionDialog::EPhoneMemory;
+
+	if (memDlg->ExecuteL(memory))
+		{
+		TFileName importName;
+	
+		if (memory==CAknMemorySelectionDialog::EMemoryCard)
+		{
+			importName = PathInfo:: MemoryCardRootPath();
+		}
+		else
+		{
+			importName = PathInfo:: PhoneMemoryRootPath();
+		}
+
+		CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeNormal, R_PODCAST_IMPORT_PODCAST);
+		CleanupStack::PushL(dlg);
+
+		dlg->SetDefaultFolderL(importName);
+		
+		if(dlg->ExecuteL(importName))
+			{
+			if(importName.Length()>0)
+				{
+				iPodcastModel.FeedEngine().ImportFeedsL(importName);
+				UpdateListboxItemsL();
+				}
+			}
+		CleanupStack::PopAndDestroy(dlg);
+		}
+	CleanupStack::PopAndDestroy(memDlg);								
 	}
 
 void CPodcastFeedView::HandleExportFeedsL()
 	{
-//	TFileName fileName;
-//	fileName.Copy(_L("feeds.opml"));
-//	TFileName startFolder;
-//	startFolder.Zero();
-//	TInt types = AknCommonDialogsDynMem::EMemoryTypePhone | AknCommonDialogsDynMem::EMemoryTypeMMC |AknCommonDialogsDynMem::EMemoryTypeInternalMassStorage| AknCommonDialogsDynMem::EMemoryTypeRemote;
-//	
-//	HBufC *title = iCoeEnv->AllocReadResourceLC(R_PODCAST_SELECT_FOLDER);
-//	if (AknCommonDialogsDynMem::RunSaveDlgLD (types, fileName,
-//			startFolder, NULL, NULL, *title))
-//		{
-//			TFileName temp;
-//			TRAPD(err, iPodcastModel.FeedEngine().ExportFeedsL(temp));						
-//			BaflUtils::CopyFile(iEikonEnv->FsSession(), temp, fileName);
-//			BaflUtils::DeleteFile(iEikonEnv->FsSession(),temp);	
-//			if (err == KErrNone) 
-//				{
-//				UpdateListboxItemsL();
-//				TInt numFeeds = iPodcastModel.FeedEngine().GetSortedFeeds().Count();
-//								
-//				TBuf<KMaxMessageLength> message;
-//				TBuf<KMaxMessageLength> templ;
-//				iEikonEnv->ReadResourceL(templ, R_EXPORT_FEED_SUCCESS);
-//				message.Format(templ, numFeeds);
-//				ShowOkMessageL(message);
-//				} 
-//			else 
-//				{
-//				TBuf<KMaxMessageLength> message;
-//				iEikonEnv->ReadResourceL(message, R_EXPORT_FEED_FAILURE);
-//				ShowErrorMessageL(message);
-//				}
-//		}
-//	CleanupStack::PopAndDestroy(title);
+	CAknMemorySelectionDialog* memDlg = 
+		CAknMemorySelectionDialog::NewL(ECFDDialogTypeSave, ETrue);
+	CleanupStack::PushL(memDlg);
+	CAknMemorySelectionDialog::TMemory memory = 
+		CAknMemorySelectionDialog::EPhoneMemory;
+
+	if (memDlg->ExecuteL(memory))
+		{
+		TFileName pathName;
+		
+		if (memory==CAknMemorySelectionDialog::EMemoryCard)
+		{
+			pathName = PathInfo::MemoryCardRootPath();
+		}
+		else
+		{
+			pathName = PathInfo::PhoneMemoryRootPath();
+		}
+
+		CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeSave, R_PODCAST_EXPORT_FEEDS);
+		CleanupStack::PushL(dlg);
+								
+		if(dlg->ExecuteL(pathName))
+			{
+			CAknFileNamePromptDialog *fileDlg = CAknFileNamePromptDialog::NewL(R_PODCAST_FILENAME_PROMPT_DIALOG);
+			CleanupStack::PushL(fileDlg);
+			fileDlg->SetPathL(pathName);
+			TFileName fileName;
+			if (fileDlg->ExecuteL(fileName) && fileName.Length() > 0)
+				{
+				pathName.Append(fileName);
+				TFileName temp;
+				iPodcastModel.FeedEngine().ExportFeedsL(temp);
+				RFs fs;
+				fs.Connect();
+				BaflUtils::CopyFile(fs, temp, pathName);
+				BaflUtils::DeleteFile(fs,temp);
+				fs.Close();
+				}
+			CleanupStack::PopAndDestroy(fileDlg);
+			}
+		CleanupStack::PopAndDestroy(dlg);
+	}
+	CleanupStack::PopAndDestroy(memDlg);									
 	}
 
 void CPodcastFeedView::CheckResumeDownloadL()
@@ -887,3 +906,32 @@ TBool CPodcastFeedView::ViewingShows()
 	{
 	return iViewingShows;
 	}
+
+void CPodcastFeedView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane)
+	{
+	if(aResourceId == R_PODCAST_FEEDVIEW_MENU)
+		{
+		aMenuPane->SetItemDimmed(EPodcastUpdateAllFeeds, iUpdatingRunning);
+		aMenuPane->SetItemDimmed(EPodcastCancelUpdateAllFeeds, !iUpdatingRunning);
+		aMenuPane->SetItemDimmed(EPodcastSettings, iUpdatingRunning);
+		aMenuPane->SetItemDimmed(EPodcastFeedFeedMenu, iUpdatingRunning);
+//		aMenuPane->SetItemDimmed(EPodcastImportExportFeeds, iUpdatingRunning);
+		}
+	}
+
+TKeyResponse CPodcastFeedView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType)
+	{
+	if (aType == EEventKey)
+		{
+			switch (aKeyEvent.iCode) {
+			case EKeyBackspace:
+			case EKeyDelete:
+				HandleCommandL(EPodcastDeleteFeedHardware);
+				break;
+			default:
+				break;
+			}
+		}
+		return CPodcastListView::OfferKeyEventL(aKeyEvent, aType);
+	}
+

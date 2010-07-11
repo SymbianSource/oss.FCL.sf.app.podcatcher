@@ -38,19 +38,36 @@ RESOURCE MENU_PANE r_podcast_feedview_menu
         {
 		MENU_ITEM
 			{
-			command = EPodcastImportExportFeeds;
-			txt = STRING_r_view_import_export_feeds_cmd;
-			cascade = r_importexport_menu;
+			command = EPodcastUpdateAllFeeds;
+			txt= STRING_r_update_all_feeds_cmd;
 			},
 		MENU_ITEM
 			{
-			command = EPodcastAbout;
-			txt = STRING_r_view_about_cmd;
-			}, 
+			command = EPodcastCancelUpdateAllFeeds;
+			txt = STRING_r_cancel_update_all_feeds_cmd;
+			},
 		MENU_ITEM
 			{
-			command = EPodcastHelp;
+			command = EPodcastFeedFeedMenu;
+			txt = STRING_r_view_feed_feed_menu;
+			cascade = r_feed_feed_menu;
+			},
+//		MENU_ITEM
+//			{
+//			command = EPodcastImportExportFeeds;
+//			txt = STRING_r_view_import_export_feeds_cmd;
+//			cascade = r_importexport_menu;
+//			},
+		MENU_ITEM
+			{
+			command = EPodcastSettings;
+			txt = STRING_r_settings_cmd;
+			},
+		MENU_ITEM
+			{
+			command = EPodcastFeedHelpMenu;
 			txt = STRING_r_view_help;
+			cascade = r_feed_help_menu;
 			},
 		MENU_ITEM
 			{
@@ -59,6 +76,23 @@ RESOURCE MENU_PANE r_podcast_feedview_menu
 			}
         };
     }
+
+RESOURCE MENU_PANE r_feed_help_menu
+	{
+	items =	{
+		
+		MENU_ITEM
+		{
+		command = EPodcastAbout;
+		txt = STRING_r_view_about_cmd;
+		}, 
+		MENU_ITEM
+		{
+		command = EPodcastHelp;
+		txt = STRING_r_view_help;
+		}
+	};
+	}
 
 RESOURCE MENU_PANE r_importexport_menu
 	{
@@ -76,6 +110,43 @@ RESOURCE MENU_PANE r_importexport_menu
 	};	
 	}
 
+RESOURCE MENU_PANE r_feed_feed_menu
+	{
+	items =	{
+	MENU_ITEM
+		{
+		command = EPodcastAddFeed;
+		txt = STRING_r_view_add_feed_cmd;
+		},
+	MENU_ITEM
+		{
+			txt = STRING_r_view_edit_feed_cmd;
+			command = EPodcastEditFeed; 
+		},
+	MENU_ITEM
+		{
+			txt = STRING_r_view_delete_feed_cmd;
+			command = EPodcastDeleteFeed;
+		},
+//	MENU_ITEM
+//		{
+//			txt = STRING_r_update_feed_cmd;
+//			command = EPodcastUpdateFeed;
+//		},
+	MENU_ITEM
+		{
+		command = EPodcastImportFeeds;
+		txt = STRING_r_view_import_feeds_cmd;
+		},
+	MENU_ITEM
+		{
+		command = EPodcastExportFeeds;
+		txt = STRING_r_view_export_feeds_cmd;
+		}
+	};	
+	}
+
+
 RESOURCE CBA r_podcast_cba
 	{
 	buttons =
@@ -92,91 +163,7 @@ RESOURCE AVKON_VIEW r_podcast_feedview
 	hotkeys = r_podcast_feedview_hotkeys;
 	menubar = r_podcast_feedview_menubar;
 	cba = r_podcast_cba;
-//	toolbar = r_feedview_toolbar;
 }
-
-//RESOURCE AVKON_TOOLBAR r_feedview_toolbar
-//    {
-//    flags = KAknToolbarFixed;
-//    items =
-//        {
-//        TBAR_CTRL
-//            {
-//            type = EAknCtButton;
-//            id = EPodcastUpdateAllFeeds;
-//            control = AVKON_BUTTON
-//                {
-//                states =
-//                    {
-//                    AVKON_BUTTON_STATE
-//                        {
-//                        //bmpfile = AVKON_BITMAP_FILE;
-//                        //bmpid = EMbmAvkonQgn_indi_find_goto;
-//                        txt = STRING_r_update_feed_short_cmd;
-//                        helptxt = STRING_r_update_all_feeds_cmd;
-//                        }  
-//                    };
-//                };
-//            },
-//		TBAR_CTRL
-//			{
-//			type = EAknCtButton;
-//			id = EPodcastCancelUpdateAllFeeds;
-//			control = AVKON_BUTTON
-//				{
-//				states =
-//					{
-//					AVKON_BUTTON_STATE
-//						{
-//						//bmpfile = AVKON_BITMAP_FILE;
-//						//bmpid = EMbmAvkonQgn_indi_find_goto;
-//						txt = STRING_r_cancel_update_all_feeds_short_cmd;
-//						helptxt = STRING_r_cancel_update_all_feeds_cmd;
-//					   }  
-//					};
-//				};
-//		},
-//		TBAR_CTRL
-//			{
-//			type = EAknCtButton;
-//			id = EPodcastAddFeed;
-//			control = AVKON_BUTTON
-//				{
-//				flags = KAknButtonTextInsideFrame;
-//				states =
-//					{
-//					AVKON_BUTTON_STATE
-//						{
-//						//bmpfile = AVKON_BITMAP_FILE;
-//						//bmpid = EMbmAvkonQgn_indi_find_goto;
-//						//press_bmpid = EMbmAvkonQgn_indi_find_goto;
-//						txt = STRING_r_view_add_feed_cmd_short;
-//						helptxt = STRING_r_view_add_feed_cmd;
-//						} 
-//					};
-//				};
-//			},
-//			TBAR_CTRL
-//				{
-//				type = EAknCtButton;
-//				id = EPodcastSettings;
-//				control = AVKON_BUTTON
-//					{
-//					states =
-//						{
-//						AVKON_BUTTON_STATE
-//							{
-//							//bmpfile = AVKON_BITMAP_FILE;
-//							//bmpid = EMbmAvkonQgn_indi_find_goto;
-//							//press_bmpid = EMbmAvkonQgn_indi_find_goto;
-//							txt = STRING_r_settings_cmd;
-//							helptxt = STRING_r_settings_cmd;
-//						   }  
-//						};
-//					};
-//			}
-//			};// items
-//    }
 
 RESOURCE DIALOG r_podcast_add_feed_dlg
 {
@@ -249,24 +236,39 @@ RESOURCE DIALOG r_podcast_edit_feed_dlg
 	};
 }
 
-RESOURCE STYLUS_POPUP_MENU r_feedview_popup_menu
-	{
-		items =
-		{
-			STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_view_edit_feed_cmd_short;
-					command = EPodcastEditFeed; 
-				},
-			STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_view_delete_feed_cmd_short;
-					command = EPodcastDeleteFeed;
-				},
-			STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_update_feed_short_cmd;
-					command = EPodcastUpdateFeed;
-				}
-		};
-	}
+RESOURCE FILESELECTIONDIALOG r_podcast_import_podcast
+{
+ title = STRING_r_view_import_feeds_title;
+ root_path = "";
+ filters =
+ {
+  FILTER
+  {
+  filter_type = EFilenameFilter;
+  filter_style = EInclusiveFilter;
+  filter_data = { "*.*" };
+  }
+ };
+}
+
+RESOURCE FILESELECTIONDIALOG r_podcast_export_feeds
+{
+ title = STRING_r_view_export_feeds_title;
+ root_path = "";
+ filters =
+ {
+  FILTER
+  {
+  filter_type = EFilenameFilter;
+  filter_style = EInclusiveFilter;
+  filter_data = { "*.*" };
+  }
+ };
+}
+
+RESOURCE FILENAMEPROMPTDIALOG r_podcast_filename_prompt_dialog
+{
+  filename_prompt = STRING_r_enter_filename;
+  default_filename = "feeds.xml";
+  path = "";
+}

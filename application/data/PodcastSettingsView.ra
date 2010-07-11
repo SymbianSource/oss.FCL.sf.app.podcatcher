@@ -73,19 +73,19 @@ items =
 				associated_resource = r_on_off_texts;
 				name = STRING_r_podcast_setting_autodownload;
 				},
-			AVKON_SETTING_ITEM
-			{
-				identifier = EPodcastSettingConnection;
-				setting_page_resource = r_podcast_connection_page_resource;
-				associated_resource = r_podcast_connection_texts;
-				name = STRING_r_podcast_setting_connection;
-			},
+//			AVKON_SETTING_ITEM
+//			{
+//				identifier = EPodcastSettingConnection;
+//				setting_page_resource = r_podcast_connection_page_resource;
+//				associated_resource = r_podcast_connection_texts;
+//				name = STRING_r_podcast_setting_connection;
+//			},
 			AVKON_SETTING_ITEM
 			{
 				identifier = EPodcastSettingIAPList;
 				setting_page_resource = r_setting_iap_page_resource;
 				associated_resource = r_setting_iap_texts;
-				name = STRING_r_podcast_setting_iaplist;
+				name = STRING_r_podcast_setting_connection;
 			}		
 	};
 }
@@ -104,42 +104,42 @@ RESOURCE EDWIN r_podcast_showdir
 	default_input_mode = EAknEditorTextInputMode;
 }
 
-RESOURCE AVKON_SETTING_PAGE r_podcast_connection_page_resource
-{
-    label= STRING_r_podcast_setting_connection;
-    type = EAknCtPopupSettingList;
-    editor_resource_id = r_setting_connection_popup_list_entry;
-}
-
-RESOURCE POPUP_SETTING_LIST r_setting_connection_popup_list_entry
-{
-}
-
-RESOURCE AVKON_POPUP_SETTING_TEXTS r_podcast_connection_texts
-{
-    setting_texts_resource = r_podcast_connection_closed;
-    popped_up_texts_resource = r_podcast_connection_opened;
-}
-
-RESOURCE ARRAY r_podcast_connection_closed
-{
-    items = 
-    {
-    AVKON_ENUMERATED_TEXT{value=EConnectionDefault; text = STRING_r_podcast_setting_default;},
-    AVKON_ENUMERATED_TEXT{value=EConnectionAlwaysAsk; text = STRING_r_podcast_setting_alwaysask;},    
-    AVKON_ENUMERATED_TEXT{value=EConnectionUseIap; text = STRING_r_podcast_setting_useiap;}
-    };
-}
-
-RESOURCE ARRAY r_podcast_connection_opened
-{
-    items = 
-    {
-    LBUF { txt=STRING_r_podcast_setting_default; },
-    LBUF { txt=STRING_r_podcast_setting_alwaysask; },	   
-    LBUF { txt=STRING_r_podcast_setting_useiap; }
-    };
-}
+//RESOURCE AVKON_SETTING_PAGE r_podcast_connection_page_resource
+//{
+//    label= STRING_r_podcast_setting_connection;
+//    type = EAknCtPopupSettingList;
+//    editor_resource_id = r_setting_connection_popup_list_entry;
+//}
+//
+//RESOURCE POPUP_SETTING_LIST r_setting_connection_popup_list_entry
+//{
+//}
+//
+//RESOURCE AVKON_POPUP_SETTING_TEXTS r_podcast_connection_texts
+//{
+//    setting_texts_resource = r_podcast_connection_closed;
+//    popped_up_texts_resource = r_podcast_connection_opened;
+//}
+//
+//RESOURCE ARRAY r_podcast_connection_closed
+//{
+//    items = 
+//    {
+//    AVKON_ENUMERATED_TEXT{value=EConnectionDefault; text = STRING_r_podcast_setting_default;},
+//    AVKON_ENUMERATED_TEXT{value=EConnectionAlwaysAsk; text = STRING_r_podcast_setting_alwaysask;},    
+////    AVKON_ENUMERATED_TEXT{value=EConnectionUseIap; text = STRING_r_podcast_setting_useiap;}
+//    };
+//}
+//
+//RESOURCE ARRAY r_podcast_connection_opened
+//{
+//    items = 
+//    {
+//    LBUF { txt=STRING_r_podcast_setting_default; },
+//    LBUF { txt=STRING_r_podcast_setting_alwaysask; },	   
+//    LBUF { txt=STRING_r_podcast_setting_useiap; }
+//    };
+//}
 
 RESOURCE AVKON_SETTING_PAGE r_podcast_autodownload_page_resource
 {
@@ -266,7 +266,8 @@ RESOURCE ARRAY r_setting_iap_closed
 {
     items = 
     {
-    AVKON_ENUMERATED_TEXT{value=0; text = "";}
+    AVKON_ENUMERATED_TEXT{value=EConnectionDefault; text = STRING_r_podcast_setting_default;},
+    AVKON_ENUMERATED_TEXT{value=EConnectionAlwaysAsk; text = STRING_r_podcast_setting_alwaysask;}
     };
 }
 
@@ -274,6 +275,7 @@ RESOURCE ARRAY r_setting_iap_opened
 {
     items = 
     {
-    LBUF { txt=""; }
+    	    LBUF { txt=STRING_r_podcast_setting_default; },
+    	    LBUF { txt=STRING_r_podcast_setting_alwaysask; }
     };
 }

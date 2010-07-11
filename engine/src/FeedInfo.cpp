@@ -225,7 +225,7 @@ EXPORT_C void CFeedInfo::SetImageFileNameL(const TDesC& aFileName, CPodcastModel
 		{
 		// If this fails, no reason to worry
 		iFeedIcon = new CFbsBitmap();
-		TRAP_IGNORE(aPodcastModel->ImageHandler().LoadFileAndScaleL(FeedIcon(), ImageFileName(), TSize(64,56), *this, Uid()));
+		TRAP_IGNORE(aPodcastModel->ImageHandler().LoadFileAndScaleL(FeedIcon(), ImageFileName(), TSize(44,44), *this, Uid()));
 		}	
 	DP("CFeedInfo::SetImageFileNameL END");
 	} 

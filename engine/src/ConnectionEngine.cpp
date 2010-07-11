@@ -61,8 +61,8 @@ void CConnectionEngine::RunL()
 //		iMobility = CActiveCommsMobilityApiExt::NewL( iConnection, *this );
 //		}
 //	
-//	iConnectionState = iStatus.Int() == KErrNone?CConnectionEngine::EConnected:CConnectionEngine::ENotConnected;
-//	ReportConnectionL( iStatus.Int() );
+	iConnectionState = iStatus.Int() == KErrNone?CConnectionEngine::EConnected:CConnectionEngine::ENotConnected;
+	ReportConnectionL( iStatus.Int() );
 	}
 
 void CConnectionEngine::DoCancel()
@@ -149,12 +149,13 @@ void CConnectionEngine::StartL(TConnectionType aConnectionType)
 	
 	iConnection.Close();
 	User::LeaveIfError( iConnection.Open( iSocketServer ) );
-//	// Connect using UI Setting
-//	if(aConnectionType == EDefaultConnection)
-//		{
-//		iConnection.Start( iStatus );
-//		SetActive();
-//		}
+
+	// Connect using UI Setting
+	if(aConnectionType == EDefaultConnection || EUserSelectConnection)
+		{
+		iConnection.Start( iStatus );
+		SetActive();
+		}
 //	else if(aConnectionType == EUserSelectConnection)
 //		{				
 //		TBool selected = ConnectionSettingL();
@@ -186,14 +187,14 @@ void CConnectionEngine::StartL(TConnectionType aConnectionType)
 //		
 //			SetActive();
 //		}	
-//	else if (aConnectionType == EIAPConnection)
-//		{
-//		iCommdbPreference.SetIapId((iPodcastModel.SettingsEngine().SpecificIAP()& KUseIAPMask));
-//		iCommdbPreference.SetDialogPreference(ECommDbDialogPrefDoNotPrompt);
-//		iCommdbPreference.SetDirection(ECommDbConnectionDirectionOutgoing);
-//		iConnection.Start( iCommdbPreference, iStatus );
-//		SetActive();
-//		}
+	else if (aConnectionType == EIAPConnection)
+		{
+		iCommdbPreference.SetIapId((iPodcastModel.SettingsEngine().SpecificIAP()& KUseIAPMask));
+		iCommdbPreference.SetDialogPreference(ECommDbDialogPrefDoNotPrompt);
+		iCommdbPreference.SetDirection(ECommDbConnectionDirectionOutgoing);
+		iConnection.Start( iCommdbPreference, iStatus );
+		SetActive();
+		}
 //	// Connect using SNAP 
 //	else
 //		{

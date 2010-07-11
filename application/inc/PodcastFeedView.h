@@ -97,6 +97,9 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 		// from MImageHandlerCallback
 		void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel);
 		
+		void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);
+		TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
+
 	private:
 		void FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aIsUpdating = EFalse);
 		void HandleAddFeedL();
