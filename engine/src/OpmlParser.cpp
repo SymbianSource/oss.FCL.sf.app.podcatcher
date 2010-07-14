@@ -148,6 +148,7 @@ void COpmlParser::OnStartElementL(const RTagInfo& aElement, const RAttributeArra
 			}
 
 			if (!hasUrl) {
+				CleanupStack::PopAndDestroy(newFeed);
 				break;
 			}
 			
