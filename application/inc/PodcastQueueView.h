@@ -75,6 +75,10 @@ protected:
 	void HandleCommandL(TInt aCommand);
 	TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
 	void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);
+
+private:
+	TBool iDontUpdateList;
+
 	};
 
 #endif
