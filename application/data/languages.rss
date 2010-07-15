@@ -18,6 +18,8 @@
 
 #include "PodcastClient_common.rls" // strings common between languages
 
-//#ifdef LANGUAGE_01
+#ifdef LANGUAGE_01
 	#include "PodcastClient_english.rls"
-//#endif
+#elif defined  LANGUAGE_04
+	#include "PodcastClient_spanish.rls"
+#endif
