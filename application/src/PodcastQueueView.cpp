@@ -155,7 +155,7 @@ void CPodcastQueueView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 
 void CPodcastQueueView::UpdateListboxItemsL()
 	{
-	if (iListContainer->IsVisible())
+	if (iListContainer->IsVisible() && !iDontUpdateList)
 		{
 		TListItemProperties itemProps;
 		TInt len = 0;
@@ -249,7 +249,17 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
 			if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
 				{
+				// this is an ugly hack to prevent UpdateListboxItemsL from being
+				// triggered from the show engine, which causes focus to jump
+				// around in an ugly fashion
+				iDontUpdateList = ETrue;
 				TRAP_IGNORE(iPodcastModel.ShowEngine().RemoveDownloadL(iPodcastModel.ActiveShowList()[index]->Uid()));
+				iDontUpdateList = EFalse;
+				}
+			UpdateListboxItemsL();
+			if (index > 0)
+				{
+				iListContainer->Listbox()->SetCurrentItemIndex(index - 1);
 				}
 			}
 			break;
