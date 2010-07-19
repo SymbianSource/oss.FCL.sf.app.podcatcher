@@ -107,3 +107,4 @@ LIBRARY ws32.lib
 LIBRARY hlplch.lib
 LIBRARY bitgdi.lib 
 LIBRARY  commonui.lib  // CDocumentHandler
+LIBRARY centralrepository.lib
