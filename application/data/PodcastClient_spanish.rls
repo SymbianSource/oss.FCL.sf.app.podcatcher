@@ -36,7 +36,7 @@ rls_string STRING_r_cba_cancel "Cancelar"
 // Tab titles
 rls_string STRING_r_tabgroup_feeds "Fuentes"
 rls_string STRING_r_tabgroup_queue "Cola"
-rls_string STRING_r_tabgroup_queue_counter "Cola (%d)"
+rls_string STRING_r_tabgroup_queue_counter "(%d) Cola"
 
 // Question dialogs
 rls_string STRING_r_add_feed_prompt "Introduzca términos de búsqueda o dirección de la fuente"
@@ -129,11 +129,11 @@ rls_string STRING_r_search_results "Resulstados de la búsqueda"
 
 // Show view
 
-rls_string STRING_r_view_mark_as_played_cmd_short "Marcar leido"
-rls_string STRING_r_view_mark_as_unplayed_cmd_short "Marcar nuevo"
+rls_string STRING_r_view_mark_as_played_cmd_short "Marcar leido (*)"
+rls_string STRING_r_view_mark_as_unplayed_cmd_short "Marcar nuevo (*)"
 rls_string STRING_r_view_download_show_cmd "Descargar"
 rls_string STRING_r_view_delete_show_cmd "Borrar"
-rls_string STRING_r_view_show_info_cmd "Información"
+rls_string STRING_r_view_show_info_cmd "Información (#)"
 rls_string STRING_r_error_playback_failed "No se pudo reproducir el capítulo"
 
 // Download queue operations
@@ -147,10 +147,16 @@ rls_string STRING_r_clear_query "¿Quiere borrar la cola?"
 rls_string STRING_r_view_remove_download_short_cmd "Borrar"
 rls_string STRING_r_view_remove_download_cmd "Borrar descarga"
 
+rls_string STRING_r_view_move_up_short_cmd "Move up"
+rls_string STRING_r_view_move_down_short_cmd "Move down"
+
 rls_string STRING_r_error_notfound "Error: Servidor no fue hallado"
 rls_string STRING_r_error_invalid_address "Error: La conexión fallo"
 rls_string STRING_r_error_general "Error: Error general %d"
 rls_string STRING_r_error_http "Error: error HTTP %d"
 rls_string STRING_r_error_disk_full "Error: No espacio en el disco"
 
+rls_string STRING_r_view_feed_feed_menu "Manage feeds"
+rls_string STRING_r_view_shows_show_menu "Show"
+rls_string STRING_r_view_queue_show_menu "Queue"
 
