@@ -29,6 +29,7 @@
 #include "FeedEngineObserver.h"
 #include "FeedTimer.h"
 #include "sqlite3.h"
+#include <centralrepository.h>
 
 class CPodcastModel;
 class COpmlParser;
@@ -53,6 +54,7 @@ enum TClientState {
 	EUpdatingImage,
 	ESearching
 };
+
 
 class CFeedEngine : public CBase, public MHttpClientObserver, public MFeedParserObserver
 {
@@ -95,6 +97,7 @@ public:
 
 	IMPORT_C void OpmlParsingCompleteL(TInt aError, TUint aNumFeedsAdded);
 	void NotifyFeedUpdateComplete(TInt aFeedUid, TInt aError);
+	
 protected:
 	
 	static TInt CompareFeedsByTitle(const CFeedInfo &a, const CFeedInfo &b);
@@ -154,6 +157,9 @@ private:
     // new feeds only add one show to download list when auto downloading
     TBool newFeed;
     TUint showsAdded;
+    
+    // offline mode detection
+    CRepository* iRepository;
     
     sqlite3& iDB;
     

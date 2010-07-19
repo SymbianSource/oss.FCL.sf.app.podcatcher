@@ -27,8 +27,12 @@
 #include "PodcastUtils.h"
 #include <utf.h>
 #include "Podcatcher.pan"
+#include <centralrepository.h>
+#include <ProfileEngineSDKCRKeys.h>
+
 
 _LIT(KFeedParseStorePath, "feeds\\");
+
 
 CFeedEngine* CFeedEngine::NewL(CPodcastModel& aPodcastModel)
 	{
@@ -80,6 +84,10 @@ void CFeedEngine::ConstructL()
     	TRAP_IGNORE(ImportFeedsL(importFile));
 		}
     
+    
+    // offline profile support
+    iRepository = CRepository::NewL( KCRUidProfileEngine );
+    
 	RunFeedTimer();
 	}
 
@@ -102,6 +110,8 @@ CFeedEngine::~CFeedEngine()
 	delete iParser;
 	delete iFeedClient;
 	delete iOpmlParser;
+	//
+	delete iRepository;
 	}
 
 /**
@@ -148,9 +158,22 @@ EXPORT_C void CFeedEngine::UpdateAllFeedsL(TBool aAutoUpdate)
 		{
 		User::Leave(KErrInUse);
 		}
-
+	// check for offline profile, done by polling here, perhpas CenRep notifier woudl be better
+	TInt currentProfileId = 0; // general profile
+	TBool isOfflineProfile = EFalse;
+	// Get ID of current profile
+	if(KErrNone == iRepository->Get( KProEngActiveProfile, currentProfileId ) ) // better to assume online then leave if CRep fails
+		{
+		// Check value to determine the active profile if no error
+		if ( 5 == currentProfileId)
+			{
+			// current profile is the offline profile
+			isOfflineProfile = ETrue;
+			}
+	    }
+	//
 	iAutoUpdatedInitiator = aAutoUpdate;
-	if (iFeedsUpdating.Count() > 0)
+	if ((iFeedsUpdating.Count() > 0) || (isOfflineProfile)) // cancel update if in offline mode
 		{
 		DP("Cancelling update");
 		iFeedClient->Stop();
