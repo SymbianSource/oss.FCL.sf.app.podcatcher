@@ -29,6 +29,7 @@
 #include "FeedEngineObserver.h"
 #include "FeedTimer.h"
 #include <sqlite3.h>
+#include <centralrepository.h>
 
 class CPodcastModel;
 class COpmlParser;
