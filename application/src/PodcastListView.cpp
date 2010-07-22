@@ -98,12 +98,26 @@ CCoeControl* CPodcastListContainer::ComponentControl(TInt aIndex) const
 
 void CPodcastListContainer::HandleResourceChange(TInt aType)
 {
-	switch( aType )
-    	{
-	    case KEikDynamicLayoutVariantSwitch:
-		    SetRect(iEikonEnv->EikAppUi()->ClientRect());
-		    break;
-	    }
+	CCoeControl::HandleResourceChange(aType);
+	if ( aType==KEikDynamicLayoutVariantSwitch )
+		{
+		TRect rect;
+		AknLayoutUtils::LayoutMetricsRect(AknLayoutUtils::EMainPane, rect);
+		SetRect( rect );
+		
+		if ( iBgContext )
+		   	{
+		   	iBgContext->SetRect( rect );
+		   	}
+		DrawNow();
+		}
+//
+//	switch( aType )
+//    	{
+//	    case KEikDynamicLayoutVariantSwitch:
+//		    SetRect(iEikonEnv->EikAppUi()->ClientRect());
+//		    break;
+//	    }
 }
 
 void CPodcastListContainer::ScrollToVisible() {
@@ -241,6 +255,7 @@ void CPodcastListView::DoActivateL(const TVwsViewId& /*aPrevViewId */,
 		      ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
 	titlePane->SetTextToDefaultL();
 
+	iListContainer->HandleResourceChange(KEikDynamicLayoutVariantSwitch);
 	DP("CPodcastListView::DoActivateL() END");
 
 }
