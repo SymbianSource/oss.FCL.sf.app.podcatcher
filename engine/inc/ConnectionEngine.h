@@ -69,6 +69,7 @@ public:
 	TConnectionState ConnectionState();
 	IMPORT_C void AddObserver(MConnectionObserver* aObserver);
 	RSocketServ& SockServ();
+	void Stop();
 private: // Methods
 	CConnectionEngine(CPodcastModel& aPodcastModel);
 	void ConstructL();

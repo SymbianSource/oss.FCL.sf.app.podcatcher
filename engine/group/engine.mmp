@@ -72,5 +72,6 @@ LIBRARY apmime.lib    // TDataType
 LIBRARY commonui.lib  // CDocumentHandler
 LIBRARY apparc.lib
 LIBRARY avkon.lib
+LIBRARY centralrepository.lib
 
 CAPABILITY All -TCB

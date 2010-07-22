@@ -78,6 +78,11 @@ protected:
 	void HandleCommandL(TInt aCommand);
 	TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
 	void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);
+	
+	virtual void HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& aPenEventScreenLocation);
+	
+private:
+	TBool iDontUpdateList;
 	};
 
 #endif

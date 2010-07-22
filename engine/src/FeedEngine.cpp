@@ -27,8 +27,12 @@
 #include "PodcastUtils.h"
 #include <utf.h>
 #include "Podcatcher.pan"
+#include <centralrepository.h>
+#include <ProfileEngineSDKCRKeys.h>
+
 
 _LIT(KFeedParseStorePath, "feeds\\");
+
 
 CFeedEngine* CFeedEngine::NewL(CPodcastModel& aPodcastModel)
 	{
@@ -80,6 +84,10 @@ void CFeedEngine::ConstructL()
     	TRAP_IGNORE(ImportFeedsL(importFile));
 		}
     
+    
+    // offline profile support
+    iRepository = CRepository::NewL( KCRUidProfileEngine );
+    
 	RunFeedTimer();
 	}
 
@@ -102,6 +110,8 @@ CFeedEngine::~CFeedEngine()
 	delete iParser;
 	delete iFeedClient;
 	delete iOpmlParser;
+	//
+	delete iRepository;
 	}
 
 /**
@@ -148,9 +158,22 @@ EXPORT_C void CFeedEngine::UpdateAllFeedsL(TBool aAutoUpdate)
 		{
 		User::Leave(KErrInUse);
 		}
-
+	// check for offline profile, done by polling here, perhpas CenRep notifier woudl be better
+	TInt currentProfileId = 0; // general profile
+	TBool isOfflineProfile = EFalse;
+	// Get ID of current profile
+	if(KErrNone == iRepository->Get( KProEngActiveProfile, currentProfileId ) ) // better to assume online then leave if CRep fails
+		{
+		// Check value to determine the active profile if no error
+		if ( 5 == currentProfileId)
+			{
+			// current profile is the offline profile
+			isOfflineProfile = ETrue;
+			}
+	    }
+	//
 	iAutoUpdatedInitiator = aAutoUpdate;
-	if (iFeedsUpdating.Count() > 0)
+	if ((iFeedsUpdating.Count() > 0) || (isOfflineProfile)) // cancel update if in offline mode
 		{
 		DP("Cancelling update");
 		iFeedClient->Stop();
@@ -357,7 +380,7 @@ EXPORT_C TBool CFeedEngine::AddFeedL(const CFeedInfo&aItem)
 
 void CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 	{
-	DP2("CFeedEngine::DBAddFeed, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
+	DP2("CFeedEngine::DBAddFeed BEGIN, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 	
 	CFeedInfo *info;
 	
@@ -405,6 +428,7 @@ void CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 		{
 		User::Leave(KErrCorrupt);
 		}
+	DP("CFeedEngine::DBAddFeed END");
 	}
 
 EXPORT_C void CFeedEngine::RemoveFeedL(TUint aUid) 
@@ -450,7 +474,7 @@ EXPORT_C void CFeedEngine::RemoveFeedL(TUint aUid)
 
 void CFeedEngine::DBRemoveFeedL(TUint aUid)
 	{
-	DP("CFeedEngine::DBRemoveFeed");
+	DP("CFeedEngine::DBRemoveFeed BEGIN");
 	_LIT(KSqlStatement, "delete from feeds where uid=%u");
 	iSqlBuffer.Format(KSqlStatement, aUid);
 
@@ -474,11 +498,12 @@ void CFeedEngine::DBRemoveFeedL(TUint aUid)
 		{
 		User::Leave(KErrCorrupt);
 		}
+	DP("CFeedEngine::DBRemoveFeed END");
 	}
 
 void CFeedEngine::DBUpdateFeedL(const CFeedInfo &aItem)
 	{
-	DP2("CFeedEngine::DBUpdateFeed, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
+	DP2("CFeedEngine::DBUpdateFeed BEGIN, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 	
 	HBufC* titleBuf = HBufC::NewLC(KMaxLineLength);
 	TPtr titlePtr(titleBuf->Des());
@@ -517,6 +542,7 @@ void CFeedEngine::DBUpdateFeedL(const CFeedInfo &aItem)
 		{
 		User::Leave(KErrCorrupt);
 		}
+	DP("CFeedEngine::DBUpdateFeed END");
 	}
 
 void CFeedEngine::ParsingCompleteL(CFeedInfo *item)
@@ -695,10 +721,6 @@ void CFeedEngine::Disconnected(CHttpClient* /*aClient*/)
 
 void CFeedEngine::DownloadInfo(CHttpClient* /*aHttpClient */, int /*aTotalBytes*/)
 	{	
-	/*DP1("About to download %d bytes", aTotalBytes);
-	if(aHttpClient == iShowClient && iShowDownloading != NULL && aTotalBytes != -1) {
-		iShowDownloading->iShowSize = aTotalBytes;
-		}*/
 	}
 
 EXPORT_C void CFeedEngine::ImportFeedsL(const TDesC& aFile)
@@ -998,7 +1020,7 @@ void CFeedEngine::DBLoadFeedsL()
 
 CFeedInfo* CFeedEngine::DBGetFeedInfoByUidL(TUint aFeedUid)
 	{
-	DP("CFeedEngine::DBGetFeedInfoByUid");
+	DP("CFeedEngine::DBGetFeedInfoByUid BEGIN");
 	CFeedInfo *feedInfo = NULL;
 	_LIT(KSqlStatement, "select url, title, description, imageurl, imagefile, link, built, lastupdated, uid, feedtype, customtitle, lasterror from feeds where uid=%u");
 	iSqlBuffer.Format(KSqlStatement, aFeedUid);
@@ -1067,7 +1089,7 @@ CFeedInfo* CFeedEngine::DBGetFeedInfoByUidL(TUint aFeedUid)
 		{
 		User::Leave(KErrNotFound);
 		}
-	
+	DP("CFeedEngine::DBGetFeedInfoByUid END");
 	return feedInfo;
 }
 

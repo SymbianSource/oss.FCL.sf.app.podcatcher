@@ -124,6 +124,16 @@ RESOURCE STYLUS_POPUP_MENU r_queueview_popup_menu
 				{
 					txt = STRING_r_view_remove_download_short_cmd;
 					command = EPodcastRemoveDownload;
+				},
+			STYLUS_POPUP_MENU_ITEM
+				{
+					txt = STRING_r_view_move_up_short_cmd;
+					command = EPodcastMoveDownloadUp;
+				},
+			STYLUS_POPUP_MENU_ITEM
+				{
+					txt = STRING_r_view_move_down_short_cmd;
+					command = EPodcastMoveDownloadDown;
 				}
 		};
 	}

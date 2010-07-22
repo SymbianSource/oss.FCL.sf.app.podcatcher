@@ -38,8 +38,6 @@ _LIT(KSizeDownloadingOf, "%.1f/%.1f MB");
 _LIT(KShowsSizeFormatS60, "%.1f MB");
 
 _LIT(KShowFormat, "%d\t%S\t%S%S\t");
-//_LIT(KShowErrorFormat, "%d\t%S\t%S\t");
-//_LIT(KShowQueueFormat, "%d\t%S\t%S%S\t");
 
 // these must correspond with TShowsIconIndex
 
@@ -299,10 +297,9 @@ void CPodcastShowsView::FeedDownloadStartedL(TFeedState /*aState*/, TUint aFeedU
 void CPodcastShowsView::FeedDownloadFinishedL(TFeedState /*aState*/, TUint aFeedUid, TInt /*aError*/)
 	{
 	DP("CPodcastShowsView::FeedDownloadFinishedL BEGIN");
-	// TODO make use of the fact that we know that the feed download is
-	// finished instead of checking feed engine states in UpdateFeedUpdateStateL.
-	if (iPodcastModel.ActiveFeedInfo() != NULL
-			&& iPodcastModel.ActiveFeedInfo()->Uid() == aFeedUid)
+	if (iListContainer->IsVisible() &&
+			iPodcastModel.ActiveFeedInfo() != NULL &&
+			iPodcastModel.ActiveFeedInfo()->Uid() == aFeedUid)
 		{
 		UpdateFeedUpdateStateL();
 		UpdateViewTitleL();
@@ -672,7 +669,7 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 			toolbar->SetToolbarVisibility(aVisible);
 		}
 	
-		TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && 
+		TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && iPodcastModel.ActiveFeedInfo() && 
 				iPodcastModel.FeedEngine().ActiveClientUid() == iPodcastModel.ActiveFeedInfo()->Uid();
 	
 		toolbar->HideItem(EPodcastUpdateFeed, updatingState, ETrue ); 

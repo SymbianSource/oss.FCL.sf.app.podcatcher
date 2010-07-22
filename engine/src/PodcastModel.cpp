@@ -312,9 +312,15 @@ void CPodcastModel::ResetDB()
 
 	// copy template to new DB
 	TFileName dbTemplate;
-	dbTemplate.Copy(iSettingsEngine->PrivatePath());
+	TFileName temp;
+	dbTemplate.Copy(_L("z:"));
+	temp.Copy(iSettingsEngine->PrivatePath());
+	dbTemplate.Append(temp);
 	dbTemplate.Append(KDBTemplateFileName);
-
+	
+	DP1("Copy template DB from: %S", &dbTemplate);
+	DP1("Copy template DB to: %S", &dbFileName);
+	
 	BaflUtils::CopyFile(iFsSession, dbTemplate,dbFileName);
 	iIsFirstStartup = ETrue;
 	DP("CPodcastModel::ResetDB END");

@@ -71,12 +71,8 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 			// Dump the headers if we're being verbose
 			//DumpRespHeadersL(aTransaction);
 
-			// Determine if the body will be saved to disk
-			iSavingResponseBody = ETrue;
-			TBool cancelling = EFalse;
 			if (resp.HasBody() && (iLastStatusCode >= 200) && (iLastStatusCode < 300) && (iLastStatusCode != 204))
 				{
-				//iBytesDownloaded = 0;
 				TInt dataSize = resp.Body()->OverallDataSize();
 				if (dataSize >= 0) {
 					DP1("Response body size is %d", dataSize);
@@ -87,17 +83,10 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 				}
 				iCallbacks.DownloadInfo(iHttpClient, dataSize);
 
-				cancelling = EFalse;
 				}
 
-			// If we're cancelling, must do it now..
-			if (cancelling)
-				{
-				DP("Transaction Cancelled");
-				aTransaction.Close();
-				iHttpClient->ClientRequestCompleteL(KErrCancel);
-				}
-			else if (iSavingResponseBody) // If we're saving, then open a file handle for the new file
+			DP1("iFileOpen=%d", iFileOpen);
+			if (!iFileOpen)
 				{
 				iFileServ.Parse(iFileName, iParsedFileName);
 				TInt valid = iFileServ.IsValidName(iFileName);
@@ -105,7 +94,6 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 				if (!valid)
 					{
 					DP("The specified filename is not valid!.");
-					iSavingResponseBody = EFalse;
 					iHttpClient->ClientRequestCompleteL(KErrBadName);
 					}
 				else
@@ -114,13 +102,13 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 						TInt err = iRespBodyFile.Open(iFileServ, iParsedFileName.FullName(),EFileWrite);
 						if (err)
 							{
-							DP2("There was an error opening file '%S', err=%d", &iParsedFileName.FullName(), err);
-							iSavingResponseBody = EFalse;
+							DP2("There was an error=%d opening file '%S'", err, &iParsedFileName.FullName());
 							iHttpClient->ClientRequestCompleteL(KErrInUse);
 							User::Leave(err);
 							} 
 						else
 							{
+							iFileOpen = ETrue;
 							int pos = -KByteOverlap;
 							if((err=iRespBodyFile.Seek(ESeekEnd, pos)) != KErrNone)
 								{
@@ -128,10 +116,10 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 								iHttpClient->ClientRequestCompleteL(KErrWrite);
 								User::Leave(err);
 								}
-						iBytesDownloaded = (pos > 0) ? pos : 0;
-						iBytesTotal += iBytesDownloaded;
-						DP1("Total bytes is now %u", iBytesTotal);
-						DP1("Seeking end: %d", pos);
+							iBytesDownloaded = (pos > 0) ? pos : 0;
+							iBytesTotal += iBytesDownloaded;
+							DP1("Total bytes is now %u", iBytesTotal);
+							DP1("Seeking end: %d", pos);
 							}
 						}
 					else 
@@ -142,13 +130,15 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 						if (err)
 							{
 							DP("There was an error replacing file");
-							iSavingResponseBody = EFalse;
 							User::Leave(err);
+							}
+						else
+							{
+							iFileOpen = ETrue;
 							}
 						}
 					}
 				}
-
 			} break;
 		case THTTPEvent::EGotResponseBodyData:
 			{
@@ -159,7 +149,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 			//DumpRespBody(aTransaction);
 			//DP1("Saving: %d", iSavingResponseBody);
 			// Append to the output file if we're saving responses
-			if (iSavingResponseBody)
+			if (iFileOpen)
 				{
 				TPtrC8 bodyData;
 				iRespBody->GetNextDataPart(bodyData);
@@ -168,6 +158,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 
 				// on writing error we close connection 
 				if (error != KErrNone) {
+					iFileOpen = EFalse;
 					iRespBodyFile.Close();
 					iCallbacks.FileError(error);
 					iHttpClient->ClientRequestCompleteL(error);
@@ -185,14 +176,15 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 		case THTTPEvent::EResponseComplete:
 			{
 			// The transaction's response is complete
-
 			DP("Transaction Complete");
 			DP("Closing file");
+			iFileOpen = EFalse;
 			iRespBodyFile.Close();
 			} break;
 		case THTTPEvent::ESucceeded:
 			{
 			DP("Transaction Successful");
+			iFileOpen = EFalse;
 			iRespBodyFile.Close();
 			aTransaction.Close();
 			iHttpClient->ClientRequestCompleteL(KErrNone);
@@ -200,6 +192,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 		case THTTPEvent::EFailed:
 			{
 			DP("Transaction Failed");
+			iFileOpen = EFalse;
 			iRespBodyFile.Close();
 			aTransaction.Close();
 			
@@ -224,6 +217,7 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 			// close off the transaction if it's an error
 			if (aEvent.iStatus < 0)
 				{
+				iFileOpen = EFalse;
 				iRespBodyFile.Close();
 				aTransaction.Close();
 				iHttpClient->ClientRequestCompleteL(aEvent.iStatus);
@@ -242,6 +236,7 @@ TInt CHttpEventHandler::MHFRunError(TInt aError, RHTTPTransaction aTransaction, 
 
 void CHttpEventHandler::SetSaveFileName(const TDesC &fName, TBool aContinue)
 	{
+	DP1("CHttpEventHandler::SetSaveFileName, aContinue=%d", aContinue);
 	iFileName.Copy(fName);
 	iContinue = aContinue;
 	}

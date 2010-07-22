@@ -204,18 +204,21 @@ EXPORT_C void PodcastUtils::CleanHtmlL(TDes &str)
 		
 	CleanupStack::PopAndDestroy(tmpBuf);
 	
-	// chop away newlines at start
-	while (str[0] == KLineBreak) {
-		str = str.Mid(1);
-	}
+	if(str.Length()>1)
+		{
+		// chop away newlines at start
+		while ((str[0] == KLineBreak) )  {
+			str = str.Mid(1);
+		}
+		
+		// chop away newlines at end
 	
-	// chop away newlines at end
+		while ((str[str.Length()-1] == KLineBreak)) {
+			str = str.Left(str.Length()-1);
+		}
 
-	while (str[str.Length()-1] == KLineBreak) {
-		str = str.Left(str.Length()-1);
-	}
-
-	str.Trim();
+		str.Trim();
+		}
 }
 
 EXPORT_C void PodcastUtils::RemoveAllFormatting(TDes & aString)

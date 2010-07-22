@@ -204,8 +204,11 @@ EXPORT_C void CSettingsEngine::SaveSettingsL()
 TFileName CSettingsEngine::DefaultFeedsFileName()
 	{
 	TFileName defaultFeeds;
-	defaultFeeds.Append(PrivatePath());
-	defaultFeeds.Append(KDefaultFeedsFile);
+	TFileName temp;
+	defaultFeeds.Copy(_L("z:"));
+	temp.Append(PrivatePath());
+	temp.Append(KDefaultFeedsFile);
+	defaultFeeds.Append(temp);
 	DP1("Default feeds file: %S", &defaultFeeds);
 	return defaultFeeds;
 	}

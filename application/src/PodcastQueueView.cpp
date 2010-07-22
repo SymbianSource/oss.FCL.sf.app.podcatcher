@@ -67,12 +67,11 @@ void CPodcastQueueView::ConstructL()
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);
 	
-
-	// no popup options apply to S^1
 	iStylusPopupMenu = CAknStylusPopUpMenu::NewL( this , TPoint(0,0));
 	TResourceReader reader;
 	iCoeEnv->CreateResourceReaderLC(reader,R_QUEUEVIEW_POPUP_MENU);
 	iStylusPopupMenu->ConstructFromResourceL(reader);
+
 	CleanupStack::PopAndDestroy();
 
 	SetEmptyTextL(R_PODCAST_EMPTY_QUEUE);
@@ -157,7 +156,7 @@ void CPodcastQueueView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 
 void CPodcastQueueView::UpdateListboxItemsL()
 	{
-	if (iListContainer->IsVisible())
+	if (iListContainer->IsVisible() && !iDontUpdateList)
 		{
 		TListItemProperties itemProps;
 		TInt len = 0;
@@ -251,8 +250,66 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
 			if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
 				{
+				// this is an ugly hack to prevent UpdateListboxItemsL from being
+				// triggered from the show engine, which causes focus to jump
+				// around in an ugly fashion
+				iDontUpdateList = ETrue;
 				TRAP_IGNORE(iPodcastModel.ShowEngine().RemoveDownloadL(iPodcastModel.ActiveShowList()[index]->Uid()));
+				iDontUpdateList = EFalse;
 				}
+			UpdateListboxItemsL();
+			if (index > 0)
+				{
+				iListContainer->Listbox()->SetCurrentItemIndex(index - 1);
+				}
+			}
+			break;
+		case EPodcastMoveDownloadUp:
+			{
+			TInt index = iListContainer->Listbox()->CurrentItemIndex();
+			TBool resumeAfterMove = EFalse;
+			if (index == 1 && !iPodcastModel.SettingsEngine().DownloadSuspended())
+				{
+				iPodcastModel.ShowEngine().SuspendDownloads();
+				resumeAfterMove = ETrue;
+				}
+			
+			if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
+				{
+				TRAP_IGNORE(iPodcastModel.ShowEngine().MoveDownloadUpL(iPodcastModel.ActiveShowList()[index]->Uid()));
+				}
+			
+			if(resumeAfterMove)
+				{
+				iPodcastModel.ShowEngine().ResumeDownloadsL();
+				}
+				
+			iListContainer->Listbox()->SetCurrentItemIndex(index - 1);
+			UpdateListboxItemsL();
+			}
+			break;
+		case EPodcastMoveDownloadDown:
+			{
+			TInt index = iListContainer->Listbox()->CurrentItemIndex();
+			TBool resumeAfterMove = EFalse;
+			if (index == 0 && !iPodcastModel.SettingsEngine().DownloadSuspended())
+				{
+				iPodcastModel.ShowEngine().SuspendDownloads();
+				resumeAfterMove = ETrue;
+				}
+			
+			if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
+				{
+				TRAP_IGNORE(iPodcastModel.ShowEngine().MoveDownloadDownL(iPodcastModel.ActiveShowList()[index]->Uid()));
+				}
+			
+			if(resumeAfterMove)
+				{
+				iPodcastModel.ShowEngine().ResumeDownloadsL();
+				}
+			
+			iListContainer->Listbox()->SetCurrentItemIndex(index - 1);
+			UpdateListboxItemsL();
 			}
 			break;
 		case EPodcastSuspendDownloads:
@@ -276,27 +333,56 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 	}
 	
 void CPodcastQueueView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane)
-{
+	{
 	if(aResourceId == R_PODCAST_SHOWSVIEW_MENU)
 		{
 		aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, ETrue);
 		}
-}
+	}
 
 void CPodcastQueueView::UpdateToolbar(TBool aVisible)
-{
+	{
 	CAknToolbar* toolbar = Toolbar();
 	
-	if (toolbar) {
+	if (toolbar)
+		{
 		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
 		TInt itemCnt = fItems.Count();
-		if (iListContainer->IsVisible()) {
+		if (iListContainer->IsVisible()) 
+			{
 			toolbar->SetToolbarVisibility(aVisible);
-		}
+			}
+		
 		toolbar->HideItem(EPodcastRemoveAllDownloads, EFalse, ETrue);
 		toolbar->SetItemDimmed(EPodcastRemoveAllDownloads, itemCnt == 0, ETrue);
 		toolbar->HideItem(EPodcastSuspendDownloads,iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);
 		toolbar->HideItem(EPodcastResumeDownloads,!iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);	
 		toolbar->SetItemDimmed(EPodcastRemoveDownload, itemCnt == 0, ETrue);		
+		}
 	}
+
+void CPodcastQueueView::HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& /* aPenEventScreenLocation */)
+{
+	DP("CPodcastQueueView::HandleLongTapEventL BEGIN");
+	iListContainer->SetLongTapDetectedL(ETrue);
+	
+	const TInt KListboxDefaultHeight = 19; // for some reason it returns 19 for an empty listbox in S^1
+	TInt lbHeight = iListContainer->Listbox()->CalcHeightBasedOnNumOfItems(
+			iListContainer->Listbox()->Model()->NumberOfItems()) - KListboxDefaultHeight;
+
+    if(iStylusPopupMenu && aPenEventLocation.iY < lbHeight)
+    {
+		TBool dimDown = (iListContainer->Listbox()->CurrentItemIndex() >= iPodcastModel.ActiveShowList().Count() - 1 ?
+				ETrue : EFalse);
+		TBool dimUp = (iListContainer->Listbox()->CurrentItemIndex() <= 0 ?
+				ETrue : EFalse);
+		
+		iStylusPopupMenu->SetItemDimmed(EPodcastMoveDownloadDown, dimDown);
+		iStylusPopupMenu->SetItemDimmed(EPodcastMoveDownloadUp, dimUp);
+		
+		iStylusPopupMenu->ShowMenu();
+		iStylusPopupMenu->SetPosition(aPenEventLocation);
+    }
+    
+	DP("CPodcastQueueView::HandleLongTapEventL END");
 }
