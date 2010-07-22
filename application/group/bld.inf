@@ -52,3 +52,6 @@ OPTION SOURCES \
 	-c16,1 Video_suspended.svg\
     -c16,1 Feed
 END
+
+PRJ_EXPORTS
+podcatcher.iby CORE_APP_LAYER_IBY_EXPORT_PATH(podcatcher.iby)
