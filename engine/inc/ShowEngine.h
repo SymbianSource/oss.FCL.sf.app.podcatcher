@@ -28,17 +28,22 @@
 #include "ShowEngineObserver.h"
 #include "MetaDataReader.h"
 #include <sqlite3.h>
+#ifdef ENABLE_MPX_INTEGRATION    
 #include "mpxcollectionhelper.h"
 #include "mpxcollectionhelperobserver.h"
+#endif
 
 struct TDownload
 	{
 	TUint iIndex;
 	TUint iUid;
 	};
-
+#ifdef ENABLE_MPX_INTEGRATION    
 class CShowEngine : public CBase, public MHttpClientObserver, public MMetaDataReaderObserver,
 					public MMPXCollectionHelperObserver
+#else
+class CShowEngine : public CBase, public MHttpClientObserver, public MMetaDataReaderObserver
+#endif
 {
 public:
 	IMPORT_C static CShowEngine* NewL(CPodcastModel& aPodcastModel);
@@ -156,8 +161,9 @@ private:
 	
 	sqlite3& iDB;
     TBuf<KDefaultSQLDataBufferLength> iSqlBuffer;
-    
+#ifdef ENABLE_MPX_INTEGRATION    
     MMPXCollectionHelper* iCollectionHelper;
+#endif
 };
 
 #endif /*SHOWENGINE_H_*/

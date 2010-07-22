@@ -44,9 +44,10 @@ EXPORT_C CShowEngine::~CShowEngine()
 	delete iShowDownloading;
 	delete iMetaDataReader;
 	iApaSession.Close();
-	
+#ifdef ENABLE_MPX_INTEGRATION  	
 	if (iCollectionHelper)
 		delete iCollectionHelper;
+#endif
 	}
 
 EXPORT_C CShowEngine* CShowEngine::NewL(CPodcastModel& aPodcastModel)
@@ -236,12 +237,13 @@ EXPORT_C void CShowEngine::RemoveObserver(MShowEngineObserver *observer)
 
 void CShowEngine::AddShowToMpxCollection(CShowInfo &aShowInfo)
 	{
+#ifdef ENABLE_MPX_INTEGRATION
 	if (!iCollectionHelper)
 		iCollectionHelper = CMPXCollectionHelperFactory::NewCollectionHelperL();
 	
 	// if this leaves, not much we can do anyway
 	TRAP_IGNORE(iCollectionHelper->AddL(aShowInfo.FileName(), this));
-
+#endif
 	}
 
 void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
