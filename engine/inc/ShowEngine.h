@@ -29,8 +29,8 @@
 #include "MetaDataReader.h"
 #include <sqlite3.h>
 #ifdef ENABLE_MPX_INTEGRATION    
-#include "mpxcollectionhelper.h"
-#include "mpxcollectionhelperobserver.h"
+#include <mpxcollectionhelper.h>
+#include <mpxcollectionhelperobserver.h>
 #endif
 
 struct TDownload
@@ -38,6 +38,7 @@ struct TDownload
 	TUint iIndex;
 	TUint iUid;
 	};
+
 #ifdef ENABLE_MPX_INTEGRATION    
 class CShowEngine : public CBase, public MHttpClientObserver, public MMetaDataReaderObserver,
 					public MMPXCollectionHelperObserver

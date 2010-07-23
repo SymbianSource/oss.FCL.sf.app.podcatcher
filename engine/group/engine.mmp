@@ -79,4 +79,8 @@ LIBRARY apparc.lib
 LIBRARY avkon.lib
 LIBRARY centralrepository.lib
 
-CAPABILITY All -TCB
+#ifdef ENABLE_MPX_INTEGRATION
+CAPABILITY NetworkServices UserEnvironment WriteUserData ReadDeviceData WriteDeviceData MultimediaDD
+#else
+CAPABILITY NetworkServices UserEnvironment
+#endif

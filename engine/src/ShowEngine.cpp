@@ -26,7 +26,10 @@
 #include <httperr.h>
 #include "debug.h"
 #include "PodcastUtils.h"
+
+#ifdef ENABLE_MPX_INTEGRATION 
 #include <mpxcollectionhelperfactory.h>
+#endif
 
 const TUint KMaxDownloadErrors = 3;
 const TInt KMimeBufLength = 100;
