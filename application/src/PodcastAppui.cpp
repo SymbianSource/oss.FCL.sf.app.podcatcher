@@ -138,8 +138,8 @@ void CPodcastAppUi::HandleCommandL( TInt aCommand )
 			TUid activeAppUid = gn->AppUid();
 			CleanupStack::PopAndDestroy(gn);
         	
-			const TUid KUidFastSwap = { 0x10207218 };
-			if (activeAppUid == KUidFastSwap)
+			const TUid KUidFastSwapS3 = { 0x20016BF0 };
+			if (activeAppUid == KUidFastSwapS3)
 				{
 				// closed by task manager
 				Exit();
