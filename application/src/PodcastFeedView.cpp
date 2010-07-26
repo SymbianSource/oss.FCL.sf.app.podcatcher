@@ -569,68 +569,108 @@ void CPodcastFeedView::UpdateToolbar(TBool aVisible)
 
 void CPodcastFeedView::HandleAddFeedL()
 	{
+	TInt selection;
+	CDesCArrayFlat* array = iCoeEnv->ReadDesC16ArrayResourceL(R_FEEDVIEW_ADD_URL_OR_SEARCH_ARRAY );
+	CleanupStack::PushL( array );
+	
+	CAknListQueryDialog* dialog = new ( ELeave ) CAknListQueryDialog( &selection );
+	CleanupStack::PushL( dialog );
+	dialog->PrepareLC( R_FEEDVIEW_ADD_URL_OR_SEARCH );
+	CleanupStack::Pop( dialog );
+	
+	dialog->SetItemTextArray( array );
+	dialog->SetOwnershipType( ELbmDoesNotOwnItemArray );
+	
+	if ( dialog->RunLD() )
+		{
+		if (selection == 0)
+			{
+			// Enter URL selected
+			HandleAddFeedUrlL();
+			} 
+		else
+			{
+			// Search selected
+			HandleAddFeedSearchL();
+			}	
+		}
+	CleanupStack::PopAndDestroy( array );		
+	}
+
+void CPodcastFeedView::HandleAddFeedUrlL()
+	{
 	TBuf<KFeedUrlLength> url;
 	url.Copy(_L("http://"));
+	
 	CAknTextQueryDialog * dlg =CAknTextQueryDialog::NewL(url);
 	dlg->PrepareLC(R_PODCAST_ADD_FEED_DLG);
+
 	HBufC* prompt = iEikonEnv->AllocReadResourceLC(R_PODCAST_ADDFEED_PROMPT);
 	dlg->SetPromptL(*prompt);
 	CleanupStack::PopAndDestroy(prompt);
 	
 	if(dlg->RunLD())
 		{
+		PodcastUtils::FixProtocolsL(url);
+
+		CFeedInfo* newFeedInfo = CFeedInfo::NewL();
+		CleanupStack::PushL(newFeedInfo);
+		newFeedInfo->SetUrlL(url);
+		newFeedInfo->SetTitleL(newFeedInfo->Url());
 		
-		// if no :// we do a search
-		if (url.Find(_L("://")) == KErrNotFound)
+		TBool added = iPodcastModel.FeedEngine().AddFeedL(*newFeedInfo);
+		
+		if (added)
 			{
-			HBufC *waitText = iEikonEnv->AllocReadResourceLC(R_SEARCHING);
-			ShowWaitDialogL(*waitText);
-			CleanupStack::PopAndDestroy(waitText);	
-	
-			iOpmlState = EOpmlSearching;
-			TRAPD(err, iPodcastModel.FeedEngine().SearchForFeedL(url));
+			UpdateListboxItemsL();
 			
-			if (err != KErrNone)
+			// ask if users wants to update it now
+			TBuf<KMaxMessageLength> message;
+			iEikonEnv->ReadResourceL(message, R_ADD_FEED_SUCCESS);
+			if(ShowQueryMessageL(message))
 				{
-				delete iWaitDialog;
-				iOpmlState = EOpmlIdle;
+				CFeedInfo *info = iPodcastModel.FeedEngine().GetFeedInfoByUid(newFeedInfo->Uid());
+				
+				iPodcastModel.SetActiveFeedInfo(info);			
+				AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
+				iPodcastModel.FeedEngine().UpdateFeedL(newFeedInfo->Uid());
 				}
 			}
 		else
 			{
-			PodcastUtils::FixProtocolsL(url);
+			TBuf<KMaxMessageLength> message;
+			iEikonEnv->ReadResourceL(message, R_ADD_FEED_EXISTS);
+			ShowErrorMessageL(message);
+			}		
+		
+		CleanupStack::PopAndDestroy(newFeedInfo);
+		}
+	}
+
+void CPodcastFeedView::HandleAddFeedSearchL()
+	{
+	TBuf<KFeedUrlLength> url;
 	
-			CFeedInfo* newFeedInfo = CFeedInfo::NewL();
-			CleanupStack::PushL(newFeedInfo);
-			newFeedInfo->SetUrlL(url);
-			newFeedInfo->SetTitleL(newFeedInfo->Url());
-			
-			TBool added = iPodcastModel.FeedEngine().AddFeedL(*newFeedInfo);
-			
-			if (added)
-				{
-				UpdateListboxItemsL();
-				
-				// ask if users wants to update it now
-				TBuf<KMaxMessageLength> message;
-				iEikonEnv->ReadResourceL(message, R_ADD_FEED_SUCCESS);
-				if(ShowQueryMessageL(message))
-					{
-					CFeedInfo *info = iPodcastModel.FeedEngine().GetFeedInfoByUid(newFeedInfo->Uid());
-					
-					iPodcastModel.SetActiveFeedInfo(info);			
-					AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
-					iPodcastModel.FeedEngine().UpdateFeedL(newFeedInfo->Uid());
-					}
-				}
-			else
-				{
-				TBuf<KMaxMessageLength> message;
-				iEikonEnv->ReadResourceL(message, R_ADD_FEED_EXISTS);
-				ShowErrorMessageL(message);
-				}		
-			
-			CleanupStack::PopAndDestroy(newFeedInfo);
+	CAknTextQueryDialog * dlg =CAknTextQueryDialog::NewL(url);
+	dlg->PrepareLC(R_PODCAST_ADD_FEED_DLG);
+
+	HBufC* prompt = iEikonEnv->AllocReadResourceLC(R_PODCAST_SEARCHFEED_PROMPT);
+	dlg->SetPromptL(*prompt);
+	CleanupStack::PopAndDestroy(prompt);
+	
+	if(dlg->RunLD())
+		{		
+		HBufC *waitText = iEikonEnv->AllocReadResourceLC(R_SEARCHING);
+		ShowWaitDialogL(*waitText);
+		CleanupStack::PopAndDestroy(waitText);	
+	
+		iOpmlState = EOpmlSearching;
+		TRAPD(err, iPodcastModel.FeedEngine().SearchForFeedL(url));
+		
+		if (err != KErrNone)
+			{
+			delete iWaitDialog;
+			iOpmlState = EOpmlIdle;
 			}
 		}
 	}

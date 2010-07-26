@@ -270,3 +270,33 @@ RESOURCE STYLUS_POPUP_MENU r_feedview_popup_menu
 				}
 		};
 	}
+
+RESOURCE ARRAY r_feedview_add_url_or_search_array
+{
+    items =
+    {
+        LBUF { txt = STRING_r_add_url;     },
+        LBUF { txt = STRING_r_add_search; }
+    };
+}
+
+RESOURCE AVKON_LIST_QUERY r_feedview_add_url_or_search
+{
+    softkeys=R_AVKON_SOFTKEYS_SELECT_CANCEL;
+    items =
+    {
+        AVKON_LIST_QUERY_DLG_LINE
+        {
+            control = AVKON_LIST_QUERY_CONTROL
+            {
+                listtype = EAknCtSinglePopupMenuListBox;
+                heading = STRING_r_add_url_or_search;
+                listbox = AVKON_LIST_QUERY_LIST
+                {
+                    // array of items will be defined dynamically
+                };
+            };
+        }
+    };
+}
+
