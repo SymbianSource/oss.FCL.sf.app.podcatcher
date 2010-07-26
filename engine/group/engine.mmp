@@ -16,6 +16,10 @@
  *
  */
  
+// MPX integration can not be enabled for self signed versions 
+MACRO ENABLE_MPX_INTEGRATION
+#define ENABLE_MPX_INTEGRATION
+ 
 TARGET podcastengine.dll
 TARGETTYPE DLL
 UID             0x1000008d 0xA11F867F
@@ -67,8 +71,9 @@ LIBRARY fbscli.lib
 LIBRARY imageconversion.lib 
 LIBRARY bitmaptransforms.lib 
 LIBRARY eikcore.lib 
+#ifdef ENABLE_MPX_INTEGRATION  
 LIBRARY mpxcollectionhelper.lib
-LIBRARY apmime.lib    // TDataType
+#endif
 LIBRARY commonui.lib  // CDocumentHandler
 LIBRARY apparc.lib
 LIBRARY avkon.lib
