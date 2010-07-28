@@ -16,6 +16,9 @@
 *
 */
 
+// when enabled this macro copies the database to c:\data on launch for debug purposes
+//#define COPY_DB
+
 #include <commdb.h>
 #include "PodcastModel.h"
 #include "FeedEngine.h"
@@ -344,6 +347,15 @@ void CPodcastModel::OpenDBL()
 		// open DB
 		TBuf8<KMaxFileName> filename8;
 		filename8.Copy(dbFileName);
+		
+#ifdef COPY_DB
+		DP("Copying DB to c:\\data");
+		TFileName copyName;
+		copyName.Copy(_L("C:\\data\\"));
+		copyName.Append(KDBFileName);
+		BaflUtils::CopyFile(iFsSession, dbFileName, copyName);
+#endif
+		
 		int rc = sqlite3_open((const char*) filename8.PtrZ(), &iDB);
 		if(rc != SQLITE_OK){
 			User::Leave(KErrCorrupt);
