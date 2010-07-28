@@ -170,7 +170,7 @@ void CShowEngine::Connected(CHttpClient* /*aClient*/)
 void CShowEngine::Progress(CHttpClient* /*aHttpClient */, TInt aBytes,
 		TInt aTotalBytes)
 	{	
-	iShowDownloading->SetShowSize(aTotalBytes);
+	//iShowDownloading->SetShowSize(aTotalBytes);
 	TRAP_IGNORE(NotifyShowDownloadUpdatedL(aBytes, aTotalBytes));
 	}
 
@@ -253,7 +253,8 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 	{
 	if (iShowDownloading != NULL)
 		{
-		DP2("CShowEngine::CompleteL file=%S, aError=%d", &iShowDownloading->FileName(), aError);		
+		DP2("CShowEngine::CompleteL file=%S, aError=%d", &iShowDownloading->FileName(), aError);
+		
 		if(aError != KErrCouldNotConnect)
 			{
 			if(aError == KErrDisconnected && iPodcastModel.SettingsEngine().DownloadSuspended())
@@ -279,6 +280,14 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 					{
 					iShowDownloading->SetShowType(EVideoPodcast);
 					}
+				 
+				// setting file size	
+				TEntry entry;
+				TInt err = iPodcastModel.FsSession().Entry(iShowDownloading->FileName(), entry);
+				if (err == KErrNone)
+					{
+					iShowDownloading->SetShowSize(entry.iSize);
+					}
 
 				iShowDownloading->SetDownloadState(EDownloaded);
 				DBUpdateShowL(*iShowDownloading);
@@ -291,8 +300,16 @@ void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
 				}
 			else
 				{
+				 if (aError == HTTPStatus::ERequestedRangeNotSatisfiable)
+					{
+					DP("ERequestedRangeNotSatisfiable, resetting download");
+					// file size got messed up, so delete downloaded file an re-queue
+					BaflUtils::DeleteFile(iPodcastModel.FsSession(),iShowDownloading->FileName());
+					iShowDownloading->SetDownloadState(EQueued);
+					DBUpdateShowL(*iShowDownloading);
+					}
 				// 400 and 500 series errors are serious errors on which probably another download will fail
-				if(aError >= HTTPStatus::EBadRequest && aError <= HTTPStatus::EBadRequest+200)
+				 else if (aError>= HTTPStatus::EBadRequest && aError <= HTTPStatus::EBadRequest+200)
 					{
 					iShowDownloading->SetDownloadState(EFailedDownload);
 					DBUpdateShowL(*iShowDownloading);
