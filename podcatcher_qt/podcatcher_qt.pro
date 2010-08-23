@@ -10,12 +10,12 @@ TARGET = podcatcher_qt
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
-        podcatcherwin.cpp
+SOURCES += src\main.cpp\
+        src\podcatcherwin.cpp
 
-HEADERS  += podcatcherwin.h
+HEADERS  += inc\podcatcherwin.h
 
-FORMS    += podcatcherwin.ui
+FORMS    += forms\podcatcherwin.ui
 
 CONFIG += mobility
 MOBILITY = 
@@ -26,3 +26,7 @@ symbian {
     TARGET.EPOCSTACKSIZE = 0x14000
     TARGET.EPOCHEAPSIZE = 0x020000 0x800000
 }
+
+BLD_INF_RULES.//includes += "$${LITERAL_HASH}include \"../engine/group/bld.inf\""
+
+LIBS += -lpodcastengine.dll
