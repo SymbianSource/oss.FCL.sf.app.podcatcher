@@ -173,7 +173,7 @@ EXPORT_C void CFeedEngine::UpdateAllFeedsL(TBool aAutoUpdate)
 	    }
 	//
 	iAutoUpdatedInitiator = aAutoUpdate;
-	if ((iFeedsUpdating.Count() > 0) || (isOfflineProfile)) // cancel update if in offline mode
+	if ((iFeedsUpdating.Count() > 0) || (isOfflineProfile && aAutoUpdate)) 
 		{
 		DP("Cancelling update");
 		iFeedClient->Stop();
