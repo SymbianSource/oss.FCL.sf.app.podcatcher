@@ -1,13 +1,18 @@
-&EN
+&EN,SP
 :"Symbian Foundation"
-%{"Podcatcher"}
-#{"Podcatcher"},(0xA0009D00), 1, 00, 0, TYPE=SA
+%{"Podcatcher","Podcatcher"}
+#{"Podcatcher","Podcatcher"},(0xA0009D00), 1, 00, 2, TYPE=SA
 
 ;Supports Symbian^3
-[0x20022E6D], 0, 0, 0, {"Series60ProductID"}
+[0x20022E6D], 0, 0, 0, {"Series60ProductID","Series60ProductID"}
 
 ; resources
-"\epoc32\data\z\resource\apps\Podcast.RSC"-"!:\resource\apps\Podcast.rsc"
+{
+"\epoc32\data\z\resource\apps\Podcast.r01"
+"\epoc32\data\z\resource\apps\Podcast.r04"
+}
+-"!:\resource\apps\Podcast.rsc"
+
 "\epoc32\data\z\resource\apps\Podcast.mif"-"!:\resource\apps\Podcast.mif"
 "\epoc32\data\z\private\10003a3f\import\apps\Podcast_reg.rsc"-"!:\private\10003a3f\import\apps\Podcast_reg.rsc"
 "..\help\podcatcher.hlp"-"!:\resource\help\podcatcher.hlp"

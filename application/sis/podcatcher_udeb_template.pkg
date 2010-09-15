@@ -1,7 +1,7 @@
 &EN,SP
 :"Symbian Foundation"
 %{"Podcatcher","Podcatcher"}
-#{"Podcatcher","Podcatcher"},(0xA0009D00), 0, 90, 2, TYPE=SA
+#{"Podcatcher","Podcatcher"},(0xA0009D00), 1, 00, BUILDNO, TYPE=SA
 
 ;Supports Symbian^3
 [0x20022E6D], 0, 0, 0, {"Series60ProductID","Series60ProductID"}
@@ -25,7 +25,7 @@
 "./backup_registration.xml" - "c:\private\A0009D00\backup_registration.xml"
 
 ; app DLL
-"\epoc32\release\gcce\urel\podcastengine.dll"-"!:\sys\bin\podcastengine.dll"
+"\epoc32\release\gcce\udeb\podcastengine.dll"-"!:\sys\bin\podcastengine.dll"
 
 ; application UI - note that FR,RI does not work when SIS is self signed
-"\epoc32\release\gcce\urel\Podcast.exe"-"!:\sys\bin\Podcast.exe",FR,RI
+"\epoc32\release\gcce\udeb\Podcast.exe"-"!:\sys\bin\Podcast.exe",FR,RI
