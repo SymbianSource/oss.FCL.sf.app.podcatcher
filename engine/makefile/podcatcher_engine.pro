@@ -22,30 +22,32 @@ QT -= core
 QT -= gui
 TEMPLATE = lib
 CONFIG += dll
-CONGIH -=QT
+CONFIG -=QT
 
 ENABLE_MPX_INTEGRATION = 0;
+
+INCLUDEPATH = /epoc32/include
 INCLUDEPATH += /epoc32/include/mw
 INCLUDEPATH += /epoc32/include/platform
 INCLUDEPATH += /epoc32/include/platform/mw
 INCLUDEPATH += /epoc32/include/stdapis
+INCLUDEPATH += /epoc32/include
 INCLUDEPATH += ../inc
 
-
-SOURCES	+=	..\src\HttpClient.cpp \
-			..\src\HttpEventHandler.cpp \
-			..\src\FeedParser.cpp \
-			..\src\FeedEngine.cpp \
-			..\src\ShowInfo.cpp \
-			..\src\FeedInfo.cpp \
-			..\src\FeedTimer.cpp \
-			..\src\ShowEngine.cpp \
-			..\src\SettingsEngine.cpp \
-			..\src\MetaDataReader.cpp \
-			..\src\OpmlParser.cpp \
-			..\src\PodcastUtils.cpp \
-			..\src\PodCastModel.cpp \ 
-			..\src\ImageHandler.cpp \
+SOURCES	+=	..\src\HttpClient.cpp\
+			..\src\HttpEventHandler.cpp\
+			..\src\FeedParser.cpp\
+			..\src\FeedEngine.cpp\
+			..\src\ShowInfo.cpp\
+			..\src\FeedInfo.cpp\
+			..\src\FeedTimer.cpp\
+			..\src\ShowEngine.cpp\
+			..\src\SettingsEngine.cpp\
+			..\src\MetaDataReader.cpp\
+			..\src\OpmlParser.cpp\
+			..\src\PodcastUtils.cpp\
+			..\src\PodCastModel.cpp\ 
+			..\src\ImageHandler.cpp\
  			..\src\ConnectionEngine.cpp
 			
 symbian {
@@ -57,11 +59,11 @@ symbian {
 		TARGET.CAPABILITY += WriteUserData ReadDeviceData WriteDeviceData MultimediaDD
     }
 	
-			
 	BLD_INF_RULES.prj_exports += "..\config\podcatcher.sqlite z:\private\A0009D00\podcatcher.sqlite.template"
 	BLD_INF_RULES.prj_exports += "..\config\defaultfeeds.xml z:\private\A0009D00\defaultfeeds.xml"
 	BLD_INF_RULES.prj_exports += "..\config\testfeeds.xml c:\data\testfeeds.xml"
-	BLD_INF_RULES.prj_platforms = DEFAULT
+
+	SYMBIAN_PLATFORMS = DEFAULT
 }
 
 LIBS	+=	-lsqlite3.dll -lbafl.dll -lefsrv.dll -lmediaclientaudio.dll \
