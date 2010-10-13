@@ -10,12 +10,16 @@ TARGET = podcatcher_qt
 TEMPLATE = app
 
 
-SOURCES += src\main.cpp\
-        src\podcatcherwin.cpp
+SOURCES += .\src\main.cpp \
+        .\src\podcatcherwin.cpp
 
-HEADERS  += inc\podcatcherwin.h
+HEADERS  += .\inc\podcatcherwin.h
 
-FORMS    += forms\podcatcherwin.ui
+FORMS    += .\forms\podcatcherwin.ui
+
+INCLUDEPATH += ./inc
+INCLUDEPATH += ./ui
+INCLUDEPATH += ./moc
 
 CONFIG += mobility
 MOBILITY = 
