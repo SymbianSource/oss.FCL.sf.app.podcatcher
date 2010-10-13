@@ -25,14 +25,12 @@ CONFIG += dll
 CONGIH -=QT
 
 ENABLE_MPX_INTEGRATION = 0;
-
-INCLUDEPATH = /epoc32/include
 INCLUDEPATH += /epoc32/include/mw
 INCLUDEPATH += /epoc32/include/platform
 INCLUDEPATH += /epoc32/include/platform/mw
 INCLUDEPATH += /epoc32/include/stdapis
-INCLUDEPATH += /epoc32/include
 INCLUDEPATH += ../inc
+
 
 SOURCES	+=	..\src\HttpClient.cpp \
 			..\src\HttpEventHandler.cpp \
