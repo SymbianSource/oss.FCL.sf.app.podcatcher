@@ -24,7 +24,7 @@
 #include <xml/stringdictionarycollection.h>
 #include <utf.h>
 #include <tinternetdate.h>
-#include "debug.h"
+#include "podcatcher_debug.h"
 #include "podcastutils.h"
 
 using namespace Xml;

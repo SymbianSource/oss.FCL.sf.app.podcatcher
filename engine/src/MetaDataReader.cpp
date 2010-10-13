@@ -21,7 +21,7 @@
 #include <charconv.h>
 #include <eikenv.h>
 #include <mmf\common\mmfMeta.h>
-#include "debug.h"
+#include "podcatcher_debug.h"
 
 const TInt KMaxParseBuffer = 1024;
 

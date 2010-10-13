@@ -20,7 +20,7 @@
 #include <e32base.h>
 #include <TXTETEXT.H> // for ELineBreak
 #include "PodcastUtils.h"
-#include "debug.h"
+#include "podcatcher_debug.h"
 #include "FeedEngine.h" // for KMaxDescriptionLength
 			
 EXPORT_C void PodcastUtils::FixProtocolsL(TDes &aUrl)

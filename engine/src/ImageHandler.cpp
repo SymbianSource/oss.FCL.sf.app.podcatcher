@@ -17,7 +17,7 @@
 */
 
 #include "ImageHandler.h"
-#include "debug.h"
+#include "podcatcher_debug.h"
 
 // =============================================================================
 // CImageHandler, a utility class for loading images.

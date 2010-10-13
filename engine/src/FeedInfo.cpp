@@ -23,6 +23,7 @@
 #include <fbs.h>
 #include <bautils.h>
 #include <eikenv.h>
+
 _LIT(KMbmExtension, ".mbm");
 
 EXPORT_C CFeedInfo* CFeedInfo::NewL()

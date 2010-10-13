@@ -28,7 +28,7 @@
 
 #include "FeedInfo.h"
 #include "ShowInfo.h"
-#include "debug.h"
+#include "podcatcher_debug.h"
 #include <sqlite3.h>
 #include "ImageHandler.h"
 #include <aknserverapp.h>  // MAknServerAppExitObserver

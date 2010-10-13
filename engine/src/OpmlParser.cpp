@@ -17,7 +17,7 @@
 */
 
 #include "OpmlParser.h"
-#include "debug.h"
+#include "podcatcher_debug.h"
 #include <f32file.h>
 #include <bautils.h>
 #include <s32file.h>

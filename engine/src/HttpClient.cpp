@@ -9,7 +9,7 @@
 #include <es_sock.h>
 #include <bautils.h>
 #include <CommDbConnPref.h>
-#include "debug.h"
+#include "podcatcher_debug.h"
 #include "constants.h"
 #include "HttpClient.h"
 #include "connectionengine.h"

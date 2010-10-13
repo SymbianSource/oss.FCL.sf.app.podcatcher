@@ -26,7 +26,7 @@
 #include "PodcastSearchView.h"
 #include "ShowEngine.h"
 #include "PodcastModel.h"
-#include "debug.h"
+#include "podcatcher_debug.h"
 #include "..\help\podcatcher.hlp.hrh"
 #include "PodcastApp.h"
 #include <APGWGNAM.H>

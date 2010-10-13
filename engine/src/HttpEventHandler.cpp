@@ -22,6 +22,7 @@
 #include "HttpEventHandler.h"
 #include "bautils.h"
 #include "Httpclient.h"
+#include "podcatcher_debug.h"
 
 void CHttpEventHandler::ConstructL()
 	{

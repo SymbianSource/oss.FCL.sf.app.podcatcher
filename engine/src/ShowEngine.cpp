@@ -24,7 +24,7 @@
 #include "SettingsEngine.h"
 #include <e32hashtab.h>
 #include <httperr.h>
-#include "debug.h"
+#include "podcatcher_debug.h"
 #include "PodcastUtils.h"
 
 #ifdef ENABLE_MPX_INTEGRATION 
