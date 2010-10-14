@@ -20,7 +20,3 @@ CONFIG					+=	ordered
 
 SUBDIRS					=	../../engine/makefile/podcatcher_engine.pro
 SUBDIRS					=	./podcatcher_application.pro
-
-symbian {
-	SYMBIAN_PLATFORMS	=	DEFAULT
-}
