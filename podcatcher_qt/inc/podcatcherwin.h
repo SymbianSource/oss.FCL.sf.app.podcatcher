@@ -21,8 +21,7 @@ private:
 private slots:
     void on_Settings_clicked();
     void on_Update_clicked();
-    void on_Add_clicked();
-    void on_Add_clicked(bool checked);
+    void on_Add_clicked();    
     void on_listView_clicked(QModelIndex index);
     void on_listView_customContextMenuRequested(QPoint pos);
 };
