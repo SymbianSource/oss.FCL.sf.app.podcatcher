@@ -189,7 +189,16 @@ void CShowEngine::GetShowL(CShowInfo *info)
 
 	TFileName fileName;
 	PodcastUtils::FileNameFromUrl(info->Url(), fileName);
-	relPath.Append(fileName);
+	
+	TFileName extension;
+	extension.Copy(fileName.Mid(fileName.LocateReverse('.')));
+	DP1("extension=%S", &extension);
+		
+	TFileName newFilename;
+	newFilename.Format(_L("%u%S"), info->Uid(), &extension);
+	DP1("newFilename=%S", &newFilename);
+			
+	relPath.Append(newFilename);
 	PodcastUtils::EnsureProperPathName(relPath);
 
 	// complete file path is base dir + rel path
