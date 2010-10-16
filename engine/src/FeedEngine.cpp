@@ -173,7 +173,7 @@ EXPORT_C void CFeedEngine::UpdateAllFeedsL(TBool aAutoUpdate)
 	    }
 	//
 	iAutoUpdatedInitiator = aAutoUpdate;
-	if ((iFeedsUpdating.Count() > 0) || (isOfflineProfile)) // cancel update if in offline mode
+	if ((iFeedsUpdating.Count() > 0) || (isOfflineProfile && aAutoUpdate))
 		{
 		DP("Cancelling update");
 		iFeedClient->Stop();
@@ -299,6 +299,7 @@ EXPORT_C TBool CFeedEngine::UpdateFeedL(TUint aFeedUid)
 
 void CFeedEngine::NewShowL(CShowInfo& aItem)
 	{
+	DP1("NewShowL, aItem.Title()=", aItem.Title());
 	HBufC* description = HBufC::NewLC(KMaxDescriptionLength);
 	TPtr ptr(description->Des());
 	ptr.Copy(aItem.Description());
