@@ -272,7 +272,27 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 			break;
 		case EStateItem:
 			if (str.CompareF(KTagItem) == 0) 
-				{				
+				{
+				
+				// check if we have a valid pubdate
+				
+				if (iActiveShow->PubDate().Int64() == 0)
+					{
+					// set pubDate to present time
+					TTime now;
+					now.UniversalTime();
+					
+					// but we want reverse sorting, so let's do a little trick...
+					TTimeIntervalHours delta;
+					delta = iItemsParsed;
+					
+					// ... remove an hour per show we've parsed so far
+					now -= delta;
+					
+					iActiveShow->SetPubDate(now);
+					}
+				
+						
 				iCallbacks.NewShowL(*iActiveShow);
 				
 				delete iActiveShow;				
