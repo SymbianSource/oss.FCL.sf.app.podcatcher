@@ -24,6 +24,7 @@
 #include <xml/stringdictionarycollection.h>
 #include <utf.h>
 #include <tinternetdate.h>
+#include <e32hashtab.h>
 #include "debug.h"
 #include "podcastutils.h"
 
@@ -159,6 +160,7 @@ void CFeedParser::OnStartElementL(const RTagInfo& aElement, const RAttributeArra
 		}
 		break;
 	case EStateItem:
+		iUid = 0;
 		// <channel> <item> <title>
 		if (str.CompareF(KTagTitle) == 0) {
 			iFeedState=EStateItemTitle;
@@ -197,6 +199,9 @@ void CFeedParser::OnStartElementL(const RTagInfo& aElement, const RAttributeArra
 		} else if (str.CompareF(KTagPubDate) == 0) {
 			//DP("LastBuildDate BEGIN");
 			iFeedState = EStateItemPubDate;
+		// <channel> <item> <guid>
+		} else if (str.CompareF(KTagGuid) == 0) {
+			iFeedState = EStateItemGuid;
 		}
 		break;
 	default:
@@ -273,9 +278,7 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 		case EStateItem:
 			if (str.CompareF(KTagItem) == 0) 
 				{
-				
 				// check if we have a valid pubdate
-				
 				if (iActiveShow->PubDate().Int64() == 0)
 					{
 					// set pubDate to present time
@@ -292,6 +295,10 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 					iActiveShow->SetPubDate(now);
 					}
 				
+				if (iUid)
+					{
+					iActiveShow->SetUid(iUid);
+					}
 						
 				iCallbacks.NewShowL(*iActiveShow);
 				
@@ -384,6 +391,10 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 					DP2("Pubdate parse error: '%S', error=%d", &iBuffer, parseError);
 				}
 			}
+			iFeedState=EStateItem;
+			break;
+		case EStateItemGuid:
+			iUid = DefaultHash::Des16(iBuffer);
 			iFeedState=EStateItem;
 			break;
 		case EStateItemTitle:
