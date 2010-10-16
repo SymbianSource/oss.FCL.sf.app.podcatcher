@@ -95,12 +95,6 @@ CPodcastSearchView::~CPodcastSearchView()
     {
 	iPodcastModel.FeedEngine().RemoveObserver(this);
  
-    if(iLongTapDetector)
-        delete iLongTapDetector, iLongTapDetector = NULL;
-
-    if(iStylusPopupMenu)
-        delete iStylusPopupMenu, iStylusPopupMenu = NULL;
-
     }
 
 TUid CPodcastSearchView::Id() const

@@ -56,6 +56,24 @@ RESOURCE MENU_PANE r_podcast_feedview_menu
 			{
 			command = EAknSoftkeyExit;
 			txt = STRING_r_exit_cmd;
+			},
+		MENU_ITEM
+			{
+			txt = STRING_r_view_edit_feed_cmd_short;
+			command = EPodcastEditFeed; 
+			flags = EEikMenuItemSpecific;
+			},
+		MENU_ITEM
+			{
+			txt = STRING_r_view_delete_feed_cmd_short;
+			command = EPodcastDeleteFeed;
+			flags = EEikMenuItemSpecific;
+			},
+		MENU_ITEM
+			{
+			txt = STRING_r_update_feed_short_cmd;
+			command = EPodcastUpdateFeed;
+			flags = EEikMenuItemSpecific;
 			}
         };
     }
@@ -248,28 +266,6 @@ RESOURCE DIALOG r_podcast_edit_feed_dlg
 				}
 	};
 }
-
-RESOURCE STYLUS_POPUP_MENU r_feedview_popup_menu
-	{
-		items =
-		{
-			STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_view_edit_feed_cmd_short;
-					command = EPodcastEditFeed; 
-				},
-			STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_view_delete_feed_cmd_short;
-					command = EPodcastDeleteFeed;
-				},
-			STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_update_feed_short_cmd;
-					command = EPodcastUpdateFeed;
-				}
-		};
-	}
 
 RESOURCE ARRAY r_feedview_add_url_or_search_array
 {

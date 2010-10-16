@@ -49,6 +49,24 @@ RESOURCE MENU_PANE r_podcast_queueview_menu
 			{
 			command = EAknSoftkeyExit;
 			txt = STRING_r_exit_cmd;
+			},
+		MENU_ITEM
+			{
+			txt = STRING_r_view_remove_download_short_cmd;
+			command = EPodcastRemoveDownload;
+			flags = EEikMenuItemSpecific;
+			},
+		MENU_ITEM
+			{
+			txt = STRING_r_view_move_up_short_cmd;
+			command = EPodcastMoveDownloadUp;
+			flags = EEikMenuItemSpecific;
+			},
+		MENU_ITEM
+			{
+			txt = STRING_r_view_move_down_short_cmd;
+			command = EPodcastMoveDownloadDown;
+			flags = EEikMenuItemSpecific;
 			}
         };
     }
@@ -115,25 +133,3 @@ RESOURCE AVKON_TOOLBAR r_queueview_toolbar
 			}
         };
     }
-
-RESOURCE STYLUS_POPUP_MENU r_queueview_popup_menu
-	{
-		items =
-		{
-			STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_view_remove_download_short_cmd;
-					command = EPodcastRemoveDownload;
-				},
-			STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_view_move_up_short_cmd;
-					command = EPodcastMoveDownloadUp;
-				},
-			STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_view_move_down_short_cmd;
-					command = EPodcastMoveDownloadDown;
-				}
-		};
-	}

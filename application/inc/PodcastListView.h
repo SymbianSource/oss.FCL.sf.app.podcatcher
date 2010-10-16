@@ -57,31 +57,23 @@ class CPodcastListContainer : public CCoeControl
 		void HandleResourceChange(TInt aType);
 		virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
 		void SetKeyEventListener(MKeyEventListener *aKeyEventListener);
-		void SetPointerListener(MPointerListener *aPointerListener);
 		
 		CEikFormattedCellListBox* Listbox();
 		void ScrollToVisible();
     	void Draw(const TRect& aRect) const;
     	
-    	void SetLongTapDetectedL(TBool aLongTapDetected);
-
     	CEikFormattedCellListBox * iListbox;		
 
 	protected:
 		TTypeUid::Ptr MopSupplyObject( TTypeUid aId );
-		virtual void HandlePointerEventL(const TPointerEvent& aPointerEvent);
 
 	private:
 		MKeyEventListener* iKeyEventListener;
-		MPointerListener* iPointerListener;
         CAknsBasicBackgroundControlContext* iBgContext;
-		 TBool iLongTapDetected;
-
 	};
 
 
 class CPodcastListView : public CAknView, public MAknToolbarObserver,
-public MPointerListener, public MAknLongTapDetectorCallBack, 
 public MProgressDialogCallback, public MKeyEventListener
     {
     public: 
@@ -140,18 +132,12 @@ public MProgressDialogCallback, public MKeyEventListener
 		void CloseToolbarExtension();
 		void ShowWaitDialogL(TDesC &aWaitText);
 		void CloseWaitDialog();
-
-		// From MAknLongTapDetectorCallBack
-		virtual void HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& aPenEventScreenLocation );
-		 
+	 
 		// from MProgressDialogCallback		
 		void DialogDismissedL(TInt /*aButtonId*/) {}
 
 		// from MKeyEventListener
 		virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
-
-		// from MPointerListener
-		void PointerEventL(const TPointerEvent& aPointerEvent);
 
 	protected:
 		 CPodcastListContainer* iListContainer;
@@ -167,10 +153,7 @@ public MProgressDialogCallback, public MKeyEventListener
 		 TBuf<1024> iListboxFormatbuffer;
 		 
 		 CAknToolbar *iToolbar;
-		 CAknStylusPopUpMenu* iStylusPopupMenu;
-		 CAknLongTapDetector* iLongTapDetector;
 		 CAknWaitDialog *iWaitDialog;
-
     };
 #endif // PODCASTBASEVIEWH
 

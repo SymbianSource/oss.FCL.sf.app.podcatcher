@@ -54,6 +54,36 @@ RESOURCE MENU_PANE r_podcast_showsview_menu
 			{
 			command = EAknSoftkeyExit;
 			txt = STRING_r_exit_cmd;
+			},
+		MENU_ITEM
+			{
+			txt = STRING_r_view_show_info_cmd;
+			command = EPodcastShowInfo;
+			flags = EEikMenuItemSpecific;
+			},
+		MENU_ITEM
+			{
+			txt = STRING_r_view_mark_as_unplayed_cmd_short;
+			command = EPodcastMarkAsUnplayed;
+			flags = EEikMenuItemSpecific;
+			},
+		MENU_ITEM
+			{
+			txt = STRING_r_view_mark_as_played_cmd_short;
+			command = EPodcastMarkAsPlayed;
+			flags = EEikMenuItemSpecific;
+			},
+		MENU_ITEM
+			{
+			txt = STRING_r_view_download_show_cmd;
+			command = EPodcastDownloadShow;
+			flags = EEikMenuItemSpecific;
+			},
+		MENU_ITEM
+			{
+			txt = STRING_r_view_delete_show_cmd;
+			command = EPodcastDeleteShow;
+			flags = EEikMenuItemSpecific;
 			}
         };
     }
@@ -121,38 +151,6 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
 			}
         };
     }
-
-RESOURCE STYLUS_POPUP_MENU r_showview_popup_menu
-	{
-		items =
-		{
-			STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_view_show_info_cmd;
-					command = EPodcastShowInfo;
-				}
-			,STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_view_mark_as_unplayed_cmd_short;
-					command = EPodcastMarkAsUnplayed;
-				},
-			STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_view_mark_as_played_cmd_short;
-					command = EPodcastMarkAsPlayed;
-				},
-			STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_view_download_show_cmd;
-					command = EPodcastDownloadShow;
-				},
-			STYLUS_POPUP_MENU_ITEM
-				{
-					txt = STRING_r_view_delete_show_cmd;
-					command = EPodcastDeleteShow;
-				}
-		};
-	}
 
 RESOURCE DIALOG r_show_info_note
 {

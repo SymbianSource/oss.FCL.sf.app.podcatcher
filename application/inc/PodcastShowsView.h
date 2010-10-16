@@ -96,7 +96,6 @@ protected:
 	void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);
 	void FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aSizeDownloaded = 0);
 
-	virtual void HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& aPenEventScreenLocation);
 	void GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex);
 	void CreateIconsL();
 
