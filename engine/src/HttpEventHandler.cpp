@@ -19,9 +19,12 @@
 // HttpEventHandler.cpp
 #include <e32debug.h>
 #include <httperr.h>
+#include <sysutil.h>
 #include "HttpEventHandler.h"
 #include "bautils.h"
 #include "Httpclient.h"
+
+const TInt64 KMinDiskSpace = 1024 * 1024; // at least 1 MB must remain
 
 void CHttpEventHandler::ConstructL()
 	{
@@ -148,6 +151,18 @@ void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent&
 			// Some (more) body data has been received (in the HTTP response)
 			//DumpRespBody(aTransaction);
 			//DP1("Saving: %d", iSavingResponseBody);
+			
+			// check if we have enough disk space
+			if (iDriveNo != -1 && SysUtil::DiskSpaceBelowCriticalLevelL( &iFileServ, KMinDiskSpace, iDriveNo ))
+				{
+					TInt error = KErrDiskFull;
+					iFileOpen = EFalse;
+					iRespBodyFile.Close();
+					iCallbacks.FileError(error);
+					iHttpClient->ClientRequestCompleteL(error);
+					return;
+				}
+			
 			// Append to the output file if we're saving responses
 			if (iFileOpen)
 				{
@@ -239,6 +254,26 @@ void CHttpEventHandler::SetSaveFileName(const TDesC &fName, TBool aContinue)
 	DP1("CHttpEventHandler::SetSaveFileName, aContinue=%d", aContinue);
 	iFileName.Copy(fName);
 	iContinue = aContinue;
+	
+	switch(fName[0])
+		{
+		case 'C':
+			iDriveNo = EDriveC;
+			break;
+		case 'E':
+			iDriveNo = EDriveE;
+			break;
+		case 'F':
+			iDriveNo = EDriveF;
+			break;
+		case 'G':
+			iDriveNo = EDriveG;
+			break;
+		default:
+			iDriveNo = -1;
+			break;
+		}
+	DP1("iDriveNo set to %d", iDriveNo);
 	}
 
 void CHttpEventHandler::DumpRespHeadersL(RHTTPTransaction& aTrans)
