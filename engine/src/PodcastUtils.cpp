@@ -314,7 +314,8 @@ EXPORT_C TBool PodcastUtils::IsVideoShow(TDesC &aUrl)
 	{
 	if (aUrl.Find(KVideoFormat1) != KErrNotFound ||
 			aUrl.Find(KVideoFormat2) != KErrNotFound ||
-			aUrl.Find(KVideoFormat3) != KErrNotFound)
+			aUrl.Find(KVideoFormat3) != KErrNotFound ||
+			aUrl.Find(KVideoFormat4) != KErrNotFound)
 		{
 		return ETrue;
 		}
