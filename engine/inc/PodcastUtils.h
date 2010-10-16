@@ -37,6 +37,7 @@ _LIT(KPcastPrefix, "pcast://");
 _LIT(KVideoFormat1, ".wmv");
 _LIT(KVideoFormat2, ".avi");
 _LIT(KVideoFormat3, ".mp4");
+_LIT(KVideoFormat4, ".mov");
 
 
 
