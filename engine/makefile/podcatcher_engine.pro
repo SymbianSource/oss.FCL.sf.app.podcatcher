@@ -62,8 +62,6 @@ symbian {
 	BLD_INF_RULES.prj_exports += "..\config\podcatcher.sqlite z:\private\A0009D00\podcatcher.sqlite.template"
 	BLD_INF_RULES.prj_exports += "..\config\defaultfeeds.xml z:\private\A0009D00\defaultfeeds.xml"
 	BLD_INF_RULES.prj_exports += "..\config\testfeeds.xml c:\data\testfeeds.xml"
-
-	SYMBIAN_PLATFORMS = DEFAULT
 }
 
 LIBS	+=	-lsqlite3.dll -lbafl.dll -lefsrv.dll -lmediaclientaudio.dll \
