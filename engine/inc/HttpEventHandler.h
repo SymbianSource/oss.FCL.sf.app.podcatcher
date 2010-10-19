@@ -71,6 +71,7 @@ private:
 	TBool iSilent;
 	TBool iContinue;
 	TInt iLastStatusCode;
+	TInt iDriveNo;
 };
 
 #endif

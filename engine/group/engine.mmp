@@ -77,6 +77,7 @@ LIBRARY commonui.lib  // CDocumentHandler
 LIBRARY apparc.lib
 LIBRARY avkon.lib
 LIBRARY centralrepository.lib
+LIBRARY sysutil.lib 
 
 #ifdef ENABLE_MPX_INTEGRATION
 CAPABILITY NetworkServices UserEnvironment WriteUserData ReadDeviceData WriteDeviceData MultimediaDD
