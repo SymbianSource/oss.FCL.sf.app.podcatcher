@@ -84,8 +84,8 @@ rls_string STRING_import_feed_success "%d fuentes importadas. ¿Quiere actualizar
 rls_string STRING_import_feed_failure "Improtación de fuente fallida"
 rls_string STRING_export_feed_success "%d fuentes exportadas"
 rls_string STRING_export_feed_failure "Exportación de fuente fallida"
-rls_string STRING_r_importing "Importando..."
-rls_string STRING_r_exporting "Exportando..."
+rls_string STRING_r_importing "Importando"
+rls_string STRING_r_exporting "Exportando"
 
 // Listbox empty strings
 rls_string STRING_r_podcast_empty_queue "(cola vacia)"
@@ -124,7 +124,7 @@ rls_string STRING_r_add_feed_exists "La dirección propuesta esta usada por otra 
 // Feed searching
 
 rls_string STRING_r_search_noresults "No hay resultados"
-rls_string STRING_r_searching "Buscando..."
+rls_string STRING_r_searching "Buscando"
 rls_string STRING_r_search_results "Resulstados de la búsqueda"
 
 // Show view
