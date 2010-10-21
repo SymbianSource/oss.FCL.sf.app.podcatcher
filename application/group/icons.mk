@@ -8,6 +8,7 @@ TARGETDIR=$(ZDIR)\resource\apps
 ICONTARGETFILENAME=$(TARGETDIR)\Podcast.mif
 HEADERFILE=$(EPOCROOT)epoc32\include\Podcast.mbg
 DPATH=..\data\images
+TPATH=..\data\images\toolbars
 
 do_nothing :
 	@rem do_nothing
@@ -41,7 +42,20 @@ RESOURCE :
 		$(DPATH)\Video_downloaded_new.svg\
 		$(DPATH)\Video_failed.svg\
 		$(DPATH)\Video_suspended.svg\
-		$(DPATH)\Feed.svg
+		$(DPATH)\Feed.svg\
+		$(TPATH)\add_pod.svg\
+		$(TPATH)\delete.svg\
+		$(TPATH)\dwn_pause.svg\
+		$(TPATH)\dwn_start.svg\
+		$(TPATH)\reload.svg\
+		$(TPATH)\reload_all.svg\
+		$(TPATH)\settings.svg\
+		$(TPATH)\cancel.svg\
+		$(TPATH)\remove.svg\
+		$(TPATH)\remove_all.svg\
+		$(TPATH)\download.svg\
+		$(TPATH)\markold.svg\
+		$(TPATH)\marknew.svg\
 
 FREEZE : do_nothing
 
