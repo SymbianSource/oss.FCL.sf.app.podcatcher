@@ -82,8 +82,8 @@ rls_string STRING_import_feed_success "%d feeds imported. Update all feeds now?"
 rls_string STRING_import_feed_failure "Feed import failed"
 rls_string STRING_export_feed_success "%d feeds exported"
 rls_string STRING_export_feed_failure "Feed export failed"
-rls_string STRING_r_importing "Importing..."
-rls_string STRING_r_exporting "Exporting..."
+rls_string STRING_r_importing "Importing"
+rls_string STRING_r_exporting "Exporting"
 
 // Listbox empty strings
 rls_string STRING_r_podcast_empty_queue "(queue empty)"
@@ -122,7 +122,7 @@ rls_string STRING_r_add_feed_exists "A feed with this address already exists" //
 // Feed searching
 
 rls_string STRING_r_search_noresults "No search results"
-rls_string STRING_r_searching "Searching..."
+rls_string STRING_r_searching "Searching"
 rls_string STRING_r_search_results "Search results"
 
 // Show view

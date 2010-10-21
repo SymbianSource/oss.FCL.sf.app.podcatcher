@@ -59,6 +59,11 @@ RESOURCE MENU_PANE r_podcast_queueview_menu
 			{
 			command = EPodcastHelp;
 			txt = STRING_r_view_help;
+			},
+		MENU_ITEM
+			{
+			command = EAknSoftkeyExit;
+			txt = STRING_r_exit_cmd;
 			}
         };
     }
