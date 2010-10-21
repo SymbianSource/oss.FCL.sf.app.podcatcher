@@ -180,8 +180,8 @@ void CPodcastQueueView::UpdateListboxItemsL()
 				for (TInt loop = 0; loop< len; loop++)
 					{					
 					UpdateShowItemDataL(fItems[loop], loop);	
-					iListContainer->Listbox()->DrawItem(loop);
 					}
+				iListContainer->Listbox()->DrawNow();
 				}
 			else
 				{
@@ -304,13 +304,17 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			break;
 		case EPodcastSuspendDownloads:
 			{
+			iDontUpdateList = ETrue;
 			iPodcastModel.ShowEngine().SuspendDownloads();
+			iDontUpdateList = EFalse;
 			UpdateListboxItemsL();
 			}
 			break;
 		case EPodcastResumeDownloads:
 			{
+			iDontUpdateList = ETrue;
 			iPodcastModel.ShowEngine().ResumeDownloadsL();
+			iDontUpdateList = EFalse;
 			UpdateListboxItemsL();
 			}
 			break;
