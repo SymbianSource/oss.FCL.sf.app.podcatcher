@@ -649,6 +649,7 @@ void CPodcastFeedView::HandleAddFeedSearchL()
 
 	HBufC* prompt = iEikonEnv->AllocReadResourceLC(R_PODCAST_SEARCHFEED_PROMPT);
 	dlg->SetPromptL(*prompt);
+	dlg->SetPredictiveTextInputPermitted(ETrue);
 	CleanupStack::PopAndDestroy(prompt);
 	
 	if(dlg->RunLD())

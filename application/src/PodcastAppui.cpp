@@ -32,6 +32,7 @@
 #include <APGWGNAM.H>
 #include <HLPLCH.H>
 #include <avkon.hrh>
+#include "Podcast.mbg"
 
 const TUint KDelayLaunch = 1000;
 
@@ -205,30 +206,31 @@ void CPodcastAppUi::NaviSetTextL(TInt aResourceId)
 
 void CPodcastAppUi::NaviShowTabGroupL()
 	{
-	if (iNaviStyle != ENaviEmpty) {
-		iNaviPane->Pop();
-	}
-	
-	iNaviTabGroup = iNaviPane->CreateTabGroupL();
-	
-	iTabGroup = STATIC_CAST(CAknTabGroup*, iNaviTabGroup->DecoratedControl());
-	iTabGroup->SetTabFixedWidthL(EAknTabWidthWithTwoTabs);
+//	if (iNaviStyle != ENaviEmpty) {
+//		iNaviPane->Pop();
+//	}
+//	
+//	iNaviTabGroup = iNaviPane->CreateTabGroupL();
 
-	HBufC *label1 = iEikonEnv->AllocReadResourceLC(R_TABGROUP_FEEDS);
-	iTabGroup->AddTabL(KTabIdFeeds,*label1);
-		
-	HBufC *label3 = iEikonEnv->AllocReadResourceLC(R_TABGROUP_QUEUE);
-	iTabGroup->AddTabL(KTabIdQueue,*label3);
-
-	CleanupStack::PopAndDestroy(label3);
-	CleanupStack::PopAndDestroy(label1);
+	iTabGroup = STATIC_CAST(CAknTabGroup*, iNaviPane->ResourceDecorator()->DecoratedControl());
+	iTabGroup->SetObserver(this); 
 	
-	iTabGroup->SetActiveTabByIndex(0);
-	iTabGroup->SetObserver(this);
-
-	iNaviPane->PushL(*iNaviTabGroup);
+//	iTabGroup->SetTabFixedWidthL(EAknTabWidthWithTwoTabs);
+//
+//	HBufC *label1 = iEikonEnv->AllocReadResourceLC(R_TABGROUP_FEEDS);
+//	iTabGroup->AddTabL(KTabIdFeeds,*label1);
+//		
+//	HBufC *label3 = iEikonEnv->AllocReadResourceLC(R_TABGROUP_QUEUE);
+//	iTabGroup->AddTabL(KTabIdQueue,*label3);
+//
+//	CleanupStack::PopAndDestroy(label3);
+//	CleanupStack::PopAndDestroy(label1);
+//	
+//	iTabGroup->SetActiveTabByIndex(0);
+//	
+//	iNaviPane->PushL(*iNaviTabGroup);
 	iNaviStyle = ENaviTabGroup;
-
+//
 	UpdateQueueTabL(iPodcastModel->ShowEngine().GetNumDownloadingShows());
 	}
 
@@ -283,22 +285,45 @@ void CPodcastAppUi::UpdateQueueTabL(TInt aQueueLength)
 	{
 	if (iNaviStyle == ENaviTabGroup)
 		{
+		CFbsBitmap* bitmap;
+		CFbsBitmap* mask;
 		if (aQueueLength == 0)
 			{
-			HBufC *queue = iEikonEnv->AllocReadResourceLC(R_TABGROUP_QUEUE);
-			iTabGroup->ReplaceTabL(KTabIdQueue, *queue);
-			CleanupStack::PopAndDestroy(queue);
+			AknIconUtils::CreateIconL(bitmap,
+			                          mask,
+			                          iEikonEnv->EikAppUi()->Application()->BitmapStoreName(),
+			                          EMbmPodcastTab_queue,
+			                          EMbmPodcastTab_queue_mask);
+			}
+		else if (aQueueLength == 1)
+			{
+
+			AknIconUtils::CreateIconL(bitmap,
+			                          mask,
+			                          iEikonEnv->EikAppUi()->Application()->BitmapStoreName(),
+			                          EMbmPodcastTab_queue1,
+			                          EMbmPodcastTab_queue1_mask);
+			}
+		else if (aQueueLength == 2)
+			{
+
+			AknIconUtils::CreateIconL(bitmap,
+			                          mask,
+			                          iEikonEnv->EikAppUi()->Application()->BitmapStoreName(),
+			                          EMbmPodcastTab_queue2,
+			                          EMbmPodcastTab_queue2_mask);
 			}
 		else
 			{
-			HBufC *queueTemplate = iEikonEnv->AllocReadResourceLC(R_TABGROUP_QUEUE_COUNTER);
-			HBufC *queueCounter = HBufC::NewLC(queueTemplate->Length()+2);
-			queueCounter->Des().Format(*queueTemplate, aQueueLength);
-			
-			iTabGroup->ReplaceTabL(KTabIdQueue, *queueCounter);
-			CleanupStack::PopAndDestroy(queueCounter);
-			CleanupStack::PopAndDestroy(queueTemplate);	
+
+			AknIconUtils::CreateIconL(bitmap,
+			                          mask,
+			                          iEikonEnv->EikAppUi()->Application()->BitmapStoreName(),
+			                          EMbmPodcastTab_queue3,
+			                          EMbmPodcastTab_queue3_mask);
 			}
+
+			iTabGroup->ReplaceTabL(EPodcastTabQueue, bitmap, mask);
 		}
 	}
 
