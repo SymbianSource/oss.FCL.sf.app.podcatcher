@@ -67,7 +67,10 @@ enum TPodcastCommandIds
 	EPodcastFilterShowsAll,
 	EPodcastFilterShowsNew,
 	EPodcastFilterShowsDownloaded,
-	EPodcastFilterShowsNewAndDownloaded
+	EPodcastFilterShowsNewAndDownloaded,
+	// Tabs
+	EPodcastTabFeeds,
+	EPodcastTabQueue
 	};
 
 enum TPodcastControl

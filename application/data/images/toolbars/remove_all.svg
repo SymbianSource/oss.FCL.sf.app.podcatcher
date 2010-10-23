@@ -2,25 +2,25 @@
 <!-- Generator: Adobe Illustrator 14.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 43363)  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1"
-	 id="svg3426" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" sodipodi:docname="Audio_downloading.svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" inkscape:version="0.47 r22583"
+	 id="svg3426" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" inkscape:version="0.47 r22583" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:cc="http://creativecommons.org/ns#" sodipodi:docname="Audio_downloading.svg"
 	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="32px" height="32px"
 	 viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
-<sodipodi:namedview  inkscape:current-layer="svg3426" inkscape:window-y="0" inkscape:window-x="300" inkscape:cy="16.00177" inkscape:cx="16.00177" inkscape:zoom="10.44997" showgrid="false" inkscape:window-height="659" inkscape:window-width="885" inkscape:pageshadow="2" inkscape:pageopacity="0" gridtolerance="10" objecttolerance="10" borderopacity="1" guidetolerance="10" pagecolor="#ffffff" bordercolor="#666666" inkscape:window-maximized="0" id="namedview3470">
+<sodipodi:namedview  id="namedview3470" bordercolor="#666666" pagecolor="#ffffff" guidetolerance="10" inkscape:zoom="10.44997" gridtolerance="10" inkscape:current-layer="svg3426" inkscape:pageopacity="0" borderopacity="1" inkscape:window-y="0" objecttolerance="10" inkscape:cx="16.00177" inkscape:cy="16.00177" inkscape:window-x="300" inkscape:pageshadow="2" inkscape:window-width="885" inkscape:window-height="659" showgrid="false" inkscape:window-maximized="0">
 	</sodipodi:namedview>
 <defs>
 	
 	
-		<inkscape:perspective  inkscape:persp3d-origin="16 : 10.666667 : 1" inkscape:vp_z="32 : 16 : 1" inkscape:vp_y="0 : 1000 : 0" inkscape:vp_x="0 : 16 : 1" sodipodi:type="inkscape:persp3d" id="perspective3474">
+		<inkscape:perspective  id="perspective3474" sodipodi:type="inkscape:persp3d" inkscape:vp_x="0 : 16 : 1" inkscape:vp_y="0 : 1000 : 0" inkscape:vp_z="32 : 16 : 1" inkscape:persp3d-origin="16 : 10.666667 : 1">
 		</inkscape:perspective>
 	
-		<inkscape:perspective  inkscape:persp3d-origin="0.5 : 0.33333333 : 1" inkscape:vp_z="1 : 0.5 : 1" inkscape:vp_y="0 : 1000 : 0" inkscape:vp_x="0 : 0.5 : 1" sodipodi:type="inkscape:persp3d" id="perspective3984">
+		<inkscape:perspective  id="perspective3984" sodipodi:type="inkscape:persp3d" inkscape:vp_x="0 : 0.5 : 1" inkscape:vp_y="0 : 1000 : 0" inkscape:vp_z="1 : 0.5 : 1" inkscape:persp3d-origin="0.5 : 0.33333333 : 1">
 		</inkscape:perspective>
 </defs>
-<path fill="#474748" d="M15.999,4.982C7.814,5.155,6.953,8.339,6.953,8.339l2.755,17.216c0,0,2.8,1.463,6.371,1.463
-	c3.569,0,6.295-1.463,6.295-1.463l2.672-17.216C25.047,8.339,24.188,5.155,15.999,4.982z M16,23.78c-0.678,0-1.227-0.55-1.227-1.228
-	s0.549-1.227,1.227-1.227s1.227,0.549,1.227,1.227S16.678,23.78,16,23.78z M14.775,18.062c0-0.676,0.548-1.225,1.225-1.225
-	s1.225,0.549,1.225,1.225c0,0.678-0.548,1.226-1.225,1.226S14.775,18.74,14.775,18.062z M16,14.8c-0.677,0-1.226-0.549-1.226-1.226
-	c0-0.677,0.549-1.226,1.226-1.226c0.678,0,1.227,0.549,1.227,1.226C17.227,14.251,16.678,14.8,16,14.8z M16.001,9.97
-	c-4.388,0-7.188-0.995-7.188-1.682c0-0.686,2.8-1.682,7.188-1.682c4.388,0,7.187,0.996,7.187,1.682
-	C23.188,8.975,20.389,9.97,16.001,9.97z"/>
+<path fill="#F1F2F2" d="M15.999,4.982C7.814,5.155,6.953,8.339,6.953,8.339l2.755,17.216c0,0,2.8,1.463,6.371,1.463
+	c3.569,0,6.295-1.463,6.295-1.463l2.672-17.216C25.047,8.339,24.188,5.155,15.999,4.982z M16,23.78c-0.678,0-1.227-0.55-1.227-1.229
+	c0-0.678,0.549-1.227,1.227-1.227c0.679,0,1.228,0.549,1.228,1.227C17.227,23.23,16.678,23.78,16,23.78z M14.775,18.062
+	c0-0.677,0.548-1.226,1.225-1.226s1.226,0.549,1.226,1.226c0,0.678-0.549,1.226-1.226,1.226S14.775,18.74,14.775,18.062z M16,14.8
+	c-0.677,0-1.226-0.549-1.226-1.226c0-0.677,0.549-1.226,1.226-1.226c0.679,0,1.228,0.549,1.228,1.226
+	C17.227,14.251,16.678,14.8,16,14.8z M16.001,9.97c-4.388,0-7.188-0.995-7.188-1.682c0-0.686,2.8-1.682,7.188-1.682
+	c4.389,0,7.188,0.996,7.188,1.682C23.188,8.975,20.389,9.97,16.001,9.97z"/>
 </svg>

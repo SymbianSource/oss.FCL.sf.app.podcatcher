@@ -56,6 +56,11 @@ RESOURCE :
 		$(TPATH)\download.svg\
 		$(TPATH)\markold.svg\
 		$(TPATH)\marknew.svg\
+		$(DPATH)\tab_feeds.svg\
+		$(DPATH)\tab_queue.svg\
+		$(DPATH)\tab_queue1.svg\
+		$(DPATH)\tab_queue2.svg\
+		$(DPATH)\tab_queue3.svg\
 
 FREEZE : do_nothing
 
