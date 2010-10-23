@@ -109,3 +109,5 @@ LIBRARY  commonui.lib  // CDocumentHandler
 LIBRARY estlib.lib
 //LIBRARY libc.lib
 LIBRARY centralrepository.lib
+LIBRARY sysutil.lib
+
