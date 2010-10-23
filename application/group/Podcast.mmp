@@ -89,7 +89,7 @@ LIBRARY	eikdlg.lib
 LIBRARY eikcdlg.lib
 LIBRARY	efsrv.lib
 LIBRARY	aknicon.lib
-LIBRARY	gdi.lib
+LIBRARY	gdi.lib	
 LIBRARY eikctl.lib 
 LIBRARY	charconv.lib
 LIBRARY	flogger.lib
