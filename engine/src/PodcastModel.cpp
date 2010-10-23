@@ -105,6 +105,7 @@ void CPodcastModel::ConstructL()
 		
 		if (err != KErrNone)
 			{
+			DP1("err=%d", err);
 			Panic(EPodcatcherPanicDB);
 			}
 		
@@ -310,6 +311,7 @@ void CPodcastModel::ResetDB()
 		BaflUtils::DeleteFile(iFsSession, dbFileName);
 		}
 
+#ifdef ENABLE_MPX_INTEGRATION
 	// copy template to new DB
 	TFileName dbTemplate;
 	TFileName temp;
@@ -317,6 +319,12 @@ void CPodcastModel::ResetDB()
 	temp.Copy(iSettingsEngine->PrivatePath());
 	dbTemplate.Append(temp);
 	dbTemplate.Append(KDBTemplateFileName);
+# else
+	// copy template to new DB
+	TFileName dbTemplate;
+	dbTemplate.Copy(iSettingsEngine->PrivatePath());
+	dbTemplate.Append(KDBTemplateFileName);
+#endif
 	
 	DP1("Copy template DB from: %S", &dbTemplate);
 	DP1("Copy template DB to: %S", &dbFileName);
@@ -340,7 +348,8 @@ void CPodcastModel::OpenDBL()
 	TFileName dbFileName;
 	dbFileName.Copy(iSettingsEngine->PrivatePath());
 	dbFileName.Append(KDBFileName);
-		
+	
+	DP1("dbFileName=%S", &dbFileName);
 	if (!BaflUtils::FileExists(iFsSession, dbFileName))
 		{
 		User::Leave(KErrNotFound);

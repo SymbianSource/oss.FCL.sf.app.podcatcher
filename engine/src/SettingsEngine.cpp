@@ -205,7 +205,9 @@ TFileName CSettingsEngine::DefaultFeedsFileName()
 	{
 	TFileName defaultFeeds;
 	TFileName temp;
+#ifdef ENABLE_MPX_INTEGRATION
 	defaultFeeds.Copy(_L("z:"));
+#endif
 	temp.Append(PrivatePath());
 	temp.Append(KDefaultFeedsFile);
 	defaultFeeds.Append(temp);
