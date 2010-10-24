@@ -55,16 +55,21 @@ void CConnectionEngine::ConstructL()
 	}
 
 void CConnectionEngine::RunL()
-	{		
-	if ( iStatus.Int() == KErrNone )
-		{		
-		delete iMobility;
-		iMobility = NULL;
-		iMobility = CActiveCommsMobilityApiExt::NewL( iConnection, *this );
+	{
+	DP1("CConnectionEngine::RunL BEGIN, iStatus.Int()=%d", iStatus.Int());
+	if ( iStatus.Int() == KErrNone && iMobility == NULL)
+		{
+		TRAPD(err, iMobility = CActiveCommsMobilityApiExt::NewL( iConnection, *this ));
+		
+		if (err != KErrNone)
+			{
+			DP1("Leave in CActiveCommsMobilityApiExt::NewL, err=%d", err);
+			}
 		}
 	
 	iConnectionState = iStatus.Int() == KErrNone?CConnectionEngine::EConnected:CConnectionEngine::ENotConnected;
 	ReportConnectionL( iStatus.Int() );
+	DP("CConnectionEngine::RunL END");
 	}
 
 void CConnectionEngine::DoCancel()
@@ -80,7 +85,8 @@ void CConnectionEngine::PreferredCarrierAvailable( TAccessPointInfo /*aOldAPInfo
 		TAccessPointInfo /*aNewAPInfo*/,
 		TBool aIsUpgrade,
 		TBool aIsSeamless )
-	{   
+	{
+	DP("CConnectionEngine::PreferredCarrierAvailable");
 	if ( aIsUpgrade )
 		{        
 		}
@@ -103,6 +109,7 @@ void CConnectionEngine::PreferredCarrierAvailable( TAccessPointInfo /*aOldAPInfo
 
 void CConnectionEngine::NewCarrierActive( TAccessPointInfo /*aNewAPInfo*/, TBool aIsSeamless )
 	{    
+	DP("CConnectionEngine::NewCarrierActive");
 	if ( aIsSeamless )
 		{
 		// in S60 3.2, this situation cannot occur.
@@ -124,6 +131,7 @@ void CConnectionEngine::Error( TInt /*aError*/ )
 
 TBool CConnectionEngine::ConnectionSettingL()
 	{
+	DP("CConnectionEngine::ConnectionSettingL");
 	TBool selected( EFalse );
 
 	CCmApplicationSettingsUi* settings = CCmApplicationSettingsUi::NewL();
@@ -147,7 +155,7 @@ TBool CConnectionEngine::ConnectionSettingL()
 
 void CConnectionEngine::StartL(TConnectionType aConnectionType)
 	{
-	DP1("CConnectionEngine::StartL, aConnectionType=%d", aConnectionType);
+	DP1("CConnectionEngine::StartL BEGIN, aConnectionType=%d", aConnectionType);
 	
 	iConnection.Close();
 	User::LeaveIfError( iConnection.Open( iSocketServer ) );
@@ -206,6 +214,7 @@ void CConnectionEngine::StartL(TConnectionType aConnectionType)
 	
 	iConnectionType = aConnectionType;
 	iConnectionState = CConnectionEngine::EConnecting;
+	DP1("CConnectionEngine::StartL END, iConnectionState=%d", iConnectionState);	
 	}
 
 void CConnectionEngine::Stop()
@@ -223,6 +232,7 @@ RConnection& CConnectionEngine::Connection()
 
 CConnectionEngine::TConnectionState CConnectionEngine::ConnectionState()
 	{
+	DP("CConnectionEngine::ConnectionState BEGIN");
 	TInt selectedConn = (TInt) iSnapPreference.Snap();
 	TInt specIAPSNAP = iPodcastModel.SettingsEngine().SpecificIAP();
 	// If we have IAP preference then get that from our current connection and mask out the selected iap
@@ -266,12 +276,27 @@ CConnectionEngine::TConnectionState CConnectionEngine::ConnectionState()
 			}
 		}
 	
+	DP("CConnectionEngine::ConnectionState END");
 	return iConnectionState;
 	}
 
 EXPORT_C void CConnectionEngine::AddObserver(MConnectionObserver* aObserver)
 	{
+	DP("CConnectionEngine::AddObserver");
 	iObserverArray.Append(aObserver);
+	}
+
+EXPORT_C void CConnectionEngine::RemoveObserver(MConnectionObserver* aObserver)
+	{
+	DP("CConnectionEngine::RemoveObserver");
+	for (int i=0;i<iObserverArray.Count();i++)
+		{
+		if (iObserverArray[i] == aObserver)
+			{
+			iObserverArray.Remove(i);
+			}
+			
+		}
 	}
 
 RSocketServ& CConnectionEngine::SockServ()
@@ -282,10 +307,13 @@ RSocketServ& CConnectionEngine::SockServ()
 
 void CConnectionEngine::ReportConnectionL(TInt aError)
 	{
+	DP1("CConnectionEngine::ReportConnectionL, aError=%d", aError);
 	TInt noObservers = iObserverArray.Count();
+	DP1("    noObservers=%d", noObservers);
 	while(noObservers)
 		{
 		noObservers--;
+		DP("    calling callback");
 		iObserverArray[noObservers]->ConnectCompleteL(aError);
 		}
 	}

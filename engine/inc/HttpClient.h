@@ -54,7 +54,7 @@ private:
 	void DoGetAfterConnectL();
 private:
 	RHTTPSession iSession;	
-	TBool iWaitingForGet;
+	TBool iWaitingForGet; // whether to run the Get after successfull connect
 	TBool iIsActive;
 	RHTTPTransaction iTrans;
 	CHttpEventHandler* iHandler;

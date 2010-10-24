@@ -61,6 +61,7 @@ CHttpEventHandler* CHttpEventHandler::NewL(CHttpClient* aClient, MHttpClientObse
 
 void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent& aEvent)
 	{
+	DP1("CHttpEventHandler::MHFRunL, aEvent.iStatus=%d", aEvent.iStatus);
 	switch (aEvent.iStatus)
 		{
 		case THTTPEvent::EGotResponseHeaders:
@@ -431,6 +432,7 @@ void CHttpEventHandler::SetSilent(TBool aSilent)
 
 void CHttpEventHandler::CloseSaveFile()
 {
+	DP("CHttpEventHandler::CloseSaveFile BEGIN");
 	if(iRespBody != NULL)
 	{		
 		if(iRespBodyFile.SubSessionHandle() != 0)
@@ -441,5 +443,6 @@ void CHttpEventHandler::CloseSaveFile()
 			iRespBodyFile.Close();
 			}
 	}
+	DP("CHttpEventHandler::CloseSaveFile BEGIN");
 }
 
