@@ -68,6 +68,8 @@ public:
 	RConnection& Connection();
 	TConnectionState ConnectionState();
 	IMPORT_C void AddObserver(MConnectionObserver* aObserver);
+	IMPORT_C void RemoveObserver(MConnectionObserver* aObserver);
+		
 	RSocketServ& SockServ();
 	void Stop();
 private: // Methods
