@@ -123,7 +123,7 @@ void CPodcastAppUi::HandleCommandL( TInt aCommand )
         {
         case EAknSoftkeyExit:
             {
-            Exit();
+            iFeedView->CheckConfirmExit();
             break;
             }
         case EEikCmdExit:
