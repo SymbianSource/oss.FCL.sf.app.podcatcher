@@ -873,6 +873,25 @@ void CPodcastFeedView::CheckResumeDownloadL()
 	showsDownloading.ResetAndDestroy();
 	}
 
+void CPodcastFeedView::CheckConfirmExit()
+	{
+	RShowInfoArray showsDownloading;
+	iPodcastModel.ShowEngine().GetShowsDownloadingL(showsDownloading);
+
+	if (showsDownloading.Count() > 0 && !iPodcastModel.SettingsEngine().DownloadSuspended())
+		{
+		TBuf<256> msg;
+		iEikonEnv->ReadResourceL(msg, R_EXIT_SHOWS_DOWNLOADING);
+		
+		if (!ShowQueryMessageL(msg))
+			{
+			return;
+			}
+		}
+	
+	AppUi()->Exit();
+	}
+
 void CPodcastFeedView::OpmlParsingComplete(TInt aError, TUint aNumFeedsImported)
 	{
 	TRAP_IGNORE(OpmlParsingCompleteL(aError, aNumFeedsImported));

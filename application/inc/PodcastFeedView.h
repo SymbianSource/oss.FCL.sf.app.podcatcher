@@ -42,7 +42,9 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 		void CheckResumeDownloadL();
 		void UpdateToolbar(TBool aVisible=ETrue);
 		TBool ViewingShows();
-		
+
+ 	   void CheckConfirmExit();
+
 	protected:
 	    void ConstructL();
 		CPodcastFeedView(CPodcastModel& aPodcastModel);
@@ -110,7 +112,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 		void HandleUpdateFeedL();
 		void GetFeedErrorText(TDes &aErrorMessage, TInt aErrorCode);
 		void OpmlParsingCompleteL(TInt aError, TUint aNumFeedsImported);
-
+		
 	private:
 		CPodcastModel& iPodcastModel;		
 		TBool iUpdatingRunning;
