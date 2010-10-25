@@ -632,6 +632,18 @@ void CPodcastShowsView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPan
 
 		TInt index = iListContainer->Listbox()->CurrentItemIndex();
 		
+		TBool showMarkAllPlayed = EFalse;
+		for (int i=0;i<iPodcastModel.ActiveShowList().Count();i++)
+			{
+			CShowInfo* info = iPodcastModel.ActiveShowList()[i];
+			if (info->PlayState() == ENeverPlayed)
+				{
+				showMarkAllPlayed = ETrue;
+				break;
+				}
+			
+			}
+		
 		if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
 			{			
 			CShowInfo* info = iPodcastModel.ActiveShowList()[index];
@@ -645,6 +657,7 @@ void CPodcastShowsView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPan
 						
 			aMenuPane->SetItemDimmed(EPodcastDownloadShow, hideDownloadShowCmd);
 			aMenuPane->SetItemDimmed(EPodcastDeleteShow, hideDeleteShowCmd);
+			aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, !showMarkAllPlayed);
 			}
 		}
 }
@@ -684,6 +697,19 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 		// one or two buttons defined in the resource, so we have download
 		// there but always hidden
 		toolbar->HideItem(EPodcastDownloadShow, ETrue, ETrue );
+		
+		TBool showMarkAllPlayed = EFalse;
+		for (int i=0;i<iPodcastModel.ActiveShowList().Count();i++)
+			{
+			CShowInfo* info = iPodcastModel.ActiveShowList()[i];
+			if (info->PlayState() == ENeverPlayed)
+				{
+				showMarkAllPlayed = ETrue;
+				break;
+				}
+			
+			}
+		toolbar->SetItemDimmed(EPodcastMarkAllPlayed, !showMarkAllPlayed, ETrue);
 	}
 }
 

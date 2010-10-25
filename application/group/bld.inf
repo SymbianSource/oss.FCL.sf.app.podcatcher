@@ -65,6 +65,7 @@ OPTION SOURCES \
 	-c16,1 download.svg\
 	-c16,1 markold.svg\
 	-c16,1 marknew.svg\
+	-c16,1 markold_all.svg\
 	-c16,1 tab_feeds.svg\
 	-c16,1 tab_queue.svg\
 	-c16,1 tab_queue1.svg\
