@@ -653,8 +653,22 @@ void CPodcastShowsView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPan
 {
 	if(aResourceId == R_PODCAST_SHOWSVIEW_MENU)
 		{
+		TBool showMarkAllPlayed = EFalse;
+		for (int i=0;i<iPodcastModel.ActiveShowList().Count();i++)
+			{
+			CShowInfo* info = iPodcastModel.ActiveShowList()[i];
+			if (info->PlayState() == ENeverPlayed)
+				{
+				showMarkAllPlayed = ETrue;
+				break;
+				}
+			
+			}
+		
 		TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && iPodcastModel.FeedEngine().ActiveClientUid() == iPodcastModel.ActiveFeedInfo()->Uid();
-		aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, updatingState);
+		aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, updatingState || !showMarkAllPlayed);
+
+			
 		}
 }
 	
