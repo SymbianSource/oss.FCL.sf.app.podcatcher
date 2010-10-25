@@ -198,13 +198,25 @@ void CShowEngine::GetShowL(CShowInfo *info)
 	TFileName fileName;
 	PodcastUtils::FileNameFromUrl(info->Url(), fileName);
 	
-	TFileName extension;
-	extension.Copy(fileName.Mid(fileName.LocateReverse('.')));
-	DP1("extension=%S", &extension);
-		
 	TFileName newFilename;
-	newFilename.Format(_L("%u%S"), info->Uid(), &extension);
-	DP1("newFilename=%S", &newFilename);
+	
+	TInt periodPos = fileName.LocateReverse('.');
+
+	if (periodPos != -1)
+		{
+		// file extension (most likely) found
+		TFileName extension;
+		extension.Copy(fileName.Mid(periodPos));
+		DP1("extension=%S", &extension);
+			
+		newFilename.Format(_L("%u%S"), info->Uid(), &extension);
+		DP1("newFilename=%S", &newFilename);
+		} 
+	else
+		{
+		// no extension found, we'll have to rely on magic numbers
+		newFilename.Copy(fileName);
+		}
 			
 	relPath.Append(newFilename);
 	PodcastUtils::EnsureProperPathName(relPath);
