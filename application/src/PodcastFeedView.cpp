@@ -184,6 +184,7 @@ void CPodcastFeedView::DoActivateL(const TVwsViewId& aPrevViewId,
 	if (iFirstActivateAfterLaunch)
 		{
 		iFirstActivateAfterLaunch = EFalse;
+		iListContainer->Listbox()->ScrollToMakeItemVisible(0);
 		}
 	}
 
