@@ -274,8 +274,8 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 				iPodcastModel.ShowEngine().ResumeDownloadsL();
 				}
 				
-			iListContainer->Listbox()->SetCurrentItemIndex(index - 1);
 			UpdateListboxItemsL();
+			iListContainer->Listbox()->SetCurrentItemIndex(index - 1);
 			}
 			break;
 		case EPodcastMoveDownloadDown:
@@ -298,8 +298,8 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 				iPodcastModel.ShowEngine().ResumeDownloadsL();
 				}
 			
-			iListContainer->Listbox()->SetCurrentItemIndex(index - 1);
 			UpdateListboxItemsL();
+			iListContainer->Listbox()->SetCurrentItemIndex(index + 1);
 			}
 			break;
 		case EPodcastSuspendDownloads:
@@ -327,10 +327,8 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 	
 void CPodcastQueueView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane)
 	{
-	if(aResourceId == R_PODCAST_SHOWSVIEW_MENU)
+	if(aResourceId == R_PODCAST_QUEUEVIEW_MENU)
 		{
-		aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, ETrue);
-		
 		TBool dimDown = (iListContainer->Listbox()->CurrentItemIndex() >= iPodcastModel.ActiveShowList().Count() - 1 ?
 				ETrue : EFalse);
 		TBool dimUp = (iListContainer->Listbox()->CurrentItemIndex() <= 0 ?
