@@ -627,9 +627,6 @@ void CPodcastShowsView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPan
 {
 	if(aResourceId == R_PODCAST_SHOWSVIEW_MENU)
 		{
-		TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && iPodcastModel.FeedEngine().ActiveClientUid() == iPodcastModel.ActiveFeedInfo()->Uid();
-		aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, updatingState);
-
 		TInt index = iListContainer->Listbox()->CurrentItemIndex();
 		
 		if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
