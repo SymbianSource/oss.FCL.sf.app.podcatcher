@@ -117,7 +117,7 @@ public MProgressDialogCallback, public MKeyEventListener
 		* Default implementation is empty.  
 		* @param aCommand ID of the command to respond to. 
 		*/
-		void HandleCommandL(TInt aCommand);
+		virtual void HandleCommandL(TInt aCommand);
 
 		void OfferToolbarEventL(TInt aCommand);
 		void DynInitToolbarL (TInt aResourceId, CAknToolbar *aToolbar);

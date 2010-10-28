@@ -143,11 +143,13 @@ void CPodcastAppUi::HandleCommandL( TInt aCommand )
 			const TUid KUidFastSwapS3 = { 0x20016BF0 };
 			if (activeAppUid == KUidFastSwapS3)
 				{
+				DP("Exit called by task manager");
 				// closed by task manager
 				Exit();
 				}
 			else
         		{
+				DP("Red button pressed, going into background");
         		// red button pressed
 				TApaTask task(iEikonEnv->WsSession());
 				task.SetWgId(iEikonEnv->RootWin().Identifier());
