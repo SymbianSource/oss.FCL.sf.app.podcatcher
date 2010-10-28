@@ -201,4 +201,8 @@ EXPORTS
 	_ZN12PodcastUtils11IsVideoShowER7TDesC16 @ 200 NONAME
 	_ZN11CShowEngine15MoveDownloadUpLEj @ 201 NONAME
 	_ZN11CShowEngine17MoveDownloadDownLEj @ 202 NONAME
+	_ZN13CPodcastModelD0Ev @ 203 NONAME
+	_ZN13CPodcastModelD1Ev @ 204 NONAME
+	_ZN13CPodcastModelD2Ev @ 205 NONAME
+	_ZN17CConnectionEngine14RemoveObserverEP19MConnectionObserver @ 206 NONAME
 

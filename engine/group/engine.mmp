@@ -16,8 +16,7 @@
  *
  */
  
-// MPX integration can not be enabled for self signed versions 
-#define ENABLE_MPX_INTEGRATION
+#include "..\..\group\defines.h"
  
 TARGET podcastengine.dll
 TARGETTYPE DLL
@@ -25,11 +24,18 @@ UID             0x1000008d 0xA11F867F
 
 SOURCEPATH ..\src
 USERINCLUDE ..\inc
+USERINCLUDE ..\..\group
 SYSTEMINCLUDE \epoc32\include 
 SYSTEMINCLUDE \epoc32\include\mw
 SYSTEMINCLUDE \epoc32\include\platform
 SYSTEMINCLUDE \epoc32\include\platform\mw
 SYSTEMINCLUDE \epoc32\include\stdapis
+
+#ifdef ENABLE_MPX_INTEGRATION
+CAPABILITY NetworkServices UserEnvironment WriteUserData ReadDeviceData WriteDeviceData MultimediaDD
+#else
+CAPABILITY NetworkServices UserEnvironment
+#endif
 
 SOURCE			HttpClient.cpp
 SOURCE			HttpEventHandler.cpp 
@@ -78,10 +84,3 @@ LIBRARY apparc.lib
 LIBRARY avkon.lib
 LIBRARY centralrepository.lib
 LIBRARY sysutil.lib 
-
-#ifdef ENABLE_MPX_INTEGRATION
-CAPABILITY NetworkServices UserEnvironment WriteUserData ReadDeviceData WriteDeviceData MultimediaDD
-MACRO ENABLE_MPX_INTEGRATION
-#else
-CAPABILITY NetworkServices UserEnvironment
-#endif

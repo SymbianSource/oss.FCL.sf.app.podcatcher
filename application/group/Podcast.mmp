@@ -16,8 +16,7 @@
  *
  */
   
-// MPX integration can not be enabled for self signed versions 
-#define ENABLE_MPX_INTEGRATION
+#include "..\..\group\defines.h"
 
 TARGET			Podcast.exe
 TARGETTYPE  	exe
@@ -25,7 +24,6 @@ UID				0x100039CE 0xA0009D00
 
 #ifdef ENABLE_MPX_INTEGRATION
 CAPABILITY NetworkServices UserEnvironment WriteUserData ReadDeviceData WriteDeviceData MultimediaDD
-MACRO ENABLE_MPX_INTEGRATION
 #else
 CAPABILITY NetworkServices UserEnvironment
 #endif
@@ -43,6 +41,7 @@ SYSTEMINCLUDE \epoc32\include\stdapis
 USERINCLUDE ..\..\engine\inc
 USERINCLUDE . 
 USERINCLUDE ..\inc
+USERINCLUDE ..\..\group
 
 SOURCEPATH ..\src
 SOURCE  Podcast.cpp
@@ -56,7 +55,6 @@ SOURCE  PodcastShowsView.cpp
 SOURCE  PodcastSearchView.cpp
 SOURCE  PodcastFeedViewUpdater.cpp 
 SOURCE  PodcastQueueView.cpp
-
 
 SOURCEPATH ..\data
 

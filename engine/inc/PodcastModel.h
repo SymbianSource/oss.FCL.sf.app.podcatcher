@@ -25,7 +25,7 @@
 #include <es_sock.h>
 #include <http/rhttpsession.h>
 #include <cmmanager.h>
-
+#include "defines.h"
 #include "FeedInfo.h"
 #include "ShowInfo.h"
 #include "debug.h"

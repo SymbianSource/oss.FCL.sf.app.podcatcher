@@ -21,6 +21,7 @@
 #include "SettingsEngine.h"
 #include "FeedEngine.h"
 #include "ShowEngine.h"
+#include "defines.h"
 
 const TUid KMainSettingsStoreUid = {0x1000};
 const TUid KMainSettingsUid = {0x1002};

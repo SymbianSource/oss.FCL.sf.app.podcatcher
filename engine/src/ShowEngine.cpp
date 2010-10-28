@@ -26,6 +26,7 @@
 #include <httperr.h>
 #include "debug.h"
 #include "PodcastUtils.h"
+#include "defines.h"
 
 #ifdef ENABLE_MPX_INTEGRATION 
 #include <mpxcollectionhelperfactory.h>
