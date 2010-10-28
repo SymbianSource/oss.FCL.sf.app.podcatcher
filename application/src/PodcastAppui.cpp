@@ -208,31 +208,9 @@ void CPodcastAppUi::NaviSetTextL(TInt aResourceId)
 
 void CPodcastAppUi::NaviShowTabGroupL()
 	{
-//	if (iNaviStyle != ENaviEmpty) {
-//		iNaviPane->Pop();
-//	}
-//	
-//	iNaviTabGroup = iNaviPane->CreateTabGroupL();
-
 	iTabGroup = STATIC_CAST(CAknTabGroup*, iNaviPane->ResourceDecorator()->DecoratedControl());
 	iTabGroup->SetObserver(this); 
-	
-//	iTabGroup->SetTabFixedWidthL(EAknTabWidthWithTwoTabs);
-//
-//	HBufC *label1 = iEikonEnv->AllocReadResourceLC(R_TABGROUP_FEEDS);
-//	iTabGroup->AddTabL(KTabIdFeeds,*label1);
-//		
-//	HBufC *label3 = iEikonEnv->AllocReadResourceLC(R_TABGROUP_QUEUE);
-//	iTabGroup->AddTabL(KTabIdQueue,*label3);
-//
-//	CleanupStack::PopAndDestroy(label3);
-//	CleanupStack::PopAndDestroy(label1);
-//	
-//	iTabGroup->SetActiveTabByIndex(0);
-//	
-//	iNaviPane->PushL(*iNaviTabGroup);
 	iNaviStyle = ENaviTabGroup;
-//
 	UpdateQueueTabL(iPodcastModel->ShowEngine().GetNumDownloadingShows());
 	}
 
