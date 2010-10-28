@@ -330,6 +330,10 @@ void CPodcastModel::ResetDB()
 	DP1("Copy template DB to: %S", &dbFileName);
 	
 	BaflUtils::CopyFile(iFsSession, dbTemplate,dbFileName);
+	
+	// important to set this file to not be read only if copying from Z:
+	iFsSession.SetAtt(dbFileName, 0, KEntryAttReadOnly); 
+	
 	iIsFirstStartup = ETrue;
 	DP("CPodcastModel::ResetDB END");
 	}
