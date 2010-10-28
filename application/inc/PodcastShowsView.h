@@ -99,7 +99,7 @@ protected:
 	void GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex);
 	void CreateIconsL();
 
-private:
+protected:
 	void DisplayShowInfoDialogL();
 	void HandleSetShowPlayedL(TBool aPlayed);
 	void HandleDeleteShowL();

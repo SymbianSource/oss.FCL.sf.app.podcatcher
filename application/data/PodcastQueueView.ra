@@ -52,6 +52,12 @@ RESOURCE MENU_PANE r_podcast_queueview_menu
 			},
 		MENU_ITEM
 			{
+			txt = STRING_r_view_show_info_cmd;
+			command = EPodcastShowInfo;
+			flags = EEikMenuItemSpecific;
+			},
+		MENU_ITEM
+			{
 			txt = STRING_r_view_remove_download_short_cmd;
 			command = EPodcastRemoveDownload;
 			flags = EEikMenuItemSpecific;

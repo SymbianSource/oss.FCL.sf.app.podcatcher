@@ -318,6 +318,11 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			UpdateListboxItemsL();
 			}
 			break;
+		case EPodcastShowInfo:
+			{
+			DisplayShowInfoDialogL();
+			}
+			break;
 		default:
 			CPodcastListView::HandleCommandL(aCommand);
 			break;
