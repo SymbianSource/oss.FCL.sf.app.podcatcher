@@ -56,8 +56,8 @@ void CConnectionEngine::ConstructL()
 
 void CConnectionEngine::RunL()
 	{
-	DP1("CConnectionEngine::RunL BEGIN, iStatus.Int()=%d", iStatus.Int());
-	if ( iStatus.Int() == KErrNone && iMobility == NULL)
+	DP2("CConnectionEngine::RunL BEGIN, iStatus.Int()=%d, iConnectionState=%d", iStatus.Int(), iConnectionState);
+	if ( iStatus.Int() == KErrNone && iMobility == NULL && iConnectionState == EConnected)
 		{
 		TRAPD(err, iMobility = CActiveCommsMobilityApiExt::NewL( iConnection, *this ));
 		

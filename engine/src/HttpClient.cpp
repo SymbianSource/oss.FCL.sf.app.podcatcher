@@ -122,22 +122,16 @@ void CHttpClient::ConnectCompleteL(TInt aErrorCode)
 		if( aErrorCode == KErrNone)
 			{
 			TRAP_IGNORE(iSession.OpenL());
-			DP("    one");
 			RHTTPConnectionInfo connInfo = iSession.ConnectionInfo();
-			DP("    one point five");
 			RStringPool pool = iSession.StringPool();
 			// Attach to socket server
-			DP("    two");
 			connInfo.SetPropertyL(pool.StringF(HTTP::EHttpSocketServ, RHTTPSession::GetTable()), THTTPHdrVal(iPodcastModel.ConnectionEngine().SockServ().Handle()));
 			// Attach to connection
-			DP("    three");
 			TInt connPtr = REINTERPRET_CAST(TInt, &iPodcastModel.ConnectionEngine().Connection());
 			connInfo.SetPropertyL(pool.StringF(HTTP::EHttpSocketConnection, RHTTPSession::GetTable()), THTTPHdrVal(connPtr));
-			DP("    four");
 
 			iPodcastModel.SetProxyUsageIfNeededL(iSession);
 			DoGetAfterConnectL();
-			//iWaitingForGet = EFalse; // set to true by DoGetAfterConnectL
 			}
 		else
 			{
