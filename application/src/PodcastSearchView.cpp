@@ -26,6 +26,7 @@
 #include <caknfileselectiondialog.h> 
 #include <podcast.rsg>
 #include <podcast.mbg>
+#include <akntitle.h>
 #include <gulicon.h>
 #include <eikenv.h>
 #include <e32const.h>
@@ -93,8 +94,9 @@ void CPodcastSearchView::ConstructL()
     
 CPodcastSearchView::~CPodcastSearchView()
     {
+	DP("CPodcastSearchView::~CPodcastSearchView BEGIN");
 	iPodcastModel.FeedEngine().RemoveObserver(this);
- 
+	DP("CPodcastSearchView::~CPodcastSearchView END");
     }
 
 TUid CPodcastSearchView::Id() const
@@ -108,16 +110,25 @@ void CPodcastSearchView::DoActivateL(const TVwsViewId& aPrevViewId,
 {
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
 	iPreviousView = TVwsViewId(KUidPodcast, KUidPodcastFeedViewID);
+		
+	HBufC* text =  iEikonEnv->AllocReadResourceLC(R_SEARCH_RESULTS);
+	 
+	CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
+		  ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
 	
-    ((CPodcastAppUi*)AppUi())->NaviSetTextL(R_SEARCH_RESULTS);
-    
+	titlePane->SetTextL(*text , ETrue );
+	CleanupStack::PopAndDestroy(text);
 	UpdateListboxItemsL();
 }
 
 void CPodcastSearchView::DoDeactivate()
 {
 	CPodcastListView::DoDeactivate();
-	TRAP_IGNORE(((CPodcastAppUi*)AppUi())->NaviShowTabGroupL());
+	
+	CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
+			  ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
+		
+	titlePane->SetTextToDefaultL();
 }
 
 
@@ -222,11 +233,7 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 						iEikonEnv->ReadResourceL(message, R_ADD_FEED_SUCCESS);
 						if(ShowQueryMessageL(message))
 							{
-							CFeedInfo *info = iPodcastModel.FeedEngine().GetFeedInfoByUid(newInfo->Uid());
-							
-							iPodcastModel.SetActiveFeedInfo(info);			
-							AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
-							iPodcastModel.FeedEngine().UpdateFeedL(info->Uid());
+							iPodcastModel.FeedEngine().UpdateFeedL(newInfo->Uid());
 							}
 						}
 					else
