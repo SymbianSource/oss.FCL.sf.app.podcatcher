@@ -227,14 +227,12 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 					TBool added = iPodcastModel.FeedEngine().AddFeedL(*newInfo);
 					
 					if (added)
-						{					
-						// ask if user wants to update it now
-						TBuf<KMaxMessageLength> message;
-						iEikonEnv->ReadResourceL(message, R_ADD_FEED_SUCCESS);
-						if(ShowQueryMessageL(message))
-							{
-							iPodcastModel.FeedEngine().UpdateFeedL(newInfo->Uid());
-							}
+						{
+						// this is a bit of a hack, first we activate the feeds view normally
+						AppUi()->ActivateLocalViewL(KUidPodcastFeedViewID,  TUid::Uid(0), KNullDesC8);
+						// and then we send the UID of the recently added feed back to feed view for updating
+						// this is needed so the update? query comes on top of feed view, not search view
+						AppUi()->ActivateLocalViewL(KUidPodcastFeedViewID,  TUid::Uid(newInfo->Uid()), KNullDesC8);
 						}
 					else
 						{

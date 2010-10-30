@@ -166,15 +166,30 @@ void CPodcastFeedView::DoActivateL(const TVwsViewId& aPrevViewId,
 	DP("CPodcastFeedView::DoActivateL BEGIN");
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
 	
+	
+	UpdateListboxItemsL();		
+	UpdateToolbar();
+	
 	if (aPrevViewId.iViewUid == KUidPodcastShowsViewID)
 		{
 		// back key from shows view
 		iViewingShows = EFalse;
 		}
-	
-		UpdateListboxItemsL();		
-		UpdateToolbar();
 
+	// when we receive a UID argument, this comes from search view after
+	// a new feed has been added
+	if (aCustomMessageId.iUid != 0)
+		{
+		TUint feedUid = aCustomMessageId.iUid;
+		ShowItem(feedUid);
+		TBuf<KMaxMessageLength> message;
+		iEikonEnv->ReadResourceL(message, R_ADD_FEED_SUCCESS);
+		if(ShowQueryMessageL(message))
+			{
+			iPodcastModel.FeedEngine().UpdateFeedL(feedUid);
+			}
+		}
+		
 	if (iFirstActivateAfterLaunch)
 		{
 		iFirstActivateAfterLaunch = EFalse;
