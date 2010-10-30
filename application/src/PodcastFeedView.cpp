@@ -163,6 +163,7 @@ void CPodcastFeedView::DoActivateL(const TVwsViewId& aPrevViewId,
 	                                  TUid aCustomMessageId,
 	                                  const TDesC8& aCustomMessage)
 	{
+	DP("CPodcastFeedView::DoActivateL BEGIN");
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
 	
 	if (aPrevViewId.iViewUid == KUidPodcastShowsViewID)
@@ -177,8 +178,9 @@ void CPodcastFeedView::DoActivateL(const TVwsViewId& aPrevViewId,
 	if (iFirstActivateAfterLaunch)
 		{
 		iFirstActivateAfterLaunch = EFalse;
-		iListContainer->Listbox()->ScrollToMakeItemVisible(0);
 		}
+
+	DP("CPodcastFeedView::DoActivateL END");
 	}
 
 void CPodcastFeedView::DoDeactivate()
@@ -365,7 +367,8 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		CFbsBitmap* bmpCopy = new (ELeave) CFbsBitmap;
 		CleanupStack::PushL(bmpCopy);
 		bmpCopy->Duplicate(aFeedInfo.FeedIcon()->Handle());
-		icons->AppendL( CGulIcon::NewL(bmpCopy, NULL));
+		icons->AppendL( CGulIcon::NewL(AknIconUtils::CreateIconL(bmpCopy), NULL));
+		
 		iFeedIdForIconArray.Append(aFeedInfo.Uid());
 		CleanupStack::Pop(bmpCopy);			
 		iconIndex = icons->Count()-1;
@@ -567,6 +570,22 @@ void CPodcastFeedView::HandleAddFeedL()
 	CleanupStack::PopAndDestroy( array );		
 	}
 
+void CPodcastFeedView::ShowItem(TUint aUid)
+	{
+	TInt listIndex = -1;
+	for (TUint i=0;i<iItemIdArray.Count();i++)
+		{
+		if (iItemIdArray[i] == aUid)
+			{
+			listIndex = i;
+			}
+		}
+		
+	if (listIndex != -1)
+		iListContainer->Listbox()->ScrollToMakeItemVisible(listIndex);
+
+	}
+
 void CPodcastFeedView::HandleAddFeedUrlL()
 	{
 	TBuf<KFeedUrlLength> url;
@@ -599,10 +618,7 @@ void CPodcastFeedView::HandleAddFeedUrlL()
 			iEikonEnv->ReadResourceL(message, R_ADD_FEED_SUCCESS);
 			if(ShowQueryMessageL(message))
 				{
-				CFeedInfo *info = iPodcastModel.FeedEngine().GetFeedInfoByUid(newFeedInfo->Uid());
-				
-				iPodcastModel.SetActiveFeedInfo(info);			
-				AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
+				ShowItem(newFeedInfo->Uid());
 				iPodcastModel.FeedEngine().UpdateFeedL(newFeedInfo->Uid());
 				}
 			}

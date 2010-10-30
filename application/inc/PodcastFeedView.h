@@ -44,6 +44,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 		TBool ViewingShows();
 
  	   void CheckConfirmExit();
+ 	   void ShowItem(TUint aUid);
 
 	protected:
 	    void ConstructL();
