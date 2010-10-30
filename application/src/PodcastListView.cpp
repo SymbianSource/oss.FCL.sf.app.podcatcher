@@ -255,12 +255,6 @@ void CPodcastListView::HandleCommandL(TInt aCommand)
 	DP1("CPodcastListView::HandleCommandL=%d", aCommand);
 	switch(aCommand)
 	{
-	case EAknSoftkeyExit:
-	case EEikCmdExit:
-		{
-            AppUi()->Exit();
-            break;
-		}
 	case EAknSoftkeyBack:
 		{
 		AppUi()->ActivateViewL(iPreviousView);
