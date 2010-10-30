@@ -132,7 +132,7 @@ void CPodcastFeedView::UpdateItemL(TInt aIndex)
 	iItemIdArray[aIndex] = sortedItems[aIndex]->Uid();
 	
 	// Prepare data to update the listbox item with
-	FormatFeedInfoListBoxItemL(*sortedItems[aIndex], EFalse);
+	FormatFeedInfoListBoxItemL(*sortedItems[aIndex], sortedItems[aIndex]->Uid() == iFeedUpdating);
 	
 	// If nothing has changed, we are done here
 	if (iListboxFormatbuffer == iItemArray->MdcaPoint(aIndex))
@@ -219,14 +219,15 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 
 void CPodcastFeedView::FeedUpdateAllCompleteL(TFeedState /*aState*/)
 	{
-	iUpdatingRunning = EFalse;
+	DP("FeedUpdateAllCompleteL");
+	iFeedUpdating = 0;
 	UpdateToolbar();
 	}
 
 void CPodcastFeedView::FeedDownloadStartedL(TFeedState /*aState*/, TUint aFeedUid)
 	{
 	// Update status text
-	iUpdatingRunning = ETrue;
+	iFeedUpdating = aFeedUid;
 	UpdateFeedInfoStatusL(aFeedUid, ETrue);
 	
 	UpdateToolbar();
@@ -504,7 +505,7 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 			}break;
 		case EPodcastCancelUpdateAllFeeds:
 			{
-			if(iUpdatingRunning)
+			if(iFeedUpdating)
 				{
 				iPodcastModel.FeedEngine().CancelUpdateAllFeeds();
 				}
@@ -528,10 +529,10 @@ void CPodcastFeedView::UpdateToolbar(TBool aVisible)
 		if (iListContainer->IsVisible()) {
 			toolbar->SetToolbarVisibility(aVisible);
 		}
-		toolbar->HideItem(EPodcastUpdateAllFeeds, iUpdatingRunning, ETrue);
-		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !iUpdatingRunning, ETrue );
-		toolbar->SetItemDimmed(EPodcastAddFeed, iUpdatingRunning, ETrue );
-		toolbar->SetItemDimmed(EPodcastSettings, iUpdatingRunning, ETrue );
+		toolbar->HideItem(EPodcastUpdateAllFeeds, iFeedUpdating, ETrue);
+		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !iFeedUpdating, ETrue );
+		toolbar->SetItemDimmed(EPodcastAddFeed, iFeedUpdating, ETrue );
+		toolbar->SetItemDimmed(EPodcastSettings, iFeedUpdating, ETrue );
 		}
 	DP("CPodcastFeedView::UpdateToolbar END");
 }
