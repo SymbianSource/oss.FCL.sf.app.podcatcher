@@ -169,7 +169,7 @@ void CPodcastSearchView::UpdateListboxItemsL()
 	TInt len = searchItems->Count();
 	TListItemProperties itemProps;
 	iListContainer->Listbox()->Reset();
-	iListContainer->Listbox()->ItemDrawer()->ClearAllPropertiesL();
+	//iListContainer->Listbox()->ItemDrawer()->ClearAllPropertiesL();
 	iItemIdArray.Reset();
 	iItemArray->Reset();
 		
@@ -186,9 +186,9 @@ void CPodcastSearchView::UpdateListboxItemsL()
 			PodcastUtils::RemoveAllFormatting(descr);
 			iListboxFormatbuffer.Format(KSearchResultFormat(), iconIndex, &fi->Title(), &descr);
 			iItemArray->AppendL(iListboxFormatbuffer);
-			iListboxFormatbufferShort.Format(KSearchResultFormatLandscape(), iconIndex, &fi->Title(), &descr);
+			iListboxFormatbufferShort.Format(KSearchResultFormatLandscape(), iconIndex, &fi->Title());
 			iItemArrayShort->AppendL(iListboxFormatbufferShort);
-			iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(i, itemProps);
+			//iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(i, itemProps);
 			}
 		} 
 	else 
@@ -202,7 +202,7 @@ void CPodcastSearchView::UpdateListboxItemsL()
 		TListItemProperties itemProps;
 		itemProps.SetDimmed(ETrue);
 		itemProps.SetHiddenSelection(ETrue);								
-		iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(0, itemProps);
+		//iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(0, itemProps);
 		}
 	iListContainer->Listbox()->HandleItemAdditionL();
 	DP("CPodcastSearchView::UpdateListboxItemsL END");

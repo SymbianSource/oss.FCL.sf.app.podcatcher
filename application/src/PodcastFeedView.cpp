@@ -164,7 +164,7 @@ void CPodcastFeedView::UpdateItemL(TInt aIndex)
 	iItemArrayShort->Delete(aIndex);	
 	iItemArrayShort->InsertL(aIndex, iListboxFormatbufferShort);
 
-	iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(aIndex, itemProps);
+	//iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(aIndex, itemProps);
 	// If item is visible, redraw it
 	if (iListContainer->Listbox()->TopItemIndex() <= aIndex
 			&& iListContainer->Listbox()->BottomItemIndex() >= aIndex)
@@ -424,7 +424,7 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 	}
 		
 	iListboxFormatbuffer.Format(KFeedFormatPortrait(), iconIndex, &(aFeedInfo.Title()), &updatedDate,  &unplayedShows);
-	iListboxFormatbufferShort.Format(KFeedFormatLandscape(), iconIndex, &(aFeedInfo.Title()), &updatedDate,  &unplayedShows);
+	iListboxFormatbufferShort.Format(KFeedFormatLandscape(), iconIndex, &(aFeedInfo.Title()));
 	DP("CPodcastFeedView::FormatFeedInfoListBoxItemL END");
 	}
 
@@ -436,7 +436,8 @@ void CPodcastFeedView::ImageOperationCompleteL(TInt aError, TUint aHandle, CPodc
 	}
 
 void CPodcastFeedView::UpdateFeedInfoDataL(CFeedInfo* aFeedInfo, TInt aIndex, TBool aIsUpdating )
-	{			
+	{
+	DP("CPodcastFeedView::UpdateFeedInfoDataL BEGIN");
 	TListItemProperties itemProps;			
 	itemProps.SetDimmed(aIsUpdating);	
 	FormatFeedInfoListBoxItemL(*aFeedInfo, aIsUpdating);
@@ -457,7 +458,8 @@ void CPodcastFeedView::UpdateFeedInfoDataL(CFeedInfo* aFeedInfo, TInt aIndex, TB
 				iItemArrayShort->InsertL(aIndex, iListboxFormatbufferShort);
 				}
 	}
-	iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(aIndex, itemProps);
+	//iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(aIndex, itemProps);
+	DP("CPodcastFeedView::UpdateFeedInfoDataL END");
 	}
 
 
@@ -489,7 +491,7 @@ void CPodcastFeedView::UpdateListboxItemsL()
 			iItemArray->AppendL(KNullDesC);
 			iItemArrayShort->AppendL(KNullDesC);
 			TListItemProperties itemProps;
-			iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(iItemArray->Count() - 1, itemProps);
+			//iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(iItemArray->Count() - 1, itemProps);
 			}
 		while (iItemArray->Count() > nbrItems)
 			{
@@ -511,7 +513,7 @@ void CPodcastFeedView::UpdateListboxItemsL()
 		TListItemProperties itemProps;
 		itemProps.SetDimmed(ETrue);
 		itemProps.SetHiddenSelection(ETrue);								
-		iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(0, itemProps);
+		//iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(0, itemProps);
 		}
 	iListContainer->Listbox()->HandleItemAdditionL();
 	DP("CPodcastFeedView::UpdateListboxItemsL END");

@@ -460,7 +460,7 @@ void CPodcastShowsView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aS
 		}
 		
 	iListboxFormatbuffer.Format(KShowFormat(), iconIndex, &aShowInfo.Title(), &showDate, &infoSize);
-	iListboxFormatbufferShort.Format(KShowFormatLandscape(), iconIndex, &aShowInfo.Title(), &showDate, &infoSize);
+	iListboxFormatbufferShort.Format(KShowFormatLandscape(), iconIndex, &aShowInfo.Title());
 	}
 
 void CPodcastShowsView::GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode)
@@ -542,7 +542,7 @@ void CPodcastShowsView::UpdateListboxItemsL()
 				}
 			else
 				{
-				iListContainer->Listbox()->ItemDrawer()->ClearAllPropertiesL();
+				//iListContainer->Listbox()->ItemDrawer()->ClearAllPropertiesL();
 				iListContainer->Listbox()->Reset();
 				iItemIdArray.Reset();
 				iItemArray->Reset();

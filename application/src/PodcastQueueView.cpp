@@ -185,7 +185,7 @@ void CPodcastQueueView::UpdateListboxItemsL()
 				}
 			else
 				{
-				iListContainer->Listbox()->ItemDrawer()->ClearAllPropertiesL();
+				//iListContainer->Listbox()->ItemDrawer()->ClearAllPropertiesL();
 				iListContainer->Listbox()->Reset();
 				iItemIdArray.Reset();
 				iItemArray->Reset();
