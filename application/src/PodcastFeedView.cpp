@@ -226,7 +226,7 @@ void CPodcastFeedView::DoDeactivate()
 
 void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBoxEvent aEventType)
 	{
-	DP("CPodcastFeedView::HandleListBoxEventL BEGIN");
+//	DP("CPodcastFeedView::HandleListBoxEventL BEGIN");
 
 	switch(aEventType)
 		{
@@ -250,7 +250,7 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 	default:
 		break;
 		}
-	DP("CPodcastFeedView::HandleListBoxEventL END");
+//	DP("CPodcastFeedView::HandleListBoxEventL END");
 	}
 
 void CPodcastFeedView::FeedUpdateAllCompleteL(TFeedState /*aState*/)
@@ -537,9 +537,8 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 			break;
 		case EPodcastUpdateAllFeeds:
 			{
-			SwitchListbox();
-			//iPodcastModel.FeedEngine().UpdateAllFeedsL();
-			//UpdateToolbar();
+			iPodcastModel.FeedEngine().UpdateAllFeedsL();
+			UpdateToolbar();
 			}break;
 		case EPodcastUpdateFeed:
 			{

@@ -66,15 +66,18 @@ class CPodcastListContainer : public CCoeControl
 		void ScrollToVisible();
     	void Draw(const TRect& aRect) const;   	
     	TBool IsLandscape();
-	protected:
+
+    public:
+       	CAknSingleLargeStyleListBox * iListboxLandscape;
+        CAknDoubleLargeStyleListBox * iListboxPortrait;
+
+    protected:
 		TTypeUid::Ptr MopSupplyObject( TTypeUid aId );
 
 	private:
 		MContainerListener* iContainerListener;
         CAknsBasicBackgroundControlContext* iBgContext;
         
-       	CAknSingleLargeStyleListBox * iListboxLandscape;
-        CAknDoubleLargeStyleListBox * iListboxPortrait;
         CEikColumnListBox * iListbox;
         TBool iLandscape;
 		CDesCArray* iItemArrayShort;

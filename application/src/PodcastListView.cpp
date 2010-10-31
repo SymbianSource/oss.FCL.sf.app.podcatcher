@@ -87,14 +87,12 @@ void CPodcastListContainer::ConstructL( const TRect& aRect, TInt aListboxFlags )
 	
 	if (aRect.Width() > aRect.Height())
 		{
-		DP("Landscape mode");
 		iLandscape = ETrue;
 		iListbox = iListboxLandscape;
 		iListboxLandscape->MakeVisible(ETrue);
 		}
 	else 
 		{
-		DP("Portrait mode");
 		iLandscape = EFalse;
 		iListboxPortrait->MakeVisible(ETrue);
 		iListbox = (CEikColumnListBox*) iListboxPortrait;
@@ -154,16 +152,12 @@ void CPodcastListContainer::SizeChanged()
 {
 	DP2("CPodcastListContainer::SizeChanged() BEGIN, width=%d, height=%d",Size().iWidth, Size().iHeight);
 
-	//TBool nowLandscape = ETrue;//!iLandscape;
-	TBool nowLandscape = Size().iWidth > Size().iHeight;
-	//TBool orientationChanged = nowLandscape && !iLandscape;
-
-	iLandscape = nowLandscape;
+	iLandscape = Size().iWidth > Size().iHeight;
 
 	if (iContainerListener)
 		iContainerListener->SizeChanged();
 	
-	if (nowLandscape)
+	if (iLandscape)
 		{
 		iListboxPortrait->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EOff, CEikScrollBarFrame::EOff );
 		iListboxPortrait->UpdateScrollBarsL();
@@ -220,7 +214,6 @@ void CPodcastListContainer::SetTextArray(CDesCArray* aArray)
 	{
 	DP1("SetTextArray, aArray.Count=%d", aArray->Count());
 	iItemArrayShort->Reset();
-	DP("after reset");
 	for (int i=0;i<aArray->Count();i++)
 		{
 		TBuf<1024> line;
@@ -448,7 +441,8 @@ void CPodcastListView::RunAboutDialogL()
 void CPodcastListView::SetEmptyTextL(TInt aResourceId)
 	{
 	HBufC* emptyText =  iEikonEnv->AllocReadResourceLC(aResourceId);
-	iListContainer->Listbox()->View()->SetListEmptyTextL(*emptyText);
+	iListContainer->iListboxPortrait->View()->SetListEmptyTextL(*emptyText);
+	iListContainer->iListboxLandscape->View()->SetListEmptyTextL(*emptyText);
 	CleanupStack::PopAndDestroy(emptyText);	
 	}
 
