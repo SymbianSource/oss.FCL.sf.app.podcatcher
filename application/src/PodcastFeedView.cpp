@@ -40,7 +40,9 @@ const TInt KADayInHours = 24;
 #define KMaxMessageLength 200
 #define KMaxTitleLength 100
 
-_LIT(KFeedFormat, "%d\t%S\t%S%S");
+_LIT(KFeedFormatPortrait, "%d\t%S\t%S%S");
+//_LIT(KFeedFormatPortrait, "%d\t%S");
+_LIT(KFeedFormatLandscape, "%d\t%S");
 enum 
 {
  EFeedIcon
@@ -61,31 +63,24 @@ CPodcastFeedView* CPodcastFeedView::NewLC(CPodcastModel& aPodcastModel)
     return self;
     }
 
-CPodcastFeedView::CPodcastFeedView(CPodcastModel& aPodcastModel):iPodcastModel(aPodcastModel)
+void CPodcastFeedView::SizeChanged()
 	{
-	iFirstActivateAfterLaunch = ETrue;
-	}
-#define KAsterisk iEikonEnv->EikAppUi()->Application()->BitmapStoreName()
-void CPodcastFeedView::ConstructL()
-	{
-	DP("CPodcastFeedView::ConstructL BEGIN");
-	//_LIT(KAsterisk, "*");
-	BaseConstructL(R_PODCAST_FEEDVIEW);
-	iNeverUpdated = iEikonEnv->AllocReadResourceL(R_PODCAST_FEEDS_NEVER_UPDATED);
-	iFeedsFormat = iEikonEnv->AllocReadResourceL(R_PODCAST_FEEDS_STATUS_FORMAT);
-	CPodcastListView::ConstructL();
-	iPodcastModel.FeedEngine().AddObserver(this);
-	CArrayPtr< CGulIcon >* icons = new(ELeave) CArrayPtrFlat< CGulIcon >(1);
-	CleanupStack::PushL( icons );
+	DP("CPodcastFeedView::SizeChanged BEGIN");
+	iListContainer->Listbox()->SetListBoxObserver(this);
+	iFeedIdForIconArray.Reset();
+	iItemArray->Reset();
 	
+	DP("before icons");
 	CFbsBitmap* bitmap = NULL;
 	CFbsBitmap* mask = NULL;
+	_LIT(KAsterisk, "*");
 	// Load the bitmap for empty icon	
-	TFileName fname = KAsterisk;
+	TFileName fname;
+	fname.Copy(KAsterisk);
 	TParsePtr parser(fname);
+	iIconArray= new(ELeave) CArrayPtrFlat< CGulIcon >(1);
+	CleanupStack::PushL( iIconArray );
 
-	SetEmptyTextL(R_PODCAST_NO_FEEDS);
-	
 	// Load svg.-image and mask with a single call
 		AknIconUtils::CreateIconL(bitmap,
 		                          mask,
@@ -100,12 +95,61 @@ void CPodcastFeedView::ConstructL()
 	//mask = iEikonEnv->CreateBitmapL(KAsterisk,EMbmPodcastFeed_40x40m );	
 	CleanupStack::PushL( mask );
 	// Append the feed icon to icon array
-	icons->AppendL( CGulIcon::NewL( bitmap, mask ) );
+	iIconArray->AppendL( CGulIcon::NewL( bitmap, mask ) );
 	CleanupStack::Pop(2); // bitmap, mask
-	iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL( icons );
-	CleanupStack::Pop(icons); // icons
+	iListContainer->SetListboxIcons(iIconArray);
+	CleanupStack::Pop(iIconArray); // icons
+	
+	UpdateListboxItemsL();
+	iListContainer->SetTextArray(iItemArray);
+	iListContainer->SetListboxIcons(iIconArray);
+	iListContainer->Listbox()->DrawNow();
+	DP("CPodcastFeedView::SizeChanged END");
+	}
 
-	iListContainer->Listbox()->SetListBoxObserver(this);
+CPodcastFeedView::CPodcastFeedView(CPodcastModel& aPodcastModel):iPodcastModel(aPodcastModel)
+	{
+	iFirstActivateAfterLaunch = ETrue;
+	}
+#define KAsterisk iEikonEnv->EikAppUi()->Application()->BitmapStoreName()
+void CPodcastFeedView::ConstructL()
+	{
+	DP("CPodcastFeedView::ConstructL BEGIN");
+	//_LIT(KAsterisk, "*");
+	BaseConstructL(R_PODCAST_FEEDVIEW);
+	iNeverUpdated = iEikonEnv->AllocReadResourceL(R_PODCAST_FEEDS_NEVER_UPDATED);
+	iFeedsFormat = iEikonEnv->AllocReadResourceL(R_PODCAST_FEEDS_STATUS_FORMAT);
+	CPodcastListView::ConstructL();
+	iPodcastModel.FeedEngine().AddObserver(this);
+	SetEmptyTextL(R_PODCAST_NO_FEEDS);
+	SizeChanged();
+//	CFbsBitmap* bitmap = NULL;
+//	CFbsBitmap* mask = NULL;
+//	// Load the bitmap for empty icon	
+//	TFileName fname = KAsterisk;
+//	TParsePtr parser(fname);
+
+//	
+//	// Load svg.-image and mask with a single call
+//		AknIconUtils::CreateIconL(bitmap,
+//		                          mask,
+//		                          iEikonEnv->EikAppUi()->Application()->BitmapStoreName(),
+//		                          EMbmPodcastFeed,
+//		                          EMbmPodcastFeed_mask);
+//	    
+//	/*bitmap = iEikonEnv->CreateBitmapL(KAsterisk,EMbmPodcastFeed_40x40);
+//	 * */
+//	CleanupStack::PushL( bitmap );		
+//	// Load the mask for feed icon	
+//	//mask = iEikonEnv->CreateBitmapL(KAsterisk,EMbmPodcastFeed_40x40m );	
+//	CleanupStack::PushL( mask );
+//	// Append the feed icon to icon array
+//	iIconArray->AppendL( CGulIcon::NewL( bitmap, mask ) );
+//	CleanupStack::Pop(2); // bitmap, mask
+//	iListContainer->SetListboxIcons(iIconArray);
+//	CleanupStack::Pop(iIconArray); // icons
+//
+//	iListContainer->Listbox()->SetListBoxObserver(this);
 	
     iUpdater = CPodcastFeedViewUpdater::NewL(*this);
 	DP("CPodcastFeedView::ConstructL END");
@@ -322,6 +366,7 @@ void CPodcastFeedView::UpdateFeedInfoStatusL(TUint aFeedUid, TBool aIsUpdating)
 
 void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aIsUpdating)
 	{
+	DP("CPodcastFeedView::FormatFeedInfoListBoxItemL");
 	TBuf<KMaxShortDateFormatSpec*2> updatedDate;
 	TBuf<KMaxUnplayedFeedsLength> unplayedShows;
 	TUint unplayedCount = 0;
@@ -371,7 +416,7 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 			updatedDate.Zero();
 			}
 		}
-	CArrayPtr<CGulIcon>* icons = iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->IconArray();
+	
 	iconIndex = iFeedIdForIconArray.Find(aFeedInfo.Uid());
 	if(iconIndex == KErrNotFound && aFeedInfo.FeedIcon() != NULL && aFeedInfo.ImageFileName().Length() > 0 && 
 			aFeedInfo.FeedIcon()->SizeInPixels().iHeight > 0 &&
@@ -382,11 +427,11 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		CFbsBitmap* bmpCopy = new (ELeave) CFbsBitmap;
 		CleanupStack::PushL(bmpCopy);
 		bmpCopy->Duplicate(aFeedInfo.FeedIcon()->Handle());
-		icons->AppendL( CGulIcon::NewL(AknIconUtils::CreateIconL(bmpCopy), NULL));
+		iIconArray->AppendL( CGulIcon::NewL(AknIconUtils::CreateIconL(bmpCopy), NULL));
 		
 		iFeedIdForIconArray.Append(aFeedInfo.Uid());
 		CleanupStack::Pop(bmpCopy);			
-		iconIndex = icons->Count()-1;
+		iconIndex = iIconArray->Count()-1;
 		}	
 	else 
 		{
@@ -396,8 +441,15 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 	if (unplayedShows.Length() > 0 && updatedDate.Length() > 0) {
 		unplayedShows.Insert(0,_L(", "));
 	}
-	
-	iListboxFormatbuffer.Format(KFeedFormat(), iconIndex, &(aFeedInfo.Title()), &updatedDate,  &unplayedShows);
+		
+	if (iListContainer->IsLandscape())
+		{
+		iListboxFormatbuffer.Format(KFeedFormatLandscape(), iconIndex, &(aFeedInfo.Title()));
+		}
+	else 
+		{
+		iListboxFormatbuffer.Format(KFeedFormatPortrait(), iconIndex, &(aFeedInfo.Title()), &updatedDate,  &unplayedShows);
+		}
 	}
 
 void CPodcastFeedView::ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& /*aPodcastModel*/)
@@ -436,6 +488,7 @@ void CPodcastFeedView::UpdateListboxItemsL()
 	// No reason to do any work if it isn't going to show..
 	if(!iListContainer->IsVisible())
 		{
+		DP("not visible");
 		return;
 		}
 	
@@ -463,6 +516,7 @@ void CPodcastFeedView::UpdateListboxItemsL()
 			{
 			iItemArray->Delete(iItemArray->Count() - 1);
 			}
+		//iListContainer->Listbox()->
 		iUpdater->StartUpdate(nbrItems);
 		}
 	else
@@ -514,8 +568,9 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 			break;
 		case EPodcastUpdateAllFeeds:
 			{
-			iPodcastModel.FeedEngine().UpdateAllFeedsL();
-			UpdateToolbar();
+			SwitchListbox();
+			//iPodcastModel.FeedEngine().UpdateAllFeedsL();
+			//UpdateToolbar();
 			}break;
 		case EPodcastUpdateFeed:
 			{

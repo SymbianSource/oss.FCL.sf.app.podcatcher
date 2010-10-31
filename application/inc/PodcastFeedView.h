@@ -100,7 +100,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 
 		// from MImageHandlerCallback
 		void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel);
-		
+		void SizeChanged();
 	private:
 		void FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aIsUpdating = EFalse);
 		void HandleAddFeedL();

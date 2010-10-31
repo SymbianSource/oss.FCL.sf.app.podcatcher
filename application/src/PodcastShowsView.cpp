@@ -103,6 +103,12 @@ CPodcastShowsView::CPodcastShowsView(CPodcastModel& aPodcastModel) :
 	{
 	}
 
+void CPodcastShowsView::SizeChanged()
+	{
+	
+	}
+
+
 void CPodcastShowsView::ConstructL()
 	{
 	BaseConstructL(R_PODCAST_SHOWSVIEW);
@@ -140,7 +146,8 @@ void CPodcastShowsView::CreateIconsL()
 		pos+=2;
 		}
 		
-	iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL(icons);
+	//iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL(icons);
+	iListContainer->SetListboxIcons(icons);
 	CleanupStack::Pop(icons); // icons
 	}
 

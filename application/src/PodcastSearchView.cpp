@@ -84,7 +84,7 @@ void CPodcastSearchView::ConstructL()
 	icons->AppendL( CGulIcon::NewL( bitmap, mask ) );
 	CleanupStack::Pop(2); // bitmap, mask
 	
-	iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL( icons );
+	iListContainer->SetListboxIcons(icons);
 	CleanupStack::Pop(icons); // icons
 
 	iListContainer->Listbox()->SetListBoxObserver(this);
@@ -98,6 +98,11 @@ CPodcastSearchView::~CPodcastSearchView()
 	iPodcastModel.FeedEngine().RemoveObserver(this);
 	DP("CPodcastSearchView::~CPodcastSearchView END");
     }
+
+void CPodcastSearchView::SizeChanged()
+	{
+	
+	}
 
 TUid CPodcastSearchView::Id() const
 {

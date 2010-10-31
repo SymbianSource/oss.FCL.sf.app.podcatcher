@@ -30,6 +30,8 @@
 #include <aknquerydialog.h>
 #include <barsread.h>
 #include <akntitle.h>
+#include <akniconarray.h>
+#include <EIKCLBD.H>
 
 #include "buildno.h"
 
@@ -39,46 +41,70 @@ CPodcastListContainer::CPodcastListContainer()
 {
 }
 
-void CPodcastListContainer::SetKeyEventListener(MKeyEventListener *aKeyEventListener)
+void CPodcastListContainer::SetContainerListener(MContainerListener *aContainerListener)
 	{
-	iKeyEventListener = aKeyEventListener;
+	iContainerListener = aContainerListener;
 	}
 
 TKeyResponse CPodcastListContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType)
 {
 	TKeyResponse response = iListbox->OfferKeyEventL(aKeyEvent, aType);
-	if (iKeyEventListener)
-		iKeyEventListener->OfferKeyEventL(aKeyEvent, aType);
+	if (iContainerListener)
+		iContainerListener->OfferKeyEventL(aKeyEvent, aType);
 	
 	return response;
 }
 
 void CPodcastListContainer::ConstructL( const TRect& aRect, TInt aListboxFlags )
 {
+	DP("CPodcastListContainer::ConstructL BEGIN");
 	CreateWindowL();
 
 	iBgContext = 
 		    CAknsBasicBackgroundControlContext::NewL( KAknsIIDQsnBgAreaMain, 
 		                                              aRect, 
 		                                              ETrue );
-		
-	 // Set the windows size
-    SetRect( aRect );    
-    iListbox =static_cast<CEikFormattedCellListBox*>( new (ELeave) CAknDoubleLargeStyleListBox);
-    iListbox->ConstructL(this, aListboxFlags);
-    iListbox->SetMopParent( this );
-	iListbox->SetContainerWindowL(*this);
-	iListbox->CreateScrollBarFrameL(ETrue);
-	iListbox->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EAuto, CEikScrollBarFrame::EAuto );
 	
-	iListbox->ItemDrawer()->FormattedCellData()->EnableMarqueeL( ETrue );
-
-	iListbox->SetSize(aRect.Size());
-	iListbox->MakeVisible(ETrue);
+	if (iListbox)
+		delete iListbox;
+	
+	if (aRect.Width() > aRect.Height())
+		{
+		DP("Landscape mode");
+		iLandscape = ETrue;
+		iListboxLandscape = new (ELeave) CAknSingleLargeStyleListBox;
+		iListboxLandscape->ConstructL(this, aListboxFlags);
+		iListboxLandscape->SetMopParent( this );
+		iListboxLandscape->SetContainerWindowL(*this);
+		iListboxLandscape->CreateScrollBarFrameL(ETrue);
+		iListboxLandscape->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EAuto, CEikScrollBarFrame::EAuto );
+		iListboxLandscape->SetSize(aRect.Size());
+		iListboxLandscape->MakeVisible(ETrue);
+		iListbox = iListboxLandscape;
+		}
+	else 
+		{
+		DP("Portrait mode");
+		iLandscape = EFalse;
+		iListboxPortrait = new (ELeave) CAknDoubleLargeStyleListBox;
+		iListboxPortrait->ConstructL(this, aListboxFlags);
+		iListboxPortrait->SetMopParent( this );
+		iListboxPortrait->SetContainerWindowL(*this);
+		iListboxPortrait->CreateScrollBarFrameL(ETrue);
+		iListboxPortrait->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EAuto, CEikScrollBarFrame::EAuto );
+		iListboxPortrait->SetSize(aRect.Size());
+		iListboxPortrait->MakeVisible(ETrue);
+		iListbox = (CEikColumnListBox*) iListboxPortrait;
+		}
+ 	
     MakeVisible(EFalse);
-    
+
+	 // Set the windows size
+    SetRect( aRect ); 
+
 	// Activate the window, which makes it ready to be drawn
     ActivateL();   
+    DP("CPodcastListContainer::ConstructL END");
 }
 
 TInt CPodcastListContainer::CountComponentControls() const
@@ -112,20 +138,54 @@ void CPodcastListContainer::ScrollToVisible() {
 		iListbox->ScrollToMakeItemVisible(iListbox->CurrentItemIndex());
 	}
 }
+
+TBool CPodcastListContainer::IsLandscape()
+	{
+	return iLandscape;
+	}
+
 void CPodcastListContainer::SizeChanged()
 {
-	DP2("CPodcastListContainer::SizeChanged(), width=%d, height=%d",Size().iWidth, Size().iHeight);
-	if(iListbox != NULL)
-	{
-		iListbox->SetSize(Size());
-	}
+	DP2("CPodcastListContainer::SizeChanged() BEGIN, width=%d, height=%d",Size().iWidth, Size().iHeight);
+	
+	if (iListbox == NULL)
+		return;
+
+	iListbox->SetSize(Size());
+	
+	if (iContainerListener)
+		iContainerListener->SizeChanged();
+	
+	DP("CPodcastListContainer::SizeChanged END");
 }
 
-CEikFormattedCellListBox* CPodcastListContainer::Listbox()
+CEikColumnListBox* CPodcastListContainer::Listbox()
 {
 	return iListbox;
 }
 
+
+void CPodcastListContainer::SetListboxIcons(CArrayPtr< CGulIcon >* aIcons)
+{
+	if (iListboxLandscape == iListbox)
+		iListboxLandscape->ItemDrawer()->ColumnData()->SetIconArray(aIcons);
+	else
+		iListboxPortrait->ItemDrawer()->FormattedCellData()->SetIconArrayL(aIcons);
+}
+
+CArrayPtr<CGulIcon>* CPodcastListContainer::ListboxIcons()
+	{
+	if (iListboxLandscape == iListbox)
+		return iListboxLandscape->ItemDrawer()->ColumnData()->IconArray();
+	else
+		return iListboxPortrait->ItemDrawer()->FormattedCellData()->IconArray();
+	}
+
+void CPodcastListContainer::SetTextArray(CDesCArray* aArray)
+	{
+	iListbox->Model()->SetOwnershipType(ELbmDoesNotOwnItemArray);
+	iListbox->Model()->SetItemTextArray(aArray);
+	}
 
 CPodcastListContainer::~CPodcastListContainer()
 {
@@ -133,6 +193,10 @@ CPodcastListContainer::~CPodcastListContainer()
 	delete iBgContext;
 }
 
+void CPodcastListView::SwitchListbox()
+	{
+	HandleViewRectChange();
+	}
 
 void CPodcastListContainer::Draw(const TRect& aRect) const
 	{
@@ -160,27 +224,69 @@ CPodcastListView::CPodcastListView()
 void CPodcastListView::ConstructL()
 {
 	DP("CPodcastListView::ConstructL BEGIN");
-	iListContainer = new (ELeave) CPodcastListContainer;
-	iListContainer->ConstructL(ClientRect(), iListboxFlags);
-	iListContainer->SetMopParent(this);
-	iListContainer->ActivateL();
-	iItemArray = new (ELeave)CDesCArrayFlat(KDefaultGran);
-	iListContainer->Listbox()->Model()->SetItemTextArray(iItemArray);
-	iListContainer->Listbox()->Model()->SetOwnershipType(ELbmDoesNotOwnItemArray);
 
+	ResetContainer();
+	
 	if (Toolbar()) {
 		iToolbar = Toolbar();
 		iToolbar->SetToolbarObserver(this);
 	}
 	
-	iListContainer->SetKeyEventListener(this);
         
 	DP("CPodcastListView::ConstructL END");
 }
 
+void CPodcastListView::ResetContainer()
+	{
+	DP("CPodcastListView::ResetContainer BEGIN");
+	
+    if(iListContainer)
+    	{
+    	AppUi()->RemoveFromStack(iListContainer);
+    	delete iListContainer;
+    	}
+
+	iListContainer = new (ELeave) CPodcastListContainer;
+	TRect rect = ClientRect();
+	
+//	flipFlop = !flipFlop;
+//	
+//	if (!flipFlop)
+//		{
+//		TUint w = rect.Width();
+//		rect.SetWidth(rect.Height());
+//		rect.SetHeight(w);
+//		}
+	
+	iListContainer->ConstructL(rect, iListboxFlags);
+	iListContainer->SetMopParent(this);
+	iListContainer->ActivateL();
+	iItemArray = new (ELeave)CDesCArrayFlat(KDefaultGran);
+	iListContainer->SetTextArray(iItemArray);
+	iListContainer->SetContainerListener(this);
+	
+	DP("CPodcastListView::ResetContainer END");
+	}
+
 void CPodcastListView::HandleViewRectChange()
-{
-    if ( iListContainer )
+{    
+	TBool wasVisible = iListContainer->IsVisible();
+
+	if (wasVisible)
+		{
+		AppUi()->ActivateLocalViewL(KUidPodcastSearchViewID,  TUid::Uid(0), KNullDesC8);
+		
+		DoDeactivate();
+		}
+	
+	ResetContainer();
+
+	if (wasVisible)
+		{
+		AppUi()->ActivateLocalViewL(ViewId().iViewUid,  TUid::Uid(0), KNullDesC8);
+		}
+    
+	if ( iListContainer )
 	{
         iListContainer->SetRect( ClientRect() );
 	}
@@ -190,11 +296,7 @@ void CPodcastListView::HandleStatusPaneSizeChange()
 {
 	DP2("CPodcastListView::HandleStatusPaneSizeChange(), width=%d, height=%d", ClientRect().Width(), ClientRect().Height());
 
-	if ( iListContainer )
-	{
-        iListContainer->SetRect( ClientRect() );
-	}
-	
+	HandleViewRectChange();
 }
 
     

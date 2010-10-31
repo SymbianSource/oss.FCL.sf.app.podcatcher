@@ -109,6 +109,8 @@ protected:
 	void UpdateViewTitleL();
 	void GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode);
 	
+	void SizeChanged();
+	
 protected:
 	
 	CPodcastModel& iPodcastModel;

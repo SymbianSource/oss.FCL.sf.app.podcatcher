@@ -79,6 +79,7 @@ class CPodcastSearchView : public CPodcastListView, public MEikListBoxObserver,
 		 */
 		void HandleCommandL(TInt aCommand);
 				
+		void SizeChanged();
 	private:
 		CPodcastModel& iPodcastModel;		
 		TBool iSearchRunning;
