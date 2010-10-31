@@ -108,7 +108,7 @@ protected:
 	void HandleDeleteShow();
 	void UpdateViewTitleL();
 	void GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode);
-	
+
 protected:
 	
 	CPodcastModel& iPodcastModel;

@@ -37,7 +37,8 @@
 _LIT(KSizeDownloadingOf, "%.1f/%.1f MB");
 _LIT(KShowsSizeFormatS60, "%.1f MB");
 
-_LIT(KShowFormat, "%d\t%S\t%S%S\t");
+_LIT(KShowFormat, "%d\t%S\t%S%S");
+_LIT(KShowFormatLandscape, "%d\t%S");
 
 // these must correspond with TShowsIconIndex
 
@@ -109,9 +110,7 @@ void CPodcastShowsView::ConstructL()
 	CPodcastListView::ConstructL();
 	
 	CreateIconsL();
-	
-	iListContainer->Listbox()->SetListBoxObserver(this);
-	
+		
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);
 	}
@@ -140,7 +139,8 @@ void CPodcastShowsView::CreateIconsL()
 		pos+=2;
 		}
 		
-	iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL(icons);
+	//iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL(icons);
+	iListContainer->SetListboxIcons(icons);
 	CleanupStack::Pop(icons); // icons
 	}
 
@@ -452,6 +452,7 @@ void CPodcastShowsView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aS
 		}
 		
 	iListboxFormatbuffer.Format(KShowFormat(), iconIndex, &aShowInfo.Title(), &showDate, &infoSize);
+	iListboxFormatbufferShort.Format(KShowFormatLandscape(), iconIndex, &aShowInfo.Title());
 	}
 
 void CPodcastShowsView::GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode)
@@ -463,13 +464,17 @@ void CPodcastShowsView::UpdateShowItemDataL(CShowInfo* aShowInfo,TInt aIndex, TI
 {
 	FormatShowInfoListBoxItemL(*aShowInfo, aSizeDownloaded);
 	iItemArray->Delete(aIndex);
+	iItemArrayShort->Delete(aIndex);
+	
 	if(aIndex>= iItemArray->MdcaCount())
 		{
 		iItemArray->AppendL(iListboxFormatbuffer);
+		iItemArrayShort->AppendL(iListboxFormatbufferShort);
 		}
 	else
 		{
 		iItemArray->InsertL(aIndex, iListboxFormatbuffer);
+		iItemArrayShort->InsertL(aIndex, iListboxFormatbufferShort);
 		}
 }
 
@@ -529,11 +534,12 @@ void CPodcastShowsView::UpdateListboxItemsL()
 				}
 			else
 				{
-				iListContainer->Listbox()->ItemDrawer()->ClearAllPropertiesL();
+				//iListContainer->Listbox()->ItemDrawer()->ClearAllPropertiesL();
 				iListContainer->Listbox()->Reset();
 				iItemIdArray.Reset();
 				iItemArray->Reset();
-
+				iItemArrayShort->Reset();
+				
 				if (len > 0)
 					{
 					for (TInt i=0; i<len; i++)
@@ -542,11 +548,14 @@ void CPodcastShowsView::UpdateListboxItemsL()
 						FormatShowInfoListBoxItemL(*si);
 						iItemIdArray.Append(si->Uid());						
 						iItemArray->AppendL(iListboxFormatbuffer);
+						iItemArrayShort->AppendL(iListboxFormatbufferShort);
+												
 						}
 					}
 				else
 					{
 					iItemArray->Reset();
+					iItemArrayShort->Reset();
 					iItemIdArray.Reset();
 					
 					itemProps.SetDimmed(ETrue);

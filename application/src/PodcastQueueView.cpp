@@ -61,8 +61,6 @@ void CPodcastQueueView::ConstructL()
 	CPodcastListView::ConstructL();
 
 	CreateIconsL();
-		
-	iListContainer->Listbox()->SetListBoxObserver(this);
 	
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);
@@ -185,10 +183,11 @@ void CPodcastQueueView::UpdateListboxItemsL()
 				}
 			else
 				{
-				iListContainer->Listbox()->ItemDrawer()->ClearAllPropertiesL();
+				//iListContainer->Listbox()->ItemDrawer()->ClearAllPropertiesL();
 				iListContainer->Listbox()->Reset();
 				iItemIdArray.Reset();
 				iItemArray->Reset();
+				iItemArrayShort->Reset();
 
 				if (len > 0)
 					{
@@ -198,11 +197,13 @@ void CPodcastQueueView::UpdateListboxItemsL()
 						FormatShowInfoListBoxItemL(*si);
 						iItemIdArray.Append(si->Uid());						
 						iItemArray->AppendL(iListboxFormatbuffer);
+						iItemArrayShort->AppendL(iListboxFormatbufferShort);
 						}
 					}
 				else
 					{
 					iItemArray->Reset();
+					iItemArrayShort->Reset();
 					iItemIdArray.Reset();
 					
 					itemProps.SetDimmed(ETrue);

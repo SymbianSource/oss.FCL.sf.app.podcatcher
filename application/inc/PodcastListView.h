@@ -35,9 +35,10 @@ class CAknDoubleLargeStyleListBox;
 class CEikFormattedCellListBox;
 
 
-class MKeyEventListener {
+class MContainerListener {
 public:
 virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType) = 0;
+virtual void SizeChanged() = 0;
 };
 
 class MPointerListener {
@@ -56,33 +57,41 @@ class CPodcastListContainer : public CCoeControl
         CCoeControl* ComponentControl( TInt aIndex ) const;
 		void HandleResourceChange(TInt aType);
 		virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
-		void SetKeyEventListener(MKeyEventListener *aKeyEventListener);
+		void SetContainerListener(MContainerListener *aContainerListener);
+		void SetListboxObserver(MEikListBoxObserver *aObserver);
 		
-		CEikFormattedCellListBox* Listbox();
+		CEikColumnListBox* Listbox();
+		void SetListboxIcons(CArrayPtr< CGulIcon >* aIcons);
+		CArrayPtr<CGulIcon>* ListboxIcons();
+		void SetListboxTextArrays(CDesCArray* aPortraitArray, CDesCArray* aLandscapeArray);
+		void SetEmptyText(const TDesC &aText);
 		void ScrollToVisible();
-    	void Draw(const TRect& aRect) const;
-    	
-    	CEikFormattedCellListBox * iListbox;		
+    	void Draw(const TRect& aRect) const;   	
 
-	protected:
+    protected:
 		TTypeUid::Ptr MopSupplyObject( TTypeUid aId );
 
 	private:
-		MKeyEventListener* iKeyEventListener;
+       	CAknSingleLargeStyleListBox * iListboxLandscape;
+        CAknDoubleLargeStyleListBox * iListboxPortrait;
+		MContainerListener* iContainerListener;
         CAknsBasicBackgroundControlContext* iBgContext;
+        CEikColumnListBox * iListbox;
+        TBool iLandscape;
 	};
 
 
 class CPodcastListView : public CAknView, public MAknToolbarObserver,
-public MProgressDialogCallback, public MKeyEventListener
+public MProgressDialogCallback, public MContainerListener, MEikListBoxObserver
     {
     public: 
         ~CPodcastListView();
 		virtual void UpdateToolbar(TBool aVisible=ETrue) = 0;
 		TBool IsVisible();
-		
+
 	protected:
-	    void ConstructL();
+    	void SwitchListbox();
+    	void ConstructL();
 		CPodcastListView();	
 
 		/** 
@@ -136,9 +145,12 @@ public MProgressDialogCallback, public MKeyEventListener
 		// from MProgressDialogCallback		
 		void DialogDismissedL(TInt /*aButtonId*/) {}
 
-		// from MKeyEventListener
+		// from MContainerListener
 		virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
-
+		virtual void SizeChanged() {};
+		void ResetContainer();
+	
+        virtual void HandleListBoxEventL(CEikListBox* aListBox, TListBoxEvent aEventType)=0;
 	protected:
 		 CPodcastListContainer* iListContainer;
 		 /** Previous activated view */
@@ -148,12 +160,15 @@ public MProgressDialogCallback, public MKeyEventListener
 		 TInt iListboxFlags;
 		 
 		 CDesCArray* iItemArray;
+		 CDesCArray* iItemArrayShort;
 		 RArray<TUint> iItemIdArray;
-		 
+		 		 
 		 TBuf<1024> iListboxFormatbuffer;
+		 TBuf<1024> iListboxFormatbufferShort;
 		 
 		 CAknToolbar *iToolbar;
 		 CAknWaitDialog *iWaitDialog;
+		 TBool flipFlop;
     };
 #endif // PODCASTBASEVIEWH
 

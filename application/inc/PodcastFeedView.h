@@ -100,7 +100,6 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 
 		// from MImageHandlerCallback
 		void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel);
-		
 	private:
 		void FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aIsUpdating = EFalse);
 		void HandleAddFeedL();
@@ -113,7 +112,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 		void HandleUpdateFeedL();
 		void GetFeedErrorText(TDes &aErrorMessage, TInt aErrorCode);
 		void OpmlParsingCompleteL(TInt aError, TUint aNumFeedsImported);
-		
+		void LoadIcons();
 	private:
 		CPodcastModel& iPodcastModel;		
 		TUint iFeedUpdating;
