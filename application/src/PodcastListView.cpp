@@ -184,7 +184,12 @@ CEikColumnListBox* CPodcastListContainer::Listbox()
 	return iListbox;
 }
 
-
+void CPodcastListContainer::SetListboxObserver(MEikListBoxObserver *aObserver)
+	{
+	iListboxLandscape->SetListBoxObserver(aObserver);
+	iListboxPortrait->SetListBoxObserver(aObserver);
+	}
+		
 void CPodcastListContainer::SetListboxIcons(CArrayPtr< CGulIcon >* aIcons)
 {
 	iListboxLandscape->ItemDrawer()->ColumnData()->SetIconArray(aIcons);
@@ -258,6 +263,7 @@ void CPodcastListView::ConstructL()
 		
 	iListContainer->SetListboxTextArrays(iItemArray, iItemArrayShort);
 	iListContainer->SetContainerListener(this);
+	iListContainer->SetListboxObserver(this);
 	
 	if (Toolbar()) {
 		iToolbar = Toolbar();
@@ -464,4 +470,3 @@ TKeyResponse CPodcastListView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventC
 		}
 	return EKeyWasNotConsumed;
 	}
-

@@ -63,14 +63,6 @@ CPodcastFeedView* CPodcastFeedView::NewLC(CPodcastModel& aPodcastModel)
     return self;
     }
 
-void CPodcastFeedView::SizeChanged()
-	{
-	DP("CPodcastFeedView::SizeChanged BEGIN");
-	iListContainer->Listbox()->SetListBoxObserver(this);
-	iListContainer->DrawNow();
-	DP("CPodcastFeedView::SizeChanged END");
-	}
-
 void CPodcastFeedView::LoadIcons()
 	{
 	iFeedIdForIconArray.Reset();

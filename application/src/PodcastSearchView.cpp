@@ -87,8 +87,6 @@ void CPodcastSearchView::ConstructL()
 	
 	iListContainer->SetListboxIcons(icons);
 	CleanupStack::Pop(icons); // icons
-
-	iListContainer->Listbox()->SetListBoxObserver(this);
 	
 	SetEmptyTextL(R_PODCAST_EMPTY_SEARCH);
 }
@@ -99,11 +97,6 @@ CPodcastSearchView::~CPodcastSearchView()
 	iPodcastModel.FeedEngine().RemoveObserver(this);
 	DP("CPodcastSearchView::~CPodcastSearchView END");
     }
-
-void CPodcastSearchView::SizeChanged()
-	{
-	
-	}
 
 TUid CPodcastSearchView::Id() const
 {

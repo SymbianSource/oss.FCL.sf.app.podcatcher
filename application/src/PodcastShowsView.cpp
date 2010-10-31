@@ -104,21 +104,13 @@ CPodcastShowsView::CPodcastShowsView(CPodcastModel& aPodcastModel) :
 	{
 	}
 
-void CPodcastShowsView::SizeChanged()
-	{
-	
-	}
-
-
 void CPodcastShowsView::ConstructL()
 	{
 	BaseConstructL(R_PODCAST_SHOWSVIEW);
 	CPodcastListView::ConstructL();
 	
 	CreateIconsL();
-	
-	iListContainer->Listbox()->SetListBoxObserver(this);
-	
+		
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);
 	}

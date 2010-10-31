@@ -61,8 +61,6 @@ void CPodcastQueueView::ConstructL()
 	CPodcastListView::ConstructL();
 
 	CreateIconsL();
-		
-	iListContainer->Listbox()->SetListBoxObserver(this);
 	
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);

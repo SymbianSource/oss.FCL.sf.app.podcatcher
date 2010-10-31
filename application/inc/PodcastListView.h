@@ -58,6 +58,7 @@ class CPodcastListContainer : public CCoeControl
 		void HandleResourceChange(TInt aType);
 		virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
 		void SetContainerListener(MContainerListener *aContainerListener);
+		void SetListboxObserver(MEikListBoxObserver *aObserver);
 		
 		CEikColumnListBox* Listbox();
 		void SetListboxIcons(CArrayPtr< CGulIcon >* aIcons);
@@ -81,13 +82,13 @@ class CPodcastListContainer : public CCoeControl
 
 
 class CPodcastListView : public CAknView, public MAknToolbarObserver,
-public MProgressDialogCallback, public MContainerListener
+public MProgressDialogCallback, public MContainerListener, MEikListBoxObserver
     {
     public: 
         ~CPodcastListView();
 		virtual void UpdateToolbar(TBool aVisible=ETrue) = 0;
 		TBool IsVisible();
-		
+
 	protected:
     	void SwitchListbox();
     	void ConstructL();
@@ -146,9 +147,10 @@ public MProgressDialogCallback, public MContainerListener
 
 		// from MContainerListener
 		virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
-		virtual void SizeChanged() = 0;
+		virtual void SizeChanged() {};
 		void ResetContainer();
-		
+	
+        virtual void HandleListBoxEventL(CEikListBox* aListBox, TListBoxEvent aEventType)=0;
 	protected:
 		 CPodcastListContainer* iListContainer;
 		 /** Previous activated view */

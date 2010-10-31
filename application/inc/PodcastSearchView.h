@@ -78,8 +78,7 @@ class CPodcastSearchView : public CPodcastListView, public MEikListBoxObserver,
 		 * @param aCommand ID of the command to respond to. 
 		 */
 		void HandleCommandL(TInt aCommand);
-				
-		void SizeChanged();
+
 	private:
 		CPodcastModel& iPodcastModel;		
 		TBool iSearchRunning;
