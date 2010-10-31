@@ -39,6 +39,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
         static CPodcastFeedView* NewLC(CPodcastModel& aPodcastModel);
         ~CPodcastFeedView();
         void UpdateItemL(TInt aIndex);
+        void UpdateItemsComplete();
 		void CheckResumeDownloadL();
 		void UpdateToolbar(TBool aVisible=ETrue);
 		TBool ViewingShows();
@@ -123,6 +124,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 		TOpmlState iOpmlState;
 		TBool iViewingShows;
 		RArray<TInt> iFeedIdForIconArray;
+		TBool iListingFirstTime;
 };
 
 #endif // PODCASTFEEDVIEWH
