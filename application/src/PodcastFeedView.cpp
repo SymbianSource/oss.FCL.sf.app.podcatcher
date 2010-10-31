@@ -522,9 +522,6 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 
 	switch(aCommand)
 		{
-        case EPodcastHide:
-			AppUi()->HandleCommandL(EEikCmdExit);
-			break;
 		case EPodcastAddFeed:
 			HandleAddFeedL();
 			break;

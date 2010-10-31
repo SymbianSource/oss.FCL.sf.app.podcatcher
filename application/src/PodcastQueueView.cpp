@@ -344,11 +344,8 @@ void CPodcastQueueView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPan
 				
 		if (index >= 0 && index < iPodcastModel.ActiveShowList().Count())
 			{			
-			CShowInfo* info = iPodcastModel.ActiveShowList()[index];
-			
 			aMenuPane->SetItemDimmed(EPodcastMoveDownloadDown, dimDown);
-			aMenuPane->SetItemDimmed(EPodcastMoveDownloadUp, dimUp);
-			
+			aMenuPane->SetItemDimmed(EPodcastMoveDownloadUp, dimUp);			
 			}
 		}
 	}
