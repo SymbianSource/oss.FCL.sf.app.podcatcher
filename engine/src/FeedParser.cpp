@@ -309,11 +309,11 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 				
 				iItemsParsed++;
 				DP2("iItemsParsed: %d, iMaxItems: %d", iItemsParsed, iMaxItems);
-//				if (iItemsParsed >= iMaxItems) 
-//					{
-//					iStoppedParsing = ETrue;
-//					DP("*** Too many items, aborting parsing");
-//					}
+				if (iItemsParsed >= iMaxItems) 
+					{
+					iStoppedParsing = ETrue;
+					DP("*** Too many items, aborting parsing");
+					}
 				
 				iFeedState=EStateChannel;
 				}
