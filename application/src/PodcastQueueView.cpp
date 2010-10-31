@@ -189,6 +189,7 @@ void CPodcastQueueView::UpdateListboxItemsL()
 				iListContainer->Listbox()->Reset();
 				iItemIdArray.Reset();
 				iItemArray->Reset();
+				iItemArrayShort->Reset();
 
 				if (len > 0)
 					{
@@ -198,17 +199,18 @@ void CPodcastQueueView::UpdateListboxItemsL()
 						FormatShowInfoListBoxItemL(*si);
 						iItemIdArray.Append(si->Uid());						
 						iItemArray->AppendL(iListboxFormatbuffer);
+						iItemArrayShort->AppendL(iListboxFormatbufferShort);
 						}
 					}
 				else
 					{
 					iItemArray->Reset();
+					iItemArrayShort->Reset();
 					iItemIdArray.Reset();
 					
 					itemProps.SetDimmed(ETrue);
 					itemProps.SetHiddenSelection(ETrue);
 					}
-				iListContainer->SetTextArray(iItemArray);
 				iListContainer->Listbox()->HandleItemAdditionL();
 				}				
 			}

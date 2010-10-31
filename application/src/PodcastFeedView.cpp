@@ -74,9 +74,7 @@ void CPodcastFeedView::SizeChanged()
 void CPodcastFeedView::LoadIcons()
 	{
 	iFeedIdForIconArray.Reset();
-	iItemArray->Reset();
-	
-	DP("before icons");
+
 	CFbsBitmap* bitmap = NULL;
 	CFbsBitmap* mask = NULL;
 	_LIT(KAsterisk, "*");
@@ -84,8 +82,8 @@ void CPodcastFeedView::LoadIcons()
 	TFileName fname;
 	fname.Copy(KAsterisk);
 	TParsePtr parser(fname);
-	iIconArray= new(ELeave) CArrayPtrFlat< CGulIcon >(1);
-	CleanupStack::PushL( iIconArray );
+	CArrayPtrFlat< CGulIcon > *iconArray= new(ELeave) CArrayPtrFlat< CGulIcon >(1);
+	CleanupStack::PushL( iconArray );
 
 	// Load svg.-image and mask with a single call
 		AknIconUtils::CreateIconL(bitmap,
@@ -101,10 +99,10 @@ void CPodcastFeedView::LoadIcons()
 	//mask = iEikonEnv->CreateBitmapL(KAsterisk,EMbmPodcastFeed_40x40m );	
 	CleanupStack::PushL( mask );
 	// Append the feed icon to icon array
-	iIconArray->AppendL( CGulIcon::NewL( bitmap, mask ) );
+	iconArray->AppendL( CGulIcon::NewL( bitmap, mask ) );
 	CleanupStack::Pop(2); // bitmap, mask
-	iListContainer->SetListboxIcons(iIconArray);
-	CleanupStack::Pop(iIconArray); // icons
+	iListContainer->SetListboxIcons(iconArray);
+	CleanupStack::Pop(iconArray); // icons
 	}
 
 CPodcastFeedView::CPodcastFeedView(CPodcastModel& aPodcastModel):iPodcastModel(aPodcastModel)
@@ -163,7 +161,9 @@ void CPodcastFeedView::UpdateItemL(TInt aIndex)
 	itemProps.SetDimmed(EFalse);	
 	iItemArray->Delete(aIndex);	
 	iItemArray->InsertL(aIndex, iListboxFormatbuffer);
-	iListContainer->SetTextArray(iItemArray);
+	iItemArrayShort->Delete(aIndex);	
+	iItemArrayShort->InsertL(aIndex, iListboxFormatbufferShort);
+
 	iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(aIndex, itemProps);
 	// If item is visible, redraw it
 	if (iListContainer->Listbox()->TopItemIndex() <= aIndex
@@ -291,6 +291,7 @@ void CPodcastFeedView::FeedDownloadFinishedL(TFeedState aState,TUint aFeedUid, T
 
 void CPodcastFeedView::UpdateFeedInfoStatusL(TUint aFeedUid, TBool aIsUpdating)
 	{
+	DP("CPodcastFeedView::UpdateFeedInfoStatusL BEGIN");
 	const RFeedInfoArray& feeds = iPodcastModel.FeedEngine().GetSortedFeeds();
 
 	// Find the index for the feed i both the feed-array and the listbox 
@@ -324,7 +325,8 @@ void CPodcastFeedView::UpdateFeedInfoStatusL(TUint aFeedUid, TBool aIsUpdating)
 			iItemIdArray.InsertL(aFeedUid, feedsIdx);
 			iItemArray->Delete(listboxIdx);
 			iItemArray->InsertL(feedsIdx, KNullDesC);
-			iListContainer->SetTextArray(iItemArray);
+			iItemArrayShort->Delete(listboxIdx);
+			iItemArrayShort->InsertL(feedsIdx, KNullDesC);
 			iListContainer->Listbox()->HandleItemAdditionL();
 			}
 		// Update the listbox info
@@ -338,11 +340,12 @@ void CPodcastFeedView::UpdateFeedInfoStatusL(TUint aFeedUid, TBool aIsUpdating)
 			{
 			iListContainer->Listbox()->DrawItem(k);
 			}
+		DP("CPodcastFeedView::UpdateFeedInfoStatusL END");
 	}
 
 void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aIsUpdating)
 	{
-	DP("CPodcastFeedView::FormatFeedInfoListBoxItemL");
+	DP("CPodcastFeedView::FormatFeedInfoListBoxItemL BEGIN");
 	TBuf<KMaxShortDateFormatSpec*2> updatedDate;
 	TBuf<KMaxUnplayedFeedsLength> unplayedShows;
 	TUint unplayedCount = 0;
@@ -403,11 +406,13 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		CFbsBitmap* bmpCopy = new (ELeave) CFbsBitmap;
 		CleanupStack::PushL(bmpCopy);
 		bmpCopy->Duplicate(aFeedInfo.FeedIcon()->Handle());
-		iIconArray->AppendL( CGulIcon::NewL(AknIconUtils::CreateIconL(bmpCopy), NULL));
+		CArrayPtr<CGulIcon>* icons = iListContainer->ListboxIcons();
+
+		icons->AppendL( CGulIcon::NewL(AknIconUtils::CreateIconL(bmpCopy), NULL));
 		
 		iFeedIdForIconArray.Append(aFeedInfo.Uid());
 		CleanupStack::Pop(bmpCopy);			
-		iconIndex = iIconArray->Count()-1;
+		iconIndex = icons->Count()-1;
 		}	
 	else 
 		{
@@ -419,6 +424,8 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 	}
 		
 	iListboxFormatbuffer.Format(KFeedFormatPortrait(), iconIndex, &(aFeedInfo.Title()), &updatedDate,  &unplayedShows);
+	iListboxFormatbufferShort.Format(KFeedFormatLandscape(), iconIndex, &(aFeedInfo.Title()), &updatedDate,  &unplayedShows);
+	DP("CPodcastFeedView::FormatFeedInfoListBoxItemL END");
 	}
 
 void CPodcastFeedView::ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& /*aPodcastModel*/)
@@ -438,13 +445,16 @@ void CPodcastFeedView::UpdateFeedInfoDataL(CFeedInfo* aFeedInfo, TInt aIndex, TB
 	
 	if (iListboxFormatbuffer.Compare(compareTo) != 0) {
 		iItemArray->Delete(aIndex);
+		iItemArrayShort->Delete(aIndex);
 		if(aIndex>= iItemArray->MdcaCount())
 				{
 				iItemArray->AppendL(iListboxFormatbuffer);
+				iItemArrayShort->AppendL(iListboxFormatbufferShort);
 				}
 			else
 				{
 				iItemArray->InsertL(aIndex, iListboxFormatbuffer);
+				iItemArrayShort->InsertL(aIndex, iListboxFormatbufferShort);
 				}
 	}
 	iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(aIndex, itemProps);
@@ -477,12 +487,14 @@ void CPodcastFeedView::UpdateListboxItemsL()
 		while (iItemArray->Count() < nbrItems)
 			{
 			iItemArray->AppendL(KNullDesC);
+			iItemArrayShort->AppendL(KNullDesC);
 			TListItemProperties itemProps;
 			iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(iItemArray->Count() - 1, itemProps);
 			}
 		while (iItemArray->Count() > nbrItems)
 			{
 			iItemArray->Delete(iItemArray->Count() - 1);
+			iItemArrayShort->Delete(iItemArray->Count() - 1);		
 			}
 		//iListContainer->Listbox()->
 		iUpdater->StartUpdate(nbrItems);
@@ -493,6 +505,7 @@ void CPodcastFeedView::UpdateListboxItemsL()
 		TBuf<KMaxFeedNameLength> itemName;
 		iEikonEnv->ReadResourceL(itemName, R_PODCAST_FEEDS_NO_FEEDS);
 		iItemArray->Reset();
+		iItemArrayShort->Reset();
 		iItemIdArray.Reset();
 	
 		TListItemProperties itemProps;
@@ -500,7 +513,6 @@ void CPodcastFeedView::UpdateListboxItemsL()
 		itemProps.SetHiddenSelection(ETrue);								
 		iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(0, itemProps);
 		}
-	iListContainer->SetTextArray(iItemArray);
 	iListContainer->Listbox()->HandleItemAdditionL();
 	DP("CPodcastFeedView::UpdateListboxItemsL END");
 	}
@@ -785,6 +797,7 @@ void CPodcastFeedView::HandleRemoveFeedL()
 				{
 				iPodcastModel.FeedEngine().RemoveFeedL(iItemIdArray[index]);
 				iItemArray->Delete(index);
+				iItemArrayShort->Delete(index);
 				iItemIdArray.Remove(index);
 				iListContainer->Listbox()->HandleItemRemovalL();
 				iListContainer->Listbox()->DrawNow();

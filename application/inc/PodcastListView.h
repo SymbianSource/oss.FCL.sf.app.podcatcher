@@ -62,25 +62,21 @@ class CPodcastListContainer : public CCoeControl
 		CEikColumnListBox* Listbox();
 		void SetListboxIcons(CArrayPtr< CGulIcon >* aIcons);
 		CArrayPtr<CGulIcon>* ListboxIcons();
-		void SetTextArray(CDesCArray* aArray);
+		void SetListboxTextArrays(CDesCArray* aPortraitArray, CDesCArray* aLandscapeArray);
+		void SetEmptyText(const TDesC &aText);
 		void ScrollToVisible();
     	void Draw(const TRect& aRect) const;   	
-    	TBool IsLandscape();
-
-    public:
-       	CAknSingleLargeStyleListBox * iListboxLandscape;
-        CAknDoubleLargeStyleListBox * iListboxPortrait;
 
     protected:
 		TTypeUid::Ptr MopSupplyObject( TTypeUid aId );
 
 	private:
+       	CAknSingleLargeStyleListBox * iListboxLandscape;
+        CAknDoubleLargeStyleListBox * iListboxPortrait;
 		MContainerListener* iContainerListener;
         CAknsBasicBackgroundControlContext* iBgContext;
-        
         CEikColumnListBox * iListbox;
         TBool iLandscape;
-		CDesCArray* iItemArrayShort;
 	};
 
 
@@ -162,14 +158,15 @@ public MProgressDialogCallback, public MContainerListener
 		 TInt iListboxFlags;
 		 
 		 CDesCArray* iItemArray;
+		 CDesCArray* iItemArrayShort;
 		 RArray<TUint> iItemIdArray;
-		 
+		 		 
 		 TBuf<1024> iListboxFormatbuffer;
+		 TBuf<1024> iListboxFormatbufferShort;
 		 
 		 CAknToolbar *iToolbar;
 		 CAknWaitDialog *iWaitDialog;
 		 TBool flipFlop;
-		 CArrayPtr< CGulIcon >* iIconArray;
     };
 #endif // PODCASTBASEVIEWH
 

@@ -43,6 +43,7 @@ const TInt KMaxFeedNameLength = 100;
 #define KMaxMessageLength 200
 #define KMaxTitleLength 100
 _LIT(KSearchResultFormat, "%d\t%S\t%S");
+_LIT(KSearchResultFormatLandscape, "%d\t%S");
 
 CPodcastSearchView* CPodcastSearchView::NewL(CPodcastModel& aPodcastModel)
     {
@@ -185,6 +186,8 @@ void CPodcastSearchView::UpdateListboxItemsL()
 			PodcastUtils::RemoveAllFormatting(descr);
 			iListboxFormatbuffer.Format(KSearchResultFormat(), iconIndex, &fi->Title(), &descr);
 			iItemArray->AppendL(iListboxFormatbuffer);
+			iListboxFormatbufferShort.Format(KSearchResultFormatLandscape(), iconIndex, &fi->Title(), &descr);
+			iItemArrayShort->AppendL(iListboxFormatbufferShort);
 			iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(i, itemProps);
 			}
 		} 
@@ -193,6 +196,7 @@ void CPodcastSearchView::UpdateListboxItemsL()
 		TBuf<KMaxFeedNameLength> itemName;
 		iEikonEnv->ReadResourceL(itemName, R_PODCAST_NO_SEARCH_RESULTS);
 		iItemArray->Reset();
+		iItemArrayShort->Reset();
 		iItemIdArray.Reset();
 
 		TListItemProperties itemProps;
@@ -200,7 +204,6 @@ void CPodcastSearchView::UpdateListboxItemsL()
 		itemProps.SetHiddenSelection(ETrue);								
 		iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(0, itemProps);
 		}
-	iListContainer->SetTextArray(iItemArray);
 	iListContainer->Listbox()->HandleItemAdditionL();
 	DP("CPodcastSearchView::UpdateListboxItemsL END");
 	}
