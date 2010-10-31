@@ -67,6 +67,12 @@ void CPodcastFeedView::SizeChanged()
 	{
 	DP("CPodcastFeedView::SizeChanged BEGIN");
 	iListContainer->Listbox()->SetListBoxObserver(this);
+	iListContainer->DrawNow();
+	DP("CPodcastFeedView::SizeChanged END");
+	}
+
+void CPodcastFeedView::LoadIcons()
+	{
 	iFeedIdForIconArray.Reset();
 	iItemArray->Reset();
 	
@@ -99,12 +105,6 @@ void CPodcastFeedView::SizeChanged()
 	CleanupStack::Pop(2); // bitmap, mask
 	iListContainer->SetListboxIcons(iIconArray);
 	CleanupStack::Pop(iIconArray); // icons
-	
-	UpdateListboxItemsL();
-	iListContainer->SetTextArray(iItemArray);
-	iListContainer->SetListboxIcons(iIconArray);
-	iListContainer->Listbox()->DrawNow();
-	DP("CPodcastFeedView::SizeChanged END");
 	}
 
 CPodcastFeedView::CPodcastFeedView(CPodcastModel& aPodcastModel):iPodcastModel(aPodcastModel)
@@ -122,34 +122,8 @@ void CPodcastFeedView::ConstructL()
 	CPodcastListView::ConstructL();
 	iPodcastModel.FeedEngine().AddObserver(this);
 	SetEmptyTextL(R_PODCAST_NO_FEEDS);
-	SizeChanged();
-//	CFbsBitmap* bitmap = NULL;
-//	CFbsBitmap* mask = NULL;
-//	// Load the bitmap for empty icon	
-//	TFileName fname = KAsterisk;
-//	TParsePtr parser(fname);
 
-//	
-//	// Load svg.-image and mask with a single call
-//		AknIconUtils::CreateIconL(bitmap,
-//		                          mask,
-//		                          iEikonEnv->EikAppUi()->Application()->BitmapStoreName(),
-//		                          EMbmPodcastFeed,
-//		                          EMbmPodcastFeed_mask);
-//	    
-//	/*bitmap = iEikonEnv->CreateBitmapL(KAsterisk,EMbmPodcastFeed_40x40);
-//	 * */
-//	CleanupStack::PushL( bitmap );		
-//	// Load the mask for feed icon	
-//	//mask = iEikonEnv->CreateBitmapL(KAsterisk,EMbmPodcastFeed_40x40m );	
-//	CleanupStack::PushL( mask );
-//	// Append the feed icon to icon array
-//	iIconArray->AppendL( CGulIcon::NewL( bitmap, mask ) );
-//	CleanupStack::Pop(2); // bitmap, mask
-//	iListContainer->SetListboxIcons(iIconArray);
-//	CleanupStack::Pop(iIconArray); // icons
-//
-//	iListContainer->Listbox()->SetListBoxObserver(this);
+	LoadIcons();
 	
     iUpdater = CPodcastFeedViewUpdater::NewL(*this);
 	DP("CPodcastFeedView::ConstructL END");
@@ -189,6 +163,7 @@ void CPodcastFeedView::UpdateItemL(TInt aIndex)
 	itemProps.SetDimmed(EFalse);	
 	iItemArray->Delete(aIndex);	
 	iItemArray->InsertL(aIndex, iListboxFormatbuffer);
+	iListContainer->SetTextArray(iItemArray);
 	iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(aIndex, itemProps);
 	// If item is visible, redraw it
 	if (iListContainer->Listbox()->TopItemIndex() <= aIndex
@@ -349,6 +324,7 @@ void CPodcastFeedView::UpdateFeedInfoStatusL(TUint aFeedUid, TBool aIsUpdating)
 			iItemIdArray.InsertL(aFeedUid, feedsIdx);
 			iItemArray->Delete(listboxIdx);
 			iItemArray->InsertL(feedsIdx, KNullDesC);
+			iListContainer->SetTextArray(iItemArray);
 			iListContainer->Listbox()->HandleItemAdditionL();
 			}
 		// Update the listbox info
@@ -442,14 +418,7 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		unplayedShows.Insert(0,_L(", "));
 	}
 		
-	if (iListContainer->IsLandscape())
-		{
-		iListboxFormatbuffer.Format(KFeedFormatLandscape(), iconIndex, &(aFeedInfo.Title()));
-		}
-	else 
-		{
-		iListboxFormatbuffer.Format(KFeedFormatPortrait(), iconIndex, &(aFeedInfo.Title()), &updatedDate,  &unplayedShows);
-		}
+	iListboxFormatbuffer.Format(KFeedFormatPortrait(), iconIndex, &(aFeedInfo.Title()), &updatedDate,  &unplayedShows);
 	}
 
 void CPodcastFeedView::ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& /*aPodcastModel*/)
@@ -488,7 +457,6 @@ void CPodcastFeedView::UpdateListboxItemsL()
 	// No reason to do any work if it isn't going to show..
 	if(!iListContainer->IsVisible())
 		{
-		DP("not visible");
 		return;
 		}
 	
@@ -532,6 +500,7 @@ void CPodcastFeedView::UpdateListboxItemsL()
 		itemProps.SetHiddenSelection(ETrue);								
 		iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(0, itemProps);
 		}
+	iListContainer->SetTextArray(iItemArray);
 	iListContainer->Listbox()->HandleItemAdditionL();
 	DP("CPodcastFeedView::UpdateListboxItemsL END");
 	}

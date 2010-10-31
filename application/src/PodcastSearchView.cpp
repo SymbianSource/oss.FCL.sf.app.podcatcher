@@ -200,6 +200,7 @@ void CPodcastSearchView::UpdateListboxItemsL()
 		itemProps.SetHiddenSelection(ETrue);								
 		iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(0, itemProps);
 		}
+	iListContainer->SetTextArray(iItemArray);
 	iListContainer->Listbox()->HandleItemAdditionL();
 	DP("CPodcastSearchView::UpdateListboxItemsL END");
 	}

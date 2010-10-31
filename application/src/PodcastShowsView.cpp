@@ -37,7 +37,7 @@
 _LIT(KSizeDownloadingOf, "%.1f/%.1f MB");
 _LIT(KShowsSizeFormatS60, "%.1f MB");
 
-_LIT(KShowFormat, "%d\t%S\t%S%S\t");
+_LIT(KShowFormat, "%d\t%S\t%S%S");
 
 // these must correspond with TShowsIconIndex
 
@@ -478,6 +478,8 @@ void CPodcastShowsView::UpdateShowItemDataL(CShowInfo* aShowInfo,TInt aIndex, TI
 		{
 		iItemArray->InsertL(aIndex, iListboxFormatbuffer);
 		}
+	
+	iListContainer->SetTextArray(iItemArray);
 }
 
 void CPodcastShowsView::UpdateShowItemL(TUint aUid, TInt aSizeDownloaded)
@@ -559,6 +561,7 @@ void CPodcastShowsView::UpdateListboxItemsL()
 					itemProps.SetDimmed(ETrue);
 					itemProps.SetHiddenSelection(ETrue);
 					}
+				iListContainer->SetTextArray(iItemArray);
 				iListContainer->Listbox()->HandleItemAdditionL();
 				}				
 			}

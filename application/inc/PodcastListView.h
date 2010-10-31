@@ -77,6 +77,7 @@ class CPodcastListContainer : public CCoeControl
         CAknDoubleLargeStyleListBox * iListboxPortrait;
         CEikColumnListBox * iListbox;
         TBool iLandscape;
+		CDesCArray* iItemArrayShort;
 	};
 
 

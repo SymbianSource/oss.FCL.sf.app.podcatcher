@@ -208,6 +208,7 @@ void CPodcastQueueView::UpdateListboxItemsL()
 					itemProps.SetDimmed(ETrue);
 					itemProps.SetHiddenSelection(ETrue);
 					}
+				iListContainer->SetTextArray(iItemArray);
 				iListContainer->Listbox()->HandleItemAdditionL();
 				}				
 			}
