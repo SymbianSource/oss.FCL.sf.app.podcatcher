@@ -216,7 +216,7 @@ void CShowEngine::GetShowL(CShowInfo *info)
 	else
 		{
 		// no extension found, we'll have to rely on magic numbers
-		newFilename.Copy(fileName);
+		newFilename.Format(_L("%u"), info->Uid());
 		}
 			
 	relPath.Append(newFilename);
