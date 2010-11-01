@@ -214,7 +214,9 @@ void CPodcastListContainer::SetListboxTextArrays(CDesCArray* aPortraitArray, CDe
 
 CPodcastListContainer::~CPodcastListContainer()
 {
-	delete iListbox;
+	iListboxLandscape->ItemDrawer()->ColumnData()->SetIconArray(NULL);
+	delete iListboxPortrait;
+	delete iListboxLandscape;
 	delete iBgContext;
 }
 
