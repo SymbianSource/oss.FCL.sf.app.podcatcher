@@ -101,6 +101,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 
 		// from MImageHandlerCallback
 		void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel);
+		void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);
 	private:
 		void FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aIsUpdating = EFalse);
 		void HandleAddFeedL();
@@ -114,6 +115,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 		void GetFeedErrorText(TDes &aErrorMessage, TInt aErrorCode);
 		void OpmlParsingCompleteL(TInt aError, TUint aNumFeedsImported);
 		void LoadIcons();
+		void DisplayFeedInfoDialogL();
 	private:
 		CPodcastModel& iPodcastModel;		
 		TUint iFeedUpdating;

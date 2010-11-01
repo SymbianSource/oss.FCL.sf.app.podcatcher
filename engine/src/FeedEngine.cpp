@@ -982,7 +982,7 @@ void CFeedEngine::DBLoadFeedsL()
 			
 			const void *linkz = sqlite3_column_text16(st, 5);
 			TPtrC16 link((const TUint16*)linkz);
-			feedInfo->SetDescriptionL(link);
+			feedInfo->SetLinkL(link);
 					
 			sqlite3_int64 built = sqlite3_column_int64(st, 6);
 			TTime buildtime(built);
@@ -1056,11 +1056,11 @@ CFeedInfo* CFeedEngine::DBGetFeedInfoByUidL(TUint aFeedUid)
 
 			const void *imagefilez = sqlite3_column_text16(st, 4);
 			TPtrC16 imagefile((const TUint16*)imagefilez);
-			feedInfo->SetDescriptionL(imagefile);
+			feedInfo->SetImageFileNameL(imagefile, &iPodcastModel);
 			
 			const void *linkz = sqlite3_column_text16(st, 5);
 			TPtrC16 link((const TUint16*)linkz);
-			feedInfo->SetDescriptionL(link);
+			feedInfo->SetLinkL(link);
 					
 			sqlite3_int64 built = sqlite3_column_int64(st, 6);
 			TTime buildtime(built);

@@ -33,6 +33,7 @@
 #include <pathinfo.h> 
 #include <akncommondialogsdynmem.h> 
 #include "Podcatcher.pan"
+#include <aknmessagequerydialog.h>
 
 const TInt KMaxFeedNameLength = 100;
 const TInt KMaxUnplayedFeedsLength =64;
@@ -235,6 +236,7 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
 			sortedItems = &iPodcastModel.FeedEngine().GetSortedFeeds();
 
+			DP1("Desc: %S",&((*sortedItems)[index]->Description().Left(30)));
 			if(index >= 0 && index < sortedItems->Count())
 				{
 				iPodcastModel.SetActiveFeedInfo((*sortedItems)[index]);			
@@ -558,6 +560,9 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 				iPodcastModel.FeedEngine().CancelUpdateAllFeeds();
 				}
 			}break;
+		case EPodcastShowInfo:
+			DisplayFeedInfoDialogL();
+			break;
 		default:
 			CPodcastListView::HandleCommandL(aCommand);
 			break;
@@ -566,6 +571,40 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 	UpdateToolbar();
 	DP("CPodcastFeedView::HandleCommandL END");
 	}
+
+void CPodcastFeedView::DisplayFeedInfoDialogL()
+	{
+	const RFeedInfoArray* sortedItems = NULL;
+	TInt index = iListContainer->Listbox()->CurrentItemIndex();
+	sortedItems = &iPodcastModel.FeedEngine().GetSortedFeeds();
+
+	if(index >= 0 && index < sortedItems->Count())
+		{
+		CFeedInfo *info = (*sortedItems)[index];
+		HBufC* description = info->Description().AllocL();
+		HBufC* title = info->Title().AllocL();
+		CAknMessageQueryDialog* note = new ( ELeave ) CAknMessageQueryDialog( description, title );
+							
+		note->PrepareLC( R_SHOW_INFO_NOTE ); // Adds to CleanupStack
+		note->RunLD();
+		}
+	}
+
+void CPodcastFeedView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane)
+{
+	if(aResourceId == R_PODCAST_FEEDVIEW_MENU)
+		{
+		const RFeedInfoArray* sortedItems = NULL;
+		TInt index = iListContainer->Listbox()->CurrentItemIndex();
+		sortedItems = &iPodcastModel.FeedEngine().GetSortedFeeds();
+
+		if(index >= 0 && index < sortedItems->Count())
+			{
+			CFeedInfo *info = (*sortedItems)[index];
+			aMenuPane->SetItemDimmed(EPodcastShowInfo, !info->Description().Length());
+			}
+		}
+}
 
 void CPodcastFeedView::UpdateToolbar(TBool aVisible)
 {
