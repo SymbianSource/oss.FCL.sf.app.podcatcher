@@ -48,9 +48,11 @@ EXPORT_C CShowEngine::~CShowEngine()
 	delete iShowDownloading;
 	delete iMetaDataReader;
 	iApaSession.Close();
-#ifdef ENABLE_MPX_INTEGRATION  	
+#ifdef ENABLE_MPX_INTEGRATION
 	if (iCollectionHelper)
-		delete iCollectionHelper;
+		{
+		iCollectionHelper->Close();
+		}
 #endif
 	}
 
