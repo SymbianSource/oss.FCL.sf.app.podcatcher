@@ -264,13 +264,17 @@ EXPORT_C void CShowEngine::RemoveObserver(MShowEngineObserver *observer)
 
 void CShowEngine::AddShowToMpxCollection(CShowInfo &aShowInfo)
 	{
+	DP("CShowEngine::AddShowToMpxCollection BEGIN");
 #ifdef ENABLE_MPX_INTEGRATION
 	if (!iCollectionHelper)
 		iCollectionHelper = CMPXCollectionHelperFactory::NewCollectionHelperL();
 	
 	// if this leaves, not much we can do anyway
-	TRAP_IGNORE(iCollectionHelper->AddL(aShowInfo.FileName(), this));
+	DP("    MPX integration enabled, adding show to collection");
+	TRAPD(err, iCollectionHelper->AddL(aShowInfo.FileName(), this));
+	DP1("    AddL returned %d", err);
 #endif
+	DP("CShowEngine::AddShowToMpxCollection END");
 	}
 
 void CShowEngine::CompleteL(CHttpClient* /*aHttpClient*/, TInt aError)
