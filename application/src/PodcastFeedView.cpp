@@ -158,7 +158,7 @@ void CPodcastFeedView::UpdateItemL(TInt aIndex)
 	//iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(aIndex, itemProps);
 	// If item is visible, redraw it
 	if (iListContainer->Listbox()->TopItemIndex() <= aIndex
-			&& iListContainer->Listbox()->BottomItemIndex() > aIndex)
+			&& iListContainer->Listbox()->BottomItemIndex() >= aIndex)
 		{
 		iListContainer->Listbox()->DrawItem(aIndex);
 		}
