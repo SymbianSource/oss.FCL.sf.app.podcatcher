@@ -100,7 +100,7 @@ protected:
 	void GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex);
 	void CreateIconsL();
 
-private:
+protected:
 	void DisplayShowInfoDialogL();
 	void HandleSetShowPlayedL(TBool aPlayed);
 	void HandleDeleteShowL();
@@ -109,7 +109,7 @@ private:
 	void HandleDeleteShow();
 	void UpdateViewTitleL();
 	void GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode);
-	
+
 protected:
 	
 	CPodcastModel& iPodcastModel;

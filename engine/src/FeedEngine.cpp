@@ -101,6 +101,7 @@ CFeedEngine::CFeedEngine(CPodcastModel& aPodcastModel)
 
 CFeedEngine::~CFeedEngine()
 	{
+	DP("~CFeedEngine BEGIN");
 	iObservers.Close();
 	
 	iFeedsUpdating.Close();
@@ -112,6 +113,7 @@ CFeedEngine::~CFeedEngine()
 	delete iOpmlParser;
 	//
 	delete iRepository;
+	DP("~CFeedEngine END");
 	}
 
 /**
@@ -173,7 +175,7 @@ EXPORT_C void CFeedEngine::UpdateAllFeedsL(TBool aAutoUpdate)
 	    }
 	//
 	iAutoUpdatedInitiator = aAutoUpdate;
-	if ((iFeedsUpdating.Count() > 0) || (isOfflineProfile && aAutoUpdate))
+	if ((iFeedsUpdating.Count() > 0) || (isOfflineProfile && aAutoUpdate)) 
 		{
 		DP("Cancelling update");
 		iFeedClient->Stop();
@@ -299,7 +301,7 @@ EXPORT_C TBool CFeedEngine::UpdateFeedL(TUint aFeedUid)
 
 void CFeedEngine::NewShowL(CShowInfo& aItem)
 	{
-	DP1("NewShowL, aItem.Title()=%S", &aItem.Title());
+	DP1("CFeedEngine::NewShowL BEGIN, aItem.Title()=%S", &aItem.Title());
 	HBufC* description = HBufC::NewLC(KMaxDescriptionLength);
 	TPtr ptr(description->Des());
 	ptr.Copy(aItem.Description());
@@ -326,6 +328,7 @@ void CFeedEngine::NewShowL(CShowInfo& aItem)
 		}
 	
 	showsAdded++;
+	DP("CFeedEngine::NewShowL END");
 	}
 
 void CFeedEngine::GetFeedImageL(CFeedInfo *aFeedInfo)
@@ -342,6 +345,11 @@ void CFeedEngine::GetFeedImageL(CFeedInfo *aFeedInfo)
 
 	TFileName fileName;
 	PodcastUtils::FileNameFromUrl(aFeedInfo->ImageUrl(), fileName);
+	fileName.Trim();
+	
+	if (fileName.Length() == 0)
+		User::Leave(KErrNotFound);
+	
 	relPath.Append(fileName);
 	PodcastUtils::EnsureProperPathName(relPath);
 	
@@ -982,7 +990,7 @@ void CFeedEngine::DBLoadFeedsL()
 			
 			const void *linkz = sqlite3_column_text16(st, 5);
 			TPtrC16 link((const TUint16*)linkz);
-			feedInfo->SetDescriptionL(link);
+			feedInfo->SetLinkL(link);
 					
 			sqlite3_int64 built = sqlite3_column_int64(st, 6);
 			TTime buildtime(built);
@@ -1056,11 +1064,11 @@ CFeedInfo* CFeedEngine::DBGetFeedInfoByUidL(TUint aFeedUid)
 
 			const void *imagefilez = sqlite3_column_text16(st, 4);
 			TPtrC16 imagefile((const TUint16*)imagefilez);
-			feedInfo->SetDescriptionL(imagefile);
+			feedInfo->SetImageFileNameL(imagefile, &iPodcastModel);
 			
 			const void *linkz = sqlite3_column_text16(st, 5);
 			TPtrC16 link((const TUint16*)linkz);
-			feedInfo->SetDescriptionL(link);
+			feedInfo->SetLinkL(link);
 					
 			sqlite3_int64 built = sqlite3_column_int64(st, 6);
 			TTime buildtime(built);

@@ -24,7 +24,8 @@ enum TPodcatcherPanics
     EPodcatcherPanicDB = 1,
     EPodcatcherPanicAlreadyActive,
     EPodcatcherPanicFeedEngineState,
-    EPodcatcherPanicFeedView
+    EPodcatcherPanicFeedView,
+    EPodcatcherDownloadDrive
     };
 
 

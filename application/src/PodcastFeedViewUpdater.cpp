@@ -73,6 +73,7 @@ void CPodcastFeedViewUpdater::RunL()
 	else
 		{
 		StopUpdate();
+		iPodcastFeedView.UpdateItemsComplete();
 		}
 	}
 

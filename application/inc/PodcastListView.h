@@ -35,13 +35,10 @@ class CAknDoubleLargeStyleListBox;
 class CEikFormattedCellListBox;
 
 
-class MKeyEventListener {
+class MContainerListener {
 public:
 virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType) = 0;
-};
-
-class MPointerListener {
-public:
+virtual void SizeChanged() = 0;
 virtual void PointerEventL(const TPointerEvent& aPointerEvent) = 0;
 };
 
@@ -56,41 +53,46 @@ class CPodcastListContainer : public CCoeControl
         CCoeControl* ComponentControl( TInt aIndex ) const;
 		void HandleResourceChange(TInt aType);
 		virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
-		void SetKeyEventListener(MKeyEventListener *aKeyEventListener);
-		void SetPointerListener(MPointerListener *aPointerListener);
-		
-		CEikFormattedCellListBox* Listbox();
+		void SetContainerListener(MContainerListener *aContainerListener);
+		void SetListboxObserver(MEikListBoxObserver *aObserver);
+		CEikColumnListBox* Listbox();
+		void SetListboxIcons(CArrayPtr< CGulIcon >* aIcons);
+		CArrayPtr<CGulIcon>* ListboxIcons();
+		void SetListboxTextArrays(CDesCArray* aPortraitArray, CDesCArray* aLandscapeArray);
+		void SetEmptyText(const TDesC &aText);
 		void ScrollToVisible();
     	void Draw(const TRect& aRect) const;
     	
     	void SetLongTapDetectedL(TBool aLongTapDetected);
-
-    	CEikFormattedCellListBox * iListbox;		
 
 	protected:
 		TTypeUid::Ptr MopSupplyObject( TTypeUid aId );
 		virtual void HandlePointerEventL(const TPointerEvent& aPointerEvent);
 
 	private:
-		MKeyEventListener* iKeyEventListener;
-		MPointerListener* iPointerListener;
+       	CAknSingleLargeStyleListBox * iListboxLandscape;
+        CAknDoubleLargeStyleListBox * iListboxPortrait;
+		MContainerListener* iContainerListener;
         CAknsBasicBackgroundControlContext* iBgContext;
-		 TBool iLongTapDetected;
+		TBool iLongTapDetected;
+        CEikColumnListBox * iListbox;
+        TBool iLandscape;
 
 	};
 
 
 class CPodcastListView : public CAknView, public MAknToolbarObserver,
-public MPointerListener, public MAknLongTapDetectorCallBack, 
-public MProgressDialogCallback, public MKeyEventListener
+public MAknLongTapDetectorCallBack, public MEikListBoxObserver,
+public MProgressDialogCallback, public MContainerListener
     {
     public: 
         ~CPodcastListView();
 		virtual void UpdateToolbar(TBool aVisible=ETrue) = 0;
 		TBool IsVisible();
-		
+
 	protected:
-	    void ConstructL();
+    	void SwitchListbox();
+    	void ConstructL();
 		CPodcastListView();	
 
 		/** 
@@ -125,7 +127,7 @@ public MProgressDialogCallback, public MKeyEventListener
 		* Default implementation is empty.  
 		* @param aCommand ID of the command to respond to. 
 		*/
-		void HandleCommandL(TInt aCommand);
+		virtual void HandleCommandL(TInt aCommand);
 
 		void OfferToolbarEventL(TInt aCommand);
 		void DynInitToolbarL (TInt aResourceId, CAknToolbar *aToolbar);
@@ -149,6 +151,8 @@ public MProgressDialogCallback, public MKeyEventListener
 
 		// from MKeyEventListener
 		virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
+		virtual void SizeChanged() {};
+		void ResetContainer();
 
 		// from MPointerListener
 		void PointerEventL(const TPointerEvent& aPointerEvent);
@@ -162,9 +166,11 @@ public MProgressDialogCallback, public MKeyEventListener
 		 TInt iListboxFlags;
 		 
 		 CDesCArray* iItemArray;
+		 CDesCArray* iItemArrayShort;
 		 RArray<TUint> iItemIdArray;
-		 
+		 		 
 		 TBuf<1024> iListboxFormatbuffer;
+		 TBuf<1024> iListboxFormatbufferShort;
 		 
 		 CAknToolbar *iToolbar;
 		 CAknStylusPopUpMenu* iStylusPopupMenu;

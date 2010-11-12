@@ -26,6 +26,7 @@
 #include <caknfileselectiondialog.h> 
 #include <podcast.rsg>
 #include <podcast.mbg>
+#include <akntitle.h>
 #include <gulicon.h>
 #include <eikenv.h>
 #include <e32const.h>
@@ -42,6 +43,7 @@ const TInt KMaxFeedNameLength = 100;
 #define KMaxMessageLength 200
 #define KMaxTitleLength 100
 _LIT(KSearchResultFormat, "%d\t%S\t%S");
+_LIT(KSearchResultFormatLandscape, "%d\t%S");
 
 CPodcastSearchView* CPodcastSearchView::NewL(CPodcastModel& aPodcastModel)
     {
@@ -83,10 +85,8 @@ void CPodcastSearchView::ConstructL()
 	icons->AppendL( CGulIcon::NewL( bitmap, mask ) );
 	CleanupStack::Pop(2); // bitmap, mask
 	
-	iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL( icons );
+	iListContainer->SetListboxIcons(icons);
 	CleanupStack::Pop(icons); // icons
-
-	iListContainer->Listbox()->SetListBoxObserver(this);
 	
 	SetEmptyTextL(R_PODCAST_EMPTY_SEARCH);
 }
@@ -114,16 +114,25 @@ void CPodcastSearchView::DoActivateL(const TVwsViewId& aPrevViewId,
 {
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
 	iPreviousView = TVwsViewId(KUidPodcast, KUidPodcastFeedViewID);
+		
+	HBufC* text =  iEikonEnv->AllocReadResourceLC(R_SEARCH_RESULTS);
+	 
+	CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
+		  ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
 	
-    ((CPodcastAppUi*)AppUi())->NaviSetTextL(R_SEARCH_RESULTS);
-    
+	titlePane->SetTextL(*text , ETrue );
+	CleanupStack::PopAndDestroy(text);
 	UpdateListboxItemsL();
 }
 
 void CPodcastSearchView::DoDeactivate()
 {
 	CPodcastListView::DoDeactivate();
-	TRAP_IGNORE(((CPodcastAppUi*)AppUi())->NaviShowTabGroupL());
+	
+	CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
+			  ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
+		
+	titlePane->SetTextToDefaultL();
 }
 
 
@@ -157,7 +166,7 @@ void CPodcastSearchView::UpdateListboxItemsL()
 	TInt len = searchItems->Count();
 	TListItemProperties itemProps;
 	iListContainer->Listbox()->Reset();
-	iListContainer->Listbox()->ItemDrawer()->ClearAllPropertiesL();
+	//iListContainer->Listbox()->ItemDrawer()->ClearAllPropertiesL();
 	iItemIdArray.Reset();
 	iItemArray->Reset();
 		
@@ -174,7 +183,9 @@ void CPodcastSearchView::UpdateListboxItemsL()
 			PodcastUtils::RemoveAllFormatting(descr);
 			iListboxFormatbuffer.Format(KSearchResultFormat(), iconIndex, &fi->Title(), &descr);
 			iItemArray->AppendL(iListboxFormatbuffer);
-			iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(i, itemProps);
+			iListboxFormatbufferShort.Format(KSearchResultFormatLandscape(), iconIndex, &fi->Title());
+			iItemArrayShort->AppendL(iListboxFormatbufferShort);
+			//iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(i, itemProps);
 			}
 		} 
 	else 
@@ -182,12 +193,13 @@ void CPodcastSearchView::UpdateListboxItemsL()
 		TBuf<KMaxFeedNameLength> itemName;
 		iEikonEnv->ReadResourceL(itemName, R_PODCAST_NO_SEARCH_RESULTS);
 		iItemArray->Reset();
+		iItemArrayShort->Reset();
 		iItemIdArray.Reset();
 
 		TListItemProperties itemProps;
 		itemProps.SetDimmed(ETrue);
 		itemProps.SetHiddenSelection(ETrue);								
-		iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(0, itemProps);
+		//iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(0, itemProps);
 		}
 	iListContainer->Listbox()->HandleItemAdditionL();
 	DP("CPodcastSearchView::UpdateListboxItemsL END");
@@ -221,18 +233,12 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 					TBool added = iPodcastModel.FeedEngine().AddFeedL(*newInfo);
 					
 					if (added)
-						{					
-						// ask if user wants to update it now
-						TBuf<KMaxMessageLength> message;
-						iEikonEnv->ReadResourceL(message, R_ADD_FEED_SUCCESS);
-						if(ShowQueryMessageL(message))
-							{
-							CFeedInfo *info = iPodcastModel.FeedEngine().GetFeedInfoByUid(newInfo->Uid());
-							
-							iPodcastModel.SetActiveFeedInfo(info);			
-							AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
-							iPodcastModel.FeedEngine().UpdateFeedL(info->Uid());
-							}
+						{
+						// this is a bit of a hack, first we activate the feeds view normally
+						AppUi()->ActivateLocalViewL(KUidPodcastFeedViewID,  TUid::Uid(0), KNullDesC8);
+						// and then we send the UID of the recently added feed back to feed view for updating
+						// this is needed so the update? query comes on top of feed view, not search view
+						AppUi()->ActivateLocalViewL(KUidPodcastFeedViewID,  TUid::Uid(newInfo->Uid()), KNullDesC8);
 						}
 					else
 						{

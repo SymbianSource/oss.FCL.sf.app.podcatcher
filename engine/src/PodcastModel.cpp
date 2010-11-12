@@ -16,9 +16,6 @@
 *
 */
 
-// when enabled this macro copies the database to c:\data on launch for debug purposes
-//#define COPY_DB
-
 #include <commdb.h>
 #include "PodcastModel.h"
 #include "FeedEngine.h"
@@ -318,7 +315,14 @@ void CPodcastModel::ResetDB()
 	dbTemplate.Copy(iSettingsEngine->PrivatePath());
 	dbTemplate.Append(KDBTemplateFileName);
 
+	DP1("Copy template DB from: %S", &dbTemplate);
+	DP1("Copy template DB to: %S", &dbFileName);
+	
 	BaflUtils::CopyFile(iFsSession, dbTemplate,dbFileName);
+	
+	// important to set this file to not be read only if copying from Z:
+	iFsSession.SetAtt(dbFileName, 0, KEntryAttReadOnly); 
+	
 	iIsFirstStartup = ETrue;
 	DP("CPodcastModel::ResetDB END");
 	}

@@ -257,6 +257,11 @@ RESOURCE STYLUS_POPUP_MENU r_feedview_popup_menu
 		{
 			STYLUS_POPUP_MENU_ITEM
 				{
+					txt = STRING_r_view_show_info_cmd;
+					command = EPodcastShowInfo;
+				},
+			STYLUS_POPUP_MENU_ITEM
+				{
 					txt = STRING_r_view_edit_feed_cmd_short;
 					command = EPodcastEditFeed; 
 				},

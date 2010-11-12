@@ -39,11 +39,13 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
         static CPodcastFeedView* NewLC(CPodcastModel& aPodcastModel);
         ~CPodcastFeedView();
         void UpdateItemL(TInt aIndex);
+        void UpdateItemsComplete();
 		void CheckResumeDownloadL();
 		void UpdateToolbar(TBool aVisible=ETrue);
 		TBool ViewingShows();
 
  	   void CheckConfirmExit();
+ 	   void ShowItem(TUint aUid);
 
 	protected:
 	    void ConstructL();
@@ -114,10 +116,11 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 		void HandleUpdateFeedL();
 		void GetFeedErrorText(TDes &aErrorMessage, TInt aErrorCode);
 		void OpmlParsingCompleteL(TInt aError, TUint aNumFeedsImported);
-		
+		void LoadIcons();
+		void DisplayFeedInfoDialogL();
 	private:
 		CPodcastModel& iPodcastModel;		
-		TBool iUpdatingRunning;
+		TUint iFeedUpdating;
 		HBufC* iFeedsFormat;
 		HBufC* iNeverUpdated;
 		CPodcastFeedViewUpdater* iUpdater;
@@ -125,6 +128,7 @@ class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver,
 		TOpmlState iOpmlState;
 		TBool iViewingShows;
 		RArray<TInt> iFeedIdForIconArray;
+		TBool iListingFirstTime;
 };
 
 #endif // PODCASTFEEDVIEWH

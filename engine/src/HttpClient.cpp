@@ -121,23 +121,17 @@ void CHttpClient::ConnectCompleteL(TInt aErrorCode)
 		iWaitingForGet = EFalse;
 		if( aErrorCode == KErrNone)
 			{
-			TRAP_IGNORE(iSession.OpenL());
-			DP("    one");
+			//TRAP_IGNORE(iSession.OpenL());
 			RHTTPConnectionInfo connInfo = iSession.ConnectionInfo();
-			DP("    one point five");
 			RStringPool pool = iSession.StringPool();
 			// Attach to socket server
-			DP("    two");
 			connInfo.SetPropertyL(pool.StringF(HTTP::EHttpSocketServ, RHTTPSession::GetTable()), THTTPHdrVal(iPodcastModel.ConnectionEngine().SockServ().Handle()));
 			// Attach to connection
-			DP("    three");
 			TInt connPtr = REINTERPRET_CAST(TInt, &iPodcastModel.ConnectionEngine().Connection());
 			connInfo.SetPropertyL(pool.StringF(HTTP::EHttpSocketConnection, RHTTPSession::GetTable()), THTTPHdrVal(connPtr));
-			DP("    four");
 
 			iPodcastModel.SetProxyUsageIfNeededL(iSession);
 			DoGetAfterConnectL();
-			//iWaitingForGet = EFalse; // set to true by DoGetAfterConnectL
 			}
 		else
 			{
@@ -205,6 +199,7 @@ void  CHttpClient::DoGetAfterConnectL()
 
 TBool CHttpClient::GetL(const TDesC& aUrl, const TDesC& aFileName,  TBool aSilent) {
 	DP("CHttpClient::Get START");
+	DP2("Getting '%S' to '%S'", &aUrl, &aFileName);
 	
 	if (iIsActive)
 		{
@@ -271,7 +266,7 @@ void CHttpClient::Stop()
 	}
 
 void CHttpClient::ClientRequestCompleteL(TInt aErrorCode) {
-	DP1("CHttpClient::ClientRequestCompleteL, aErrorCode=%d", aErrorCode);
+	DP1("CHttpClient::ClientRequestCompleteL BEGIN, aErrorCode=%d", aErrorCode);
 	iIsActive = EFalse;
 	iObserver.CompleteL(this, aErrorCode);
 	DP1("    iTransactionCount=%d", iTransactionCount);
@@ -287,4 +282,5 @@ void CHttpClient::ClientRequestCompleteL(TInt aErrorCode) {
 			iSession.Close();
 			}
 		}
+	DP("CHttpClient::ClientRequestCompleteL END");
 }
