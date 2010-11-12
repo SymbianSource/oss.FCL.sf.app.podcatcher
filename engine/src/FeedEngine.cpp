@@ -101,6 +101,7 @@ CFeedEngine::CFeedEngine(CPodcastModel& aPodcastModel)
 
 CFeedEngine::~CFeedEngine()
 	{
+	DP("~CFeedEngine BEGIN");
 	iObservers.Close();
 	
 	iFeedsUpdating.Close();
@@ -112,6 +113,7 @@ CFeedEngine::~CFeedEngine()
 	delete iOpmlParser;
 	//
 	delete iRepository;
+	DP("~CFeedEngine END");
 	}
 
 /**
@@ -299,7 +301,7 @@ EXPORT_C TBool CFeedEngine::UpdateFeedL(TUint aFeedUid)
 
 void CFeedEngine::NewShowL(CShowInfo& aItem)
 	{
-	DP1("NewShowL, aItem.Title()=%S", &aItem.Title());
+	DP1("CFeedEngine::NewShowL BEGIN, aItem.Title()=%S", &aItem.Title());
 	HBufC* description = HBufC::NewLC(KMaxDescriptionLength);
 	TPtr ptr(description->Des());
 	ptr.Copy(aItem.Description());
@@ -326,6 +328,7 @@ void CFeedEngine::NewShowL(CShowInfo& aItem)
 		}
 	
 	showsAdded++;
+	DP("CFeedEngine::NewShowL END");
 	}
 
 void CFeedEngine::GetFeedImageL(CFeedInfo *aFeedInfo)
@@ -342,6 +345,11 @@ void CFeedEngine::GetFeedImageL(CFeedInfo *aFeedInfo)
 
 	TFileName fileName;
 	PodcastUtils::FileNameFromUrl(aFeedInfo->ImageUrl(), fileName);
+	fileName.Trim();
+	
+	if (fileName.Length() == 0)
+		User::Leave(KErrNotFound);
+	
 	relPath.Append(fileName);
 	PodcastUtils::EnsureProperPathName(relPath);
 	
@@ -668,6 +676,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 				// now the image has been downloaded, so we set it again in the FeedInfo to start
 				// converting it
 				HBufC *fileNameCopy = iActiveFeed->ImageFileName().AllocLC();
+				DP1("fnc=%S", fileNameCopy);
 				TRAP_IGNORE(iActiveFeed->SetImageFileNameL(*fileNameCopy, &iPodcastModel));
 				CleanupStack::PopAndDestroy(fileNameCopy);
 				}
