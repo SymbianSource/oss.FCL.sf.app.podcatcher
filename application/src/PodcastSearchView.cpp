@@ -26,6 +26,7 @@
 #include <caknfileselectiondialog.h> 
 #include <podcast.rsg>
 #include <podcast.mbg>
+#include <akntitle.h>
 #include <gulicon.h>
 #include <eikenv.h>
 #include <e32const.h>
@@ -82,10 +83,8 @@ void CPodcastSearchView::ConstructL()
 	icons->AppendL( CGulIcon::NewL( bitmap, mask ) );
 	CleanupStack::Pop(2); // bitmap, mask
 	
-	iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL( icons );
+	iListContainer->SetListboxIcons(icons);
 	CleanupStack::Pop(icons); // icons
-
-	iListContainer->Listbox()->SetListBoxObserver(this);
 	
 	SetEmptyTextL(R_PODCAST_EMPTY_SEARCH);
 }
@@ -106,16 +105,25 @@ void CPodcastSearchView::DoActivateL(const TVwsViewId& aPrevViewId,
 {
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
 	iPreviousView = TVwsViewId(KUidPodcast, KUidPodcastFeedViewID);
+		
+	HBufC* text =  iEikonEnv->AllocReadResourceLC(R_SEARCH_RESULTS);
+	 
+	CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
+		  ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
 	
-    ((CPodcastAppUi*)AppUi())->NaviSetTextL(R_SEARCH_RESULTS);
-    
+	titlePane->SetTextL(*text , ETrue );
+	CleanupStack::PopAndDestroy(text);
 	UpdateListboxItemsL();
 }
 
 void CPodcastSearchView::DoDeactivate()
 {
 	CPodcastListView::DoDeactivate();
-	TRAP_IGNORE(((CPodcastAppUi*)AppUi())->NaviShowTabGroupL());
+	
+	CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
+			  ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
+		
+	titlePane->SetTextToDefaultL();
 }
 
 
@@ -212,18 +220,12 @@ void CPodcastSearchView::HandleCommandL(TInt aCommand)
 					TBool added = iPodcastModel.FeedEngine().AddFeedL(*newInfo);
 					
 					if (added)
-						{					
-						// ask if user wants to update it now
-						TBuf<KMaxMessageLength> message;
-						iEikonEnv->ReadResourceL(message, R_ADD_FEED_SUCCESS);
-						if(ShowQueryMessageL(message))
-							{
-							CFeedInfo *info = iPodcastModel.FeedEngine().GetFeedInfoByUid(newInfo->Uid());
-							
-							iPodcastModel.SetActiveFeedInfo(info);			
-							AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
-							iPodcastModel.FeedEngine().UpdateFeedL(info->Uid());
-							}
+						{
+						// this is a bit of a hack, first we activate the feeds view normally
+						AppUi()->ActivateLocalViewL(KUidPodcastFeedViewID,  TUid::Uid(0), KNullDesC8);
+						// and then we send the UID of the recently added feed back to feed view for updating
+						// this is needed so the update? query comes on top of feed view, not search view
+						AppUi()->ActivateLocalViewL(KUidPodcastFeedViewID,  TUid::Uid(newInfo->Uid()), KNullDesC8);
 						}
 					else
 						{

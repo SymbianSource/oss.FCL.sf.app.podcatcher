@@ -105,14 +105,11 @@ CPodcastShowsView::CPodcastShowsView(CPodcastModel& aPodcastModel) :
 
 void CPodcastShowsView::ConstructL()
 	{
-	DP("CPodcastShowsView::ConstructL BEGIN");
 	BaseConstructL(R_PODCAST_SHOWSVIEW);
 	CPodcastListView::ConstructL();
 	
 	CreateIconsL();
-	
-	iListContainer->Listbox()->SetListBoxObserver(this);
-	
+		
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);
 	
@@ -143,7 +140,8 @@ void CPodcastShowsView::CreateIconsL()
 		pos+=2;
 		}
 		
-	iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL(icons);
+	//iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL(icons);
+	iListContainer->SetListboxIcons(icons);
 	CleanupStack::Pop(icons); // icons
 	}
 
@@ -173,7 +171,9 @@ TKeyResponse CPodcastShowsView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEvent
 				break;
 			case 106:
 			case '#':
-				HandleCommandL(EPodcastShowInfo);
+				if (activeShow->DownloadState() == ENotDownloaded) {
+					HandleCommandL(EPodcastDownloadShow);
+				}
 				break;
 			case EKeyBackspace:
 			case EKeyDelete:
@@ -486,6 +486,7 @@ void CPodcastShowsView::UpdateShowItemL(TUint aUid, TInt aSizeDownloaded)
 
 void CPodcastShowsView::UpdateListboxItemsL()
 	{
+	DP("CPodcastShowsView::UpdateListboxItemsL BEGIN");
 	if (iListContainer->IsVisible())
 		{
 		TListItemProperties itemProps;
@@ -552,6 +553,7 @@ void CPodcastShowsView::UpdateListboxItemsL()
 				}				
 			}
 		}
+	DP("CPodcastShowsView::UpdateListboxItemsL END");
 	}
 
 /** 

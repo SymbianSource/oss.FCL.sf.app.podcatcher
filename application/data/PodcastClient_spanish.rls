@@ -1,3 +1,4 @@
+CHARACTER_SET UTF8
 /*
  * Copyright (c) 2007-2010 Sebastian Brannstrom, Lars Persson, EmbedDev AB
  *
@@ -30,7 +31,7 @@ rls_string STRING_r_view_export_feeds_cmd "Exporta fuentes"
 
 // CBA buttons
 rls_string STRING_r_cba_options "Opciones"
-rls_string STRING_r_cba_hide "Occultar"
+rls_string STRING_r_cba_hide "Ocultar"
 rls_string STRING_r_cba_cancel "Cancelar"
 
 // Tab titles
@@ -39,22 +40,22 @@ rls_string STRING_r_tabgroup_queue "Cola"
 rls_string STRING_r_tabgroup_queue_counter "(%d) Cola"
 
 // Question dialogs
-rls_string STRING_r_add_feed_prompt "Introduzca términos de búsqueda o dirección de la fuente"
-rls_string STRING_r_edit_feed_prompt "Dirección de la fuente"
-rls_string STRING_r_add_feed_title_prompt "Título de la fuente"
-rls_string STRING_r_remove_feed_prompt "¿Borrar fuente '%S'?"
-rls_string STRING_r_enable_downloads_prompt "Hay capítulos en la cola de descarga. ¿Quieres descargarlos ahora?"
-rls_string STRING_r_update_new_feed_prompt "¿Quieres actualizar la fuente ahora?"
-rls_string STRING_r_delete_show_prompt "¿Borrar el capítulo '%S'?"
-rls_string STRING_r_podcast_connection_error "Fallo de conexión. Compruebe que la configuración de red es correcta."
-rls_string STRING_r_exit_shows_downloading "Hay capítulos descargando. ¿Quiere salir?"
+rls_string STRING_r_add_feed_prompt "Introduzca tÃ©rminos de bÃºsqueda o direcciÃ³n de la fuente"
+rls_string STRING_r_edit_feed_prompt "DirecciÃ³n de la fuente"
+rls_string STRING_r_add_feed_title_prompt "TÃ­tulo de la fuente"
+rls_string STRING_r_remove_feed_prompt "Â¿Borrar fuente '%S'?"
+rls_string STRING_r_enable_downloads_prompt "Hay capÃ­tulos en la cola de descarga. Â¿Quieres descargarlos ahora?"
+rls_string STRING_r_update_new_feed_prompt "Â¿Quieres actualizar la fuente ahora?"
+rls_string STRING_r_delete_show_prompt "Â¿Borrar el capÃ­tulo '%S'?"
+rls_string STRING_r_podcast_connection_error "Fallo de conexiÃ³n. Compruebe que la configuraciÃ³n de red es correcta."
+rls_string STRING_r_exit_shows_downloading "Hay capÃ­tulos descargando. Â¿Quiere salir?"
 
 // Settings view
-rls_string STRING_r_podcast_settings_title "Configuración"
+rls_string STRING_r_podcast_settings_title "ConfiguraciÃ³n"
 rls_string STRING_r_podcast_setting_showdir "Carpeta de Podcast"
-rls_string STRING_r_podcast_setting_autoupdate "Actualización automática"
-rls_string STRING_r_podcast_setting_autodownload "Descarga automática"
-rls_string STRING_r_podcast_setting_connection "Conexión"
+rls_string STRING_r_podcast_setting_autoupdate "ActualizaciÃ³n automÃ¡tica"
+rls_string STRING_r_podcast_setting_autodownload "Descarga automÃ¡tica"
+rls_string STRING_r_podcast_setting_connection "ConexiÃ³n"
 rls_string STRING_r_podcast_setting_default "Usar predeterminada"
 rls_string STRING_r_podcast_setting_alwaysask "Preguntar siempre"
 rls_string STRING_r_podcast_setting_useiap "Seleccion el punto de acceso"
@@ -64,46 +65,46 @@ rls_string STRING_r_podcast_select_folder "Selecciona carpeta"
 rls_string STRING_r_on "Activar"
 rls_string STRING_r_off "Desactivar"
 rls_string STRING_r_podcast_setting_reset_db "Reiniciar libreria"
-rls_string STRING_r_podcast_setting_reset_db_query "¿Reiniciar Libreria? Toda la información será borrada!"
+rls_string STRING_r_podcast_setting_reset_db_query "Â¿Reiniciar Libreria? Toda la informaciÃ³n serÃ¡ borrada!"
 
 
 
 // Choicelist for autodownload
 rls_string STRING_podcast_autoupdate_option1 "Desactivado"
 rls_string STRING_podcast_autoupdate_option2 "Cada hora"
-rls_string STRING_podcast_autoupdate_option3 "Cuatro veces al día"
-rls_string STRING_podcast_autoupdate_option4 "Dos veces al día"
-rls_string STRING_podcast_autoupdate_option5 "Cada día"
+rls_string STRING_podcast_autoupdate_option3 "Cuatro veces al dÃ­a"
+rls_string STRING_podcast_autoupdate_option4 "Dos veces al dÃ­a"
+rls_string STRING_podcast_autoupdate_option5 "Cada dÃ­a"
 
 // Feed import/export
 rls_string STRING_r_view_import_feeds_title "Seleccione el fichero OPML"
 rls_string STRING_r_enter_filename "Nombre de Fichero"
 rls_string STRING_r_view_export_feeds_title "Seleccione carpeta"
 rls_string STRING_r_view_export_feeds_softkey "Seleccionar"
-rls_string STRING_import_feed_success "%d fuentes importadas. ¿Quiere actualizar todas las fuentes ahora?"
-rls_string STRING_import_feed_failure "Improtación de fuente fallida"
+rls_string STRING_import_feed_success "%d fuentes importadas. Â¿Quiere actualizar todas las fuentes ahora?"
+rls_string STRING_import_feed_failure "ImprotaciÃ³n de fuente fallida"
 rls_string STRING_export_feed_success "%d fuentes exportadas"
-rls_string STRING_export_feed_failure "Exportación de fuente fallida"
+rls_string STRING_export_feed_failure "ExportaciÃ³n de fuente fallida"
 rls_string STRING_r_importing "Importando"
 rls_string STRING_r_exporting "Exportando"
 
 // Listbox empty strings
 rls_string STRING_r_podcast_empty_queue "(cola vacia)"
-rls_string STRING_r_podcast_empty_list "(no hay capítulos)"
+rls_string STRING_r_podcast_empty_list "(no hay capÃ­tulos)"
 rls_string STRING_r_podcast_no_feeds "(no hay fuentes)"
 rls_string STRING_r_podcast_empty_search "(no hay resultados)"
 rls_string STRING_r_podcast_empty_list_updating "(actualizando...)"
 
 // Feed view
 
-rls_string STRING_r_add_feed_title "Añadir fuente"
+rls_string STRING_r_add_feed_title "AÃ±adir fuente"
 rls_string STRING_r_edit_feed_title "Editar fuente"
-rls_string STRING_r_cancel_update_all_feeds_cmd "Cancelar actualización"
+rls_string STRING_r_cancel_update_all_feeds_cmd "Cancelar actualizaciÃ³n"
 rls_string STRING_r_cancel_update_all_feeds_short_cmd "Cancelar"
 rls_string STRING_r_podcast_feeds_status_format "%d nuevo(s)"
 rls_string STRING_r_podcast_shows_never_updated "Nunca fue actualizado"
-rls_string STRING_r_view_add_feed_cmd "Añadir fuente"
-rls_string STRING_r_view_add_feed_cmd_short "Añadir"
+rls_string STRING_r_view_add_feed_cmd "AÃ±adir fuente"
+rls_string STRING_r_view_add_feed_cmd_short "AÃ±adir"
 rls_string STRING_r_view_edit_feed_cmd "Editar fuente"
 rls_string STRING_r_view_edit_feed_cmd_short "Editar"
 rls_string STRING_r_view_delete_feed_cmd "Borrar fuente"
@@ -115,17 +116,17 @@ rls_string STRING_r_update_all_feeds_short_cmd "Actualizar"
 rls_string STRING_r_podcast_feeds_is_updating "Actualizando..."
 
 // Add/edit feed
-rls_string STRING_add_feed_query "¿Añadir fuente '%S'?"
-rls_string STRING_add_feed_success "Fuente añadida. Actualizar ahora?"
-rls_string STRING_add_feed_error "No pude añadir fuente"
-rls_string STRING_r_add_feed_replace "Todos los capítulos disponibles seran borrados! ¿Desea continuar?" // shown when changing an existing feed URL
-rls_string STRING_r_add_feed_exists "La dirección propuesta esta usada por otra fuente" // shown when adding or changing a feed to a URL that already exists
+rls_string STRING_add_feed_query "Â¿AÃ±adir fuente '%S'?"
+rls_string STRING_add_feed_success "Fuente aÃ±adida. Actualizar ahora?"
+rls_string STRING_add_feed_error "No pude aÃ±adir fuente"
+rls_string STRING_r_add_feed_replace "Todos los capÃ­tulos disponibles seran borrados! Â¿Desea continuar?" // shown when changing an existing feed URL
+rls_string STRING_r_add_feed_exists "La direcciÃ³n propuesta esta usada por otra fuente" // shown when adding or changing a feed to a URL that already exists
 
 // Feed searching
 
 rls_string STRING_r_search_noresults "No hay resultados"
 rls_string STRING_r_searching "Buscando"
-rls_string STRING_r_search_results "Resulstados de la búsqueda"
+rls_string STRING_r_search_results "Resulstados de la bÃºsqueda"
 
 // Show view
 
@@ -133,8 +134,8 @@ rls_string STRING_r_view_mark_as_played_cmd_short "Marcar leido (*)"
 rls_string STRING_r_view_mark_as_unplayed_cmd_short "Marcar nuevo (*)"
 rls_string STRING_r_view_download_show_cmd "Descargar"
 rls_string STRING_r_view_delete_show_cmd "Borrar"
-rls_string STRING_r_view_show_info_cmd "Información (#)"
-rls_string STRING_r_error_playback_failed "No se pudo reproducir el capítulo"
+rls_string STRING_r_view_show_info_cmd "InformaciÃ³n (#)"
+rls_string STRING_r_error_playback_failed "No se pudo reproducir el capÃ­tulo"
 
 // Download queue operations
 rls_string STRING_r_suspend_download_cmd "Suspender"
@@ -143,7 +144,7 @@ rls_string STRING_r_view_stop_downloads_cmd "Suspender la descarga"
 rls_string STRING_r_view_resume_downloads_cmd "Continuar la descarga"
 rls_string STRING_r_view_remove_all_downloads_cmd_short "Borrar"
 rls_string STRING_r_view_remove_all_downloads_cmd "Borrar la cola de descarga"
-rls_string STRING_r_clear_query "¿Quiere borrar la cola?"
+rls_string STRING_r_clear_query "Â¿Quiere borrar la cola?"
 rls_string STRING_r_view_remove_download_short_cmd "Borrar"
 rls_string STRING_r_view_remove_download_cmd "Borrar descarga"
 
@@ -151,12 +152,15 @@ rls_string STRING_r_view_move_up_short_cmd "Move up"
 rls_string STRING_r_view_move_down_short_cmd "Move down"
 
 rls_string STRING_r_error_notfound "Error: Servidor no fue hallado"
-rls_string STRING_r_error_invalid_address "Error: La conexión fallo"
+rls_string STRING_r_error_invalid_address "Error: La conexiÃ³n fallo"
 rls_string STRING_r_error_general "Error: Error general %d"
 rls_string STRING_r_error_http "Error: error HTTP %d"
 rls_string STRING_r_error_disk_full "Error: No espacio en el disco"
-
-rls_string STRING_r_view_feed_feed_menu "Manage feeds"
+rls_string STRING_r_add_url_or_search "Add feed"
+rls_string STRING_r_add_url "Enter URL"
+rls_string STRING_r_add_search "Search for feed"
+rls_string STRING_r_search_feed_prompt "Enter search terms:"
+rls_string STRING_r_view_feed_feed_menu "Administrar fuentes"
 rls_string STRING_r_view_shows_show_menu "Show"
 rls_string STRING_r_view_queue_show_menu "Queue"
 

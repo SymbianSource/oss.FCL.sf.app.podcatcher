@@ -61,8 +61,6 @@ void CPodcastQueueView::ConstructL()
 	CPodcastListView::ConstructL();
 
 	CreateIconsL();
-		
-	iListContainer->Listbox()->SetListBoxObserver(this);
 	
 	iPodcastModel.FeedEngine().AddObserver(this);
 	iPodcastModel.ShowEngine().AddObserver(this);
@@ -142,6 +140,7 @@ void CPodcastQueueView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 
 void CPodcastQueueView::UpdateListboxItemsL()
 	{
+	DP("CPodcastQueueView::UpdateListboxItemsL BEGIN");
 	if (iListContainer->IsVisible() && !iDontUpdateList)
 		{
 		TListItemProperties itemProps;
@@ -208,6 +207,7 @@ void CPodcastQueueView::UpdateListboxItemsL()
 				}				
 			}
 		}
+	DP("CPodcastQueueView::UpdateListboxItemsL END");
 	}
 
 /** 
@@ -312,6 +312,11 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			iPodcastModel.ShowEngine().ResumeDownloadsL();
 			iDontUpdateList = EFalse;
 			UpdateListboxItemsL();
+			}
+			break;
+		case EPodcastShowInfo:
+			{
+			DisplayShowInfoDialogL();
 			}
 			break;
 		default:

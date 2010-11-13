@@ -78,7 +78,6 @@ protected:
 
 private:
 	TBool iDontUpdateList;
-
 	};
 
 #endif

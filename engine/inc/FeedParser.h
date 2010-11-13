@@ -35,6 +35,7 @@ _LIT(KTagLength, "length");
 _LIT(KTagChannel, "channel");
 _LIT(KTagEnclosure, "enclosure");
 _LIT(KTagPubDate, "pubDate");
+_LIT(KTagGuid, "guid");
 _LIT(KTagLastBuildDate, "lastBuildDate");
 _LIT(KTagHref, "href");
 
@@ -52,7 +53,8 @@ enum TFeedState {
 	EStateItemLink,
 	EStateItemEnclosure,
 	EStateItemDescription,
-	EStateItemPubDate
+	EStateItemPubDate,
+	EStateItemGuid
 };
 
 enum TEncoding {
@@ -93,12 +95,13 @@ private:
 	CFeedInfo *iActiveFeed;
 
 	TBuf<KBufferLength> iBuffer;
-	
+	TUint iUid;
 	TUint iMaxItems;
 	TUint iItemsParsed;
 	TBool iStoppedParsing;
 	TEncoding iEncoding;
 	RFs& iRfs;
+	TInt iFileSize;
 };
 
 #endif

@@ -131,7 +131,7 @@ private:
 	TUint DBGetFeedCountL();
 	void DBUpdateFeedL(const CFeedInfo& aItem);
 	void DBGetStatsByFeedL(TUint aFeedUid, TUint &aNumShows, TUint &aNumUnplayed);
-
+	void DBEnsureFileSizeFieldExists();
 		
 private:
 	CHttpClient* iFeedClient;

@@ -73,18 +73,16 @@ EXPORT_C void PodcastUtils::CleanHtmlL(TDes &str)
 		{
 		return;
 		}
-	
-	DP("    miscellaneous");
 // miscellaneous cleanup
+	DP("    miscellaneous cleanup");
 	const TChar KLineBreak(CEditableText::ELineBreak); 
 	_LIT(KNewLine, "\n");
 	_LIT(KNewLineWindows, "\r\n");
 	ReplaceString(str, KNewLine, KNullDesC);
 	ReplaceString(str, KNewLineWindows, KNullDesC);
 
-	DP("    strip HTML");
 // strip out HTML tags
-	
+	DP("    strip out HTML tags");
 	TInt startPos = str.Locate('<');
 	TInt endPos = str.Locate('>');
 	HBufC* tmpBuf = HBufC::NewLC(KMaxDescriptionLength);
@@ -116,8 +114,8 @@ EXPORT_C void PodcastUtils::CleanHtmlL(TDes &str)
 		endPos = str.Locate('>');
 	}
 		
-	DP("    change HTML encoded chars to unicode");
 // change HTML encoded chars to unicode
+	DP("    change HTML encoded chars to unicode");
 	startPos = str.Locate('&');
 	endPos = str.Locate(';');
 	while (startPos != KErrNotFound && endPos != KErrNotFound && endPos > startPos)
@@ -207,20 +205,17 @@ EXPORT_C void PodcastUtils::CleanHtmlL(TDes &str)
 		
 	CleanupStack::PopAndDestroy(tmpBuf);
 	
-	DP("    trim");
 	if(str.Length()>1)
 		{
-		DP1("str.Length() ==%d", str.Length());
 		// chop away newlines at start
-		while (str.Length() && (str[0] == KLineBreak))  {
-			DP("mid");
+		DP("    chop away newlines at start");
+		while (str.Length() > 0 && (str[0] == KLineBreak))  {
 			str = str.Mid(1);
 		}
 		
 		// chop away newlines at end
-	
-		while (str.Length() && (str[str.Length()-1] == KLineBreak)) {
-			DP("left");
+		DP("    chop away newlines at end");
+		while (str.Length() > 0 && (str[str.Length()-1] == KLineBreak)) {
 			str = str.Left(str.Length()-1);
 		}
 

@@ -147,7 +147,7 @@ private:
 	CPodcastModel& iPodcastModel;
 
 	// observers that will receive callbacks
-    	RArray<MShowEngineObserver*> iObservers;
+    RArray<MShowEngineObserver*> iObservers;
 
 	// The show we are currently downloading
 	CShowInfo* iShowDownloading;

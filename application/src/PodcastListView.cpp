@@ -29,6 +29,8 @@
 #include <aknquerydialog.h>
 #include <barsread.h>
 #include <akntitle.h>
+#include <akniconarray.h>
+#include <EIKCLBD.H>
 
 #include "buildno.h"
 
@@ -38,22 +40,23 @@ CPodcastListContainer::CPodcastListContainer()
 {
 }
 
-void CPodcastListContainer::SetKeyEventListener(MKeyEventListener *aKeyEventListener)
+void CPodcastListContainer::SetContainerListener(MContainerListener *aContainerListener)
 	{
-	iKeyEventListener = aKeyEventListener;
+	iContainerListener = aContainerListener;
 	}
 
 TKeyResponse CPodcastListContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType)
 {
 	TKeyResponse response = iListbox->OfferKeyEventL(aKeyEvent, aType);
-	if (iKeyEventListener)
-		iKeyEventListener->OfferKeyEventL(aKeyEvent, aType);
+	if (iContainerListener)
+		iContainerListener->OfferKeyEventL(aKeyEvent, aType);
 	
 	return response;
 }
 
 void CPodcastListContainer::ConstructL( const TRect& aRect, TInt aListboxFlags )
 {
+	DP("CPodcastListContainer::ConstructL BEGIN");
 	CreateWindowL();
 
 	iBgContext = 
@@ -75,9 +78,13 @@ void CPodcastListContainer::ConstructL( const TRect& aRect, TInt aListboxFlags )
 	iListbox->SetSize(aRect.Size());
 	iListbox->MakeVisible(ETrue);
     MakeVisible(EFalse);
-    
+
+	 // Set the windows size
+    SetRect( aRect ); 
+
 	// Activate the window, which makes it ready to be drawn
     ActivateL();   
+    DP("CPodcastListContainer::ConstructL END");
 }
 
 TInt CPodcastListContainer::CountComponentControls() const
@@ -139,6 +146,26 @@ CEikFormattedCellListBox* CPodcastListContainer::Listbox()
 	return iListbox;
 }
 
+void CPodcastListContainer::SetListboxObserver(MEikListBoxObserver *aObserver)
+	{
+	iListbox->SetListBoxObserver(aObserver);
+	}
+		
+void CPodcastListContainer::SetListboxIcons(CArrayPtr< CGulIcon >* aIcons)
+{
+	iListbox->ItemDrawer()->ColumnData()->SetIconArray(aIcons);
+}
+
+CArrayPtr<CGulIcon>* CPodcastListContainer::ListboxIcons()
+	{
+	return iListbox->ItemDrawer()->FormattedCellData()->IconArray();
+	}
+
+void CPodcastListContainer::SetListboxTextArrays(CDesCArray* aPortraitArray, CDesCArray* aLandscapeArray)
+	{
+	iListbox->Model()->SetOwnershipType(ELbmDoesNotOwnItemArray);
+	iListbox->Model()->SetItemTextArray(aPortraitArray);
+	}
 
 CPodcastListContainer::~CPodcastListContainer()
 {
@@ -146,6 +173,10 @@ CPodcastListContainer::~CPodcastListContainer()
 	delete iBgContext;
 }
 
+void CPodcastListContainer::SetEmptyText(const TDesC &aText)
+	{
+	iListbox->View()->SetListEmptyTextL(aText);
+	}
 
 void CPodcastListContainer::Draw(const TRect& aRect) const
 	{
@@ -168,19 +199,12 @@ TTypeUid::Ptr CPodcastListContainer::MopSupplyObject( TTypeUid aId )
 
 void CPodcastListContainer::HandlePointerEventL(const TPointerEvent& aPointerEvent)
 	{
-	if (iPointerListener)
-		iPointerListener->PointerEventL(aPointerEvent);
+	if (iContainerListener)
+		iContainerListener->PointerEventL(aPointerEvent);
 
 	// Call base class HandlePointerEventL() if not a long tap
 	CCoeControl::HandlePointerEventL(aPointerEvent);
 	}
-
-
-void CPodcastListContainer::SetPointerListener(MPointerListener *aPointerListener)
-	{
-	iPointerListener = aPointerListener;
-	}
-
 
 CPodcastListView::CPodcastListView()
 {
@@ -189,16 +213,20 @@ CPodcastListView::CPodcastListView()
 void CPodcastListView::ConstructL()
 {
 	DP("CPodcastListView::ConstructL BEGIN");
+
 	iListContainer = new (ELeave) CPodcastListContainer;
-	iListContainer->ConstructL(ClientRect(), iListboxFlags);
+	TRect rect = ClientRect();
+	
+	iListContainer->ConstructL(rect, iListboxFlags);
 	iListContainer->SetMopParent(this);
 	iListContainer->ActivateL();
+	
 	iItemArray = new (ELeave)CDesCArrayFlat(KDefaultGran);
 	iListContainer->Listbox()->Model()->SetItemTextArray(iItemArray);
 	iListContainer->Listbox()->Model()->SetOwnershipType(ELbmDoesNotOwnItemArray);
 
-	iListContainer->SetPointerListener(this);
-	iListContainer->SetKeyEventListener(this);
+	iListContainer->SetContainerListener(this);
+	iListContainer->SetListboxObserver(this);
         
 	DP("CPodcastListView::ConstructL END");
 }
@@ -215,11 +243,7 @@ void CPodcastListView::HandleStatusPaneSizeChange()
 {
 	DP2("CPodcastListView::HandleStatusPaneSizeChange(), width=%d, height=%d", ClientRect().Width(), ClientRect().Height());
 
-	if ( iListContainer )
-	{
-        iListContainer->SetRect( ClientRect() );
-	}
-	
+	HandleViewRectChange();
 }
 
     
@@ -281,12 +305,9 @@ void CPodcastListView::HandleCommandL(TInt aCommand)
 	DP1("CPodcastListView::HandleCommandL=%d", aCommand);
 	switch(aCommand)
 	{
-	case EAknSoftkeyExit:
-	case EEikCmdExit:
-		{
-            AppUi()->Exit();
-            break;
-		}
+	case EPodcastHide:
+		AppUi()->HandleCommandL(EEikCmdExit);
+		break;
 	case EAknSoftkeyBack:
 		{
 		AppUi()->ActivateViewL(iPreviousView);
@@ -323,7 +344,7 @@ void CPodcastListView::RunAboutDialogL()
 void CPodcastListView::SetEmptyTextL(TInt aResourceId)
 	{
 	HBufC* emptyText =  iEikonEnv->AllocReadResourceLC(aResourceId);
-	iListContainer->Listbox()->View()->SetListEmptyTextL(*emptyText);
+	iListContainer->SetEmptyText(*emptyText);
 	CleanupStack::PopAndDestroy(emptyText);	
 	}
 

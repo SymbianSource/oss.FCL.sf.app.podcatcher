@@ -35,6 +35,7 @@
 #include <caknmemoryselectiondialog.h> 
 #include <caknfilenamepromptdialog.h> 
 #include "Podcatcher.pan"
+#include <aknmessagequerydialog.h>
 
 const TInt KMaxFeedNameLength = 100;
 const TInt KMaxUnplayedFeedsLength =64;
@@ -104,11 +105,8 @@ void CPodcastFeedView::ConstructL()
 	// Append the feed icon to icon array
 	icons->AppendL( CGulIcon::NewL( bitmap, mask ) );
 	CleanupStack::Pop(2); // bitmap, mask
-	iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->SetIconArrayL( icons );
+	iListContainer->SetListboxIcons( icons );
 	CleanupStack::Pop(icons); // icons
-
-	iListContainer->Listbox()->SetListBoxObserver(this);
-	   
     iUpdater = CPodcastFeedViewUpdater::NewL(*this);
 	DP("CPodcastFeedView::ConstructL END");
 	}
@@ -156,6 +154,10 @@ void CPodcastFeedView::UpdateItemL(TInt aIndex)
 		}
 	}
 
+void CPodcastFeedView::UpdateItemsComplete()
+	{
+	}
+
 TUid CPodcastFeedView::Id() const
 	{
 	return KUidPodcastFeedViewID;
@@ -165,6 +167,7 @@ void CPodcastFeedView::DoActivateL(const TVwsViewId& aPrevViewId,
 	                                  TUid aCustomMessageId,
 	                                  const TDesC8& aCustomMessage)
 	{
+	DP("CPodcastFeedView::DoActivateL BEGIN");
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
 	
 	if (aPrevViewId.iViewUid == KUidPodcastShowsViewID)
@@ -175,10 +178,26 @@ void CPodcastFeedView::DoActivateL(const TVwsViewId& aPrevViewId,
 	
 		UpdateListboxItemsL();		
 
+	// when we receive a UID argument, this comes from search view after
+	// a new feed has been added
+	if (aCustomMessageId.iUid != 0)
+		{
+		TUint feedUid = aCustomMessageId.iUid;
+		ShowItem(feedUid);
+		TBuf<KMaxMessageLength> message;
+		iEikonEnv->ReadResourceL(message, R_ADD_FEED_SUCCESS);
+		if(ShowQueryMessageL(message))
+			{
+			iPodcastModel.FeedEngine().UpdateFeedL(feedUid);
+			}
+		}
+		
 	if (iFirstActivateAfterLaunch)
 		{
 		iFirstActivateAfterLaunch = EFalse;
 		}
+
+	DP("CPodcastFeedView::DoActivateL END");
 	}
 
 void CPodcastFeedView::DoDeactivate()
@@ -190,7 +209,7 @@ void CPodcastFeedView::DoDeactivate()
 
 void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBoxEvent aEventType)
 	{
-	DP("CPodcastFeedView::HandleListBoxEventL BEGIN");
+//	DP("CPodcastFeedView::HandleListBoxEventL BEGIN");
 
 	switch(aEventType)
 		{
@@ -213,18 +232,19 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 	default:
 		break;
 		}
-	DP("CPodcastFeedView::HandleListBoxEventL END");
+//	DP("CPodcastFeedView::HandleListBoxEventL END");
 	}
 
 void CPodcastFeedView::FeedUpdateAllCompleteL(TFeedState /*aState*/)
 	{
-	iUpdatingRunning = EFalse;
+	DP("FeedUpdateAllCompleteL");
+	iFeedUpdating = 0;
 	}
 
 void CPodcastFeedView::FeedDownloadStartedL(TFeedState /*aState*/, TUint aFeedUid)
 	{
 	// Update status text
-	iUpdatingRunning = ETrue;
+	iFeedUpdating = aFeedUid;
 	UpdateFeedInfoStatusL(aFeedUid, ETrue);
 	}
 
@@ -250,6 +270,7 @@ void CPodcastFeedView::FeedDownloadFinishedL(TFeedState aState,TUint aFeedUid, T
 
 void CPodcastFeedView::UpdateFeedInfoStatusL(TUint aFeedUid, TBool aIsUpdating)
 	{
+	DP("CPodcastFeedView::UpdateFeedInfoStatusL BEGIN");
 	const RFeedInfoArray& feeds = iPodcastModel.FeedEngine().GetSortedFeeds();
 
 	// Find the index for the feed i both the feed-array and the listbox 
@@ -296,10 +317,12 @@ void CPodcastFeedView::UpdateFeedInfoStatusL(TUint aFeedUid, TBool aIsUpdating)
 			{
 			iListContainer->Listbox()->DrawItem(k);
 			}
+		DP("CPodcastFeedView::UpdateFeedInfoStatusL END");
 	}
 
 void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aIsUpdating)
 	{
+	DP("CPodcastFeedView::FormatFeedInfoListBoxItemL BEGIN");
 	TBuf<KMaxShortDateFormatSpec*2> updatedDate;
 	TBuf<KMaxUnplayedFeedsLength> unplayedShows;
 	TUint unplayedCount = 0;
@@ -349,8 +372,9 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 			updatedDate.Zero();
 			}
 		}
-	CArrayPtr<CGulIcon>* icons = iListContainer->Listbox()->ItemDrawer()->FormattedCellData()->IconArray();
+	
 	iconIndex = iFeedIdForIconArray.Find(aFeedInfo.Uid());
+	DP1("    iconIndex = %d", iconIndex);
 	if(iconIndex == KErrNotFound && aFeedInfo.FeedIcon() != NULL && aFeedInfo.ImageFileName().Length() > 0 && 
 			aFeedInfo.FeedIcon()->SizeInPixels().iHeight > 0 &&
 			aFeedInfo.FeedIcon()->SizeInPixels().iWidth > 0)
@@ -360,7 +384,10 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		CFbsBitmap* bmpCopy = new (ELeave) CFbsBitmap;
 		CleanupStack::PushL(bmpCopy);
 		bmpCopy->Duplicate(aFeedInfo.FeedIcon()->Handle());
-		icons->AppendL( CGulIcon::NewL(bmpCopy, NULL));
+		CArrayPtr<CGulIcon>* icons = iListContainer->ListboxIcons();
+
+		icons->AppendL( CGulIcon::NewL(AknIconUtils::CreateIconL(bmpCopy), NULL));
+		
 		iFeedIdForIconArray.Append(aFeedInfo.Uid());
 		CleanupStack::Pop(bmpCopy);			
 		iconIndex = icons->Count()-1;
@@ -373,8 +400,9 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 	if (unplayedShows.Length() > 0 && updatedDate.Length() > 0) {
 		unplayedShows.Insert(0,_L(", "));
 	}
-	
+		
 	iListboxFormatbuffer.Format(KFeedFormat(), iconIndex, &(aFeedInfo.Title()), &updatedDate,  &unplayedShows);
+	DP("CPodcastFeedView::FormatFeedInfoListBoxItemL END");
 	}
 
 void CPodcastFeedView::ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& /*aPodcastModel*/)
@@ -385,7 +413,8 @@ void CPodcastFeedView::ImageOperationCompleteL(TInt aError, TUint aHandle, CPodc
 	}
 
 void CPodcastFeedView::UpdateFeedInfoDataL(CFeedInfo* aFeedInfo, TInt aIndex, TBool aIsUpdating )
-	{			
+	{
+	DP("CPodcastFeedView::UpdateFeedInfoDataL BEGIN");
 	TListItemProperties itemProps;			
 	itemProps.SetDimmed(aIsUpdating);	
 	FormatFeedInfoListBoxItemL(*aFeedInfo, aIsUpdating);
@@ -403,7 +432,8 @@ void CPodcastFeedView::UpdateFeedInfoDataL(CFeedInfo* aFeedInfo, TInt aIndex, TB
 				iItemArray->InsertL(aIndex, iListboxFormatbuffer);
 				}
 	}
-	iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(aIndex, itemProps);
+	//iListContainer->Listbox()->ItemDrawer()->SetPropertiesL(aIndex, itemProps);
+	DP("CPodcastFeedView::UpdateFeedInfoDataL END");
 	}
 
 
@@ -470,9 +500,6 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 
 	switch(aCommand)
 		{
-        case EPodcastHide:
-			AppUi()->HandleCommandL(EEikCmdExit);
-			break;
 		case EPodcastAddFeed:
 			HandleAddFeedL();
 			break;
@@ -499,35 +526,13 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 			}break;
 		case EPodcastCancelUpdateAllFeeds:
 			{
-			if(iUpdatingRunning)
+			if(iFeedUpdating)
 				{
 				iPodcastModel.FeedEngine().CancelUpdateAllFeeds();
 				}
 			}break;
-		case EAknSoftkeyExit:
-			{
-			RShowInfoArray dlQueue;
-			iPodcastModel.ShowEngine().GetShowsDownloadingL(dlQueue);
-			TUint queueCount = dlQueue.Count();
-			dlQueue.ResetAndDestroy();
-			dlQueue.Close();
-			
-			if (queueCount > 0 && !iPodcastModel.SettingsEngine().DownloadSuspended())
-				{
-				TBuf<KMaxMessageLength> message;
-				iEikonEnv->ReadResourceL(message, R_EXIT_SHOWS_DOWNLOADING);
-				if(ShowQueryMessageL(message))
-					{
-					// pass it on to AppUi, which will exit for us
-					CPodcastListView::HandleCommandL(aCommand);
-					}
-				} 
-			else
-				{
-					// nothing in queue, or downloading suspended
-					CPodcastListView::HandleCommandL(aCommand);
-				}
-			}
+		case EPodcastShowInfo:
+			DisplayFeedInfoDialogL();
 			break;
 		default:
 			CPodcastListView::HandleCommandL(aCommand);
@@ -535,6 +540,24 @@ void CPodcastFeedView::HandleCommandL(TInt aCommand)
 		}
 	
 	DP("CPodcastFeedView::HandleCommandL END");
+	}
+
+void CPodcastFeedView::DisplayFeedInfoDialogL()
+	{
+	const RFeedInfoArray* sortedItems = NULL;
+	TInt index = iListContainer->Listbox()->CurrentItemIndex();
+	sortedItems = &iPodcastModel.FeedEngine().GetSortedFeeds();
+
+	if(index >= 0 && index < sortedItems->Count())
+		{
+		CFeedInfo *info = (*sortedItems)[index];
+		HBufC* description = info->Description().AllocL();
+		HBufC* title = info->Title().AllocL();
+		CAknMessageQueryDialog* note = new ( ELeave ) CAknMessageQueryDialog( description, title );
+							
+		note->PrepareLC( R_SHOW_INFO_NOTE ); // Adds to CleanupStack
+		note->RunLD();
+		}
 	}
 
 void CPodcastFeedView::HandleAddFeedL()
@@ -565,6 +588,22 @@ void CPodcastFeedView::HandleAddFeedL()
 			}	
 		}
 	CleanupStack::PopAndDestroy( array );		
+	}
+
+void CPodcastFeedView::ShowItem(TUint aUid)
+	{
+	TInt listIndex = -1;
+	for (TUint i=0;i<iItemIdArray.Count();i++)
+		{
+		if (iItemIdArray[i] == aUid)
+			{
+			listIndex = i;
+			}
+		}
+		
+	if (listIndex != -1)
+		iListContainer->Listbox()->ScrollToMakeItemVisible(listIndex);
+
 	}
 
 void CPodcastFeedView::HandleAddFeedUrlL()
@@ -599,10 +638,7 @@ void CPodcastFeedView::HandleAddFeedUrlL()
 			iEikonEnv->ReadResourceL(message, R_ADD_FEED_SUCCESS);
 			if(ShowQueryMessageL(message))
 				{
-				CFeedInfo *info = iPodcastModel.FeedEngine().GetFeedInfoByUid(newFeedInfo->Uid());
-				
-				iPodcastModel.SetActiveFeedInfo(info);			
-				AppUi()->ActivateLocalViewL(KUidPodcastShowsViewID,  TUid::Uid(0), KNullDesC8());
+				ShowItem(newFeedInfo->Uid());
 				iPodcastModel.FeedEngine().UpdateFeedL(newFeedInfo->Uid());
 				}
 			}
@@ -626,6 +662,7 @@ void CPodcastFeedView::HandleAddFeedSearchL()
 
 	HBufC* prompt = iEikonEnv->AllocReadResourceLC(R_PODCAST_SEARCHFEED_PROMPT);
 	dlg->SetPromptL(*prompt);
+	dlg->SetPredictiveTextInputPermitted(ETrue);
 	CleanupStack::PopAndDestroy(prompt);
 	
 	if(dlg->RunLD())
@@ -951,12 +988,35 @@ void CPodcastFeedView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane
 	{
 	if(aResourceId == R_PODCAST_FEEDVIEW_MENU)
 		{
-		aMenuPane->SetItemDimmed(EPodcastUpdateAllFeeds, iUpdatingRunning);
-		aMenuPane->SetItemDimmed(EPodcastCancelUpdateAllFeeds, !iUpdatingRunning);
-		aMenuPane->SetItemDimmed(EPodcastSettings, iUpdatingRunning);
-		aMenuPane->SetItemDimmed(EPodcastFeedFeedMenu, iUpdatingRunning);
+		aMenuPane->SetItemDimmed(EPodcastUpdateAllFeeds, iFeedUpdating);
+		aMenuPane->SetItemDimmed(EPodcastCancelUpdateAllFeeds, !iFeedUpdating);
+		aMenuPane->SetItemDimmed(EPodcastSettings, iFeedUpdating);
+		aMenuPane->SetItemDimmed(EPodcastFeedFeedMenu, iFeedUpdating);
 //		aMenuPane->SetItemDimmed(EPodcastImportExportFeeds, iUpdatingRunning);
 		}
+	}
+
+void CPodcastFeedView::CheckConfirmExit()
+	{
+	DP("CPodcastFeedView::CheckConfirmExit");
+	RShowInfoArray showsDownloading;
+	iPodcastModel.ShowEngine().GetShowsDownloadingL(showsDownloading);
+	TUint count = showsDownloading.Count();
+	showsDownloading.ResetAndDestroy();
+	showsDownloading.Close();
+
+	if (count > 0 && !iPodcastModel.SettingsEngine().DownloadSuspended())
+		{
+		TBuf<256> msg;
+		iEikonEnv->ReadResourceL(msg, R_EXIT_SHOWS_DOWNLOADING);
+		
+		if (!ShowQueryMessageL(msg))
+			{
+			return;
+			}
+		}
+	
+	AppUi()->Exit();
 	}
 
 TKeyResponse CPodcastFeedView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType)

@@ -32,6 +32,7 @@
 #include <APGWGNAM.H>
 #include <HLPLCH.H>
 #include <avkon.hrh>
+#include "Podcast.mbg"
 
 const TUint KDelayLaunch = 1000;
 
@@ -122,7 +123,7 @@ void CPodcastAppUi::HandleCommandL( TInt aCommand )
         {
         case EAknSoftkeyExit:
             {
-            Exit();
+            iFeedView->CheckConfirmExit();
             break;
             }
         case EEikCmdExit:

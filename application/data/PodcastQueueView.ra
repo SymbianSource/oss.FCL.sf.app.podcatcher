@@ -19,7 +19,7 @@
 RESOURCE AVKON_VIEW r_podcast_queueview
 {
 	menubar = r_podcast_queueview_menubar;
-	cba = R_AVKON_SOFTKEYS_OPTIONS_BACK;
+	cba = r_podcast_cba;
 }
 
 RESOURCE MENU_BAR r_podcast_queueview_menubar

@@ -24,6 +24,7 @@
 #include <xml/stringdictionarycollection.h>
 #include <utf.h>
 #include <tinternetdate.h>
+#include <e32hashtab.h>
 #include "debug.h"
 #include "podcastutils.h"
 
@@ -54,6 +55,10 @@ void CFeedParser::ParseFeedL(const TFileName &feedFileName, CFeedInfo *info, TUi
 	iStoppedParsing = EFalse;
 	iEncoding = ELatin1;
 
+	TEntry entry;
+	User::LeaveIfError(iRfs.Entry(feedFileName, entry));
+	iFileSize = entry.iSize;
+	
 	ParseL(*parser, iRfs, feedFileName);
 
 	CleanupStack::PopAndDestroy(parser);	
@@ -159,6 +164,7 @@ void CFeedParser::OnStartElementL(const RTagInfo& aElement, const RAttributeArra
 		}
 		break;
 	case EStateItem:
+		iUid = 0;
 		// <channel> <item> <title>
 		if (str.CompareF(KTagTitle) == 0) {
 			iFeedState=EStateItemTitle;
@@ -197,6 +203,9 @@ void CFeedParser::OnStartElementL(const RTagInfo& aElement, const RAttributeArra
 		} else if (str.CompareF(KTagPubDate) == 0) {
 			//DP("LastBuildDate BEGIN");
 			iFeedState = EStateItemPubDate;
+		// <channel> <item> <guid>
+		} else if (str.CompareF(KTagGuid) == 0) {
+			iFeedState = EStateItemGuid;
 		}
 		break;
 	default:
@@ -245,18 +254,21 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 			TBuf8<128> temp;
 			temp.Copy(iBuffer);
 					
+			DP2("iFileSize=%d, iActiveFeed->FeedFileSize()=%d", iFileSize, iActiveFeed->FeedFileSize());
+					
 			TRAPD(parseError, internetDate.SetDateL(temp));
 			if(parseError == KErrNone) {				
 				if (TTime(internetDate.DateTime()) > iActiveFeed->BuildDate()) {
 					DP("Successfully parsed build date");
 					iActiveFeed->SetBuildDate(TTime(internetDate.DateTime()));
-				} else {
+				} else if (iFileSize == iActiveFeed->FeedFileSize()){
 					DP("*** Nothing new, aborting parsing");
 					iStoppedParsing = ETrue;
 				}
 			} else {
 				DP("Failed to parse last build date");
 			}
+			iActiveFeed->SetFeedFileSize(iFileSize);
 			iFeedState = EStateChannel;
 			}
 			break;
@@ -273,9 +285,7 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 		case EStateItem:
 			if (str.CompareF(KTagItem) == 0) 
 				{
-				
 				// check if we have a valid pubdate
-				
 				if (iActiveShow->PubDate().Int64() == 0)
 					{
 					// set pubDate to present time
@@ -292,6 +302,10 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 					iActiveShow->SetPubDate(now);
 					}
 				
+				if (iUid)
+					{
+					iActiveShow->SetUid(iUid);
+					}
 						
 				iCallbacks.NewShowL(*iActiveShow);
 				
@@ -302,11 +316,11 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 				
 				iItemsParsed++;
 				DP2("iItemsParsed: %d, iMaxItems: %d", iItemsParsed, iMaxItems);
-//				if (iItemsParsed >= iMaxItems) 
-//					{
-//					iStoppedParsing = ETrue;
-//					DP("*** Too many items, aborting parsing");
-//					}
+				if (iItemsParsed >= iMaxItems) 
+					{
+					iStoppedParsing = ETrue;
+					DP("*** Too many items, aborting parsing");
+					}
 				
 				iFeedState=EStateChannel;
 				}
@@ -314,57 +328,64 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 		case EStateItemPubDate:
 			DP1("PubDate END: iBuffer='%S'", &iBuffer);
 			if (str.CompareF(KTagPubDate) == 0) {
-				// hack for feeds that don't always write day as two digits
-				TChar five(iBuffer[5]);
-				TChar six(iBuffer[6]);
+				DP1("iBuffer.Length()=%d", iBuffer.Length());
 				
-				if (five.IsDigit() && !six.IsDigit()) {
-					TBuf<KMaxStringBuffer> fix;
-					fix.Copy(iBuffer.Left(4));
-					fix.Append(_L(" 0"));
-					fix.Append(iBuffer.Mid(5));
-					iBuffer.Copy(fix);
-				}
-				// end hack
-				
-				// hack for feeds that write out months in full
-				
-				if (iBuffer[11] != ' ') {
-					TPtrC midPtr = iBuffer.Mid(8);
+				if (iBuffer.Length() > 6)
+					{
+					// hack for feeds that don't always write day as two digits
+					TChar five(iBuffer[5]);
+					TChar six(iBuffer[6]);
 					
-					int spacePos = midPtr.Find(_L(" "));
-					
-					if (spacePos != KErrNotFound) {
-						//DP1("Month: %S", &midPtr.Left(spacePos));
-						
-						TBuf16<KBufferLength> newBuffer;
-						newBuffer.Copy(iBuffer.Left(11));
-						newBuffer.Append(_L(" "));
-						newBuffer.Append(iBuffer.Mid(11+spacePos));
-						//DP1("newBuffer: %S", &newBuffer);
-						iBuffer.Copy(newBuffer);
+					if (five.IsDigit() && !six.IsDigit()) {
+						TBuf<KMaxStringBuffer> fix;
+						fix.Copy(iBuffer.Left(4));
+						fix.Append(_L(" 0"));
+						fix.Append(iBuffer.Mid(5));
+						iBuffer.Copy(fix);
 					}
-				}
+					// end hack
+					}
 				
-				// hack for feeds that write days and months as UPPERCASE
-				TChar one(iBuffer[1]);
-				TChar two(iBuffer[2]);
-				TChar nine(iBuffer[9]);
-				TChar ten(iBuffer[10]);
+				if (iBuffer.Length() > 11)
+					{
+					// hack for feeds that write out months in full
+					
+					if (iBuffer[11] != ' ') {
+						TPtrC midPtr = iBuffer.Mid(8);
+						
+						int spacePos = midPtr.Find(_L(" "));
+						
+						if (spacePos != KErrNotFound) {
+							//DP1("Month: %S", &midPtr.Left(spacePos));
+							
+							TBuf16<KBufferLength> newBuffer;
+							newBuffer.Copy(iBuffer.Left(11));
+							newBuffer.Append(_L(" "));
+							newBuffer.Append(iBuffer.Mid(11+spacePos));
+							//DP1("newBuffer: %S", &newBuffer);
+							iBuffer.Copy(newBuffer);
+						}
+					}
+					
+					// hack for feeds that write days and months as UPPERCASE
+					TChar one(iBuffer[1]);
+					TChar two(iBuffer[2]);
+					TChar nine(iBuffer[9]);
+					TChar ten(iBuffer[10]);
+	
+					one.LowerCase();
+					two.LowerCase();
+					nine.LowerCase();
+					ten.LowerCase();
+					
+					iBuffer[1] = one;
+					iBuffer[2] = two;
+					iBuffer[9] = nine;
+					iBuffer[10] = ten;
+					}
 
-				one.LowerCase();
-				two.LowerCase();
-				nine.LowerCase();
-				ten.LowerCase();
-				
-				iBuffer[1] = one;
-				iBuffer[2] = two;
-				iBuffer[9] = nine;
-				iBuffer[10] = ten;
-				
 				TBuf8<128> temp;
 				temp.Copy(iBuffer);
-
 				TInternetDate internetDate;
 				TRAPD(parseError, internetDate.SetDateL(temp));
 				if(parseError == KErrNone) {				
@@ -384,6 +405,10 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 					DP2("Pubdate parse error: '%S', error=%d", &iBuffer, parseError);
 				}
 			}
+			iFeedState=EStateItem;
+			break;
+		case EStateItemGuid:
+			iUid = DefaultHash::Des16(iBuffer);
 			iFeedState=EStateItem;
 			break;
 		case EStateItemTitle:

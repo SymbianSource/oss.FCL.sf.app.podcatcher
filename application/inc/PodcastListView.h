@@ -31,13 +31,10 @@ class CAknDoubleLargeStyleListBox;
 class CEikFormattedCellListBox;
 
 
-class MKeyEventListener {
+class MContainerListener {
 public:
 virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType) = 0;
-};
-
-class MPointerListener {
-public:
+virtual void SizeChanged() = 0;
 virtual void PointerEventL(const TPointerEvent& aPointerEvent) = 0;
 };
 
@@ -52,29 +49,32 @@ class CPodcastListContainer : public CCoeControl
         CCoeControl* ComponentControl( TInt aIndex ) const;
 		void HandleResourceChange(TInt aType);
 		virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
-		void SetKeyEventListener(MKeyEventListener *aKeyEventListener);
-		void SetPointerListener(MPointerListener *aPointerListener);
-		
+		void SetContainerListener(MContainerListener *aContainerListener);
+		void SetListboxObserver(MEikListBoxObserver *aObserver);
 		CEikFormattedCellListBox* Listbox();
+		void SetListboxIcons(CArrayPtr< CGulIcon >* aIcons);
+		CArrayPtr<CGulIcon>* ListboxIcons();
+		void SetListboxTextArrays(CDesCArray* aPortraitArray, CDesCArray* aLandscapeArray);
+		void SetEmptyText(const TDesC &aText);
 		void ScrollToVisible();
     	void Draw(const TRect& aRect) const;
-    	
-    	CEikFormattedCellListBox * iListbox;		
 
 	protected:
 		TTypeUid::Ptr MopSupplyObject( TTypeUid aId );
 		virtual void HandlePointerEventL(const TPointerEvent& aPointerEvent);
 
 	private:
-		MKeyEventListener* iKeyEventListener;
-		MPointerListener* iPointerListener;
+    	CEikFormattedCellListBox * iListbox;		
+		MContainerListener* iContainerListener;
+
         CAknsBasicBackgroundControlContext* iBgContext;
 
 	};
 
 
-class CPodcastListView : public CAknView, public MPointerListener,
-public MProgressDialogCallback, public MKeyEventListener
+class CPodcastListView : public CAknView, public MContainerListener,
+public MEikListBoxObserver,
+public MProgressDialogCallback
     {
     public: 
         ~CPodcastListView();
@@ -133,6 +133,8 @@ public MProgressDialogCallback, public MKeyEventListener
 
 		// from MKeyEventListener
 		virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
+		virtual void SizeChanged() {};
+		void ResetContainer();
 
 		// from MPointerListener
 		void PointerEventL(const TPointerEvent& aPointerEvent);

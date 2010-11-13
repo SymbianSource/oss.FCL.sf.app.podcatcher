@@ -19,7 +19,7 @@
 const TInt KTempBufferSize = 100;
 
 CHttpClient::~CHttpClient()
-  {
+  {	 
   if (iHandler)
   	{
   	iHandler->CloseSaveFile();
@@ -111,6 +111,8 @@ void CHttpClient::ConnectHttpSessionL()
 
 void CHttpClient::ConnectCompleteL(TInt aErrorCode)
 	{
+	DP1("CHttpClient::ConnectCompleteL BEGIN, aErrorCode=%d", aErrorCode);
+	DP1("    iWaitingForGet=%d", iWaitingForGet);
 	if(iWaitingForGet)
 		{
 		iWaitingForGet = EFalse;
@@ -124,16 +126,16 @@ void CHttpClient::ConnectCompleteL(TInt aErrorCode)
 			TInt connPtr = REINTERPRET_CAST(TInt, &iPodcastModel.ConnectionEngine().Connection());
 			connInfo.SetPropertyL(pool.StringF(HTTP::EHttpSocketConnection, RHTTPSession::GetTable()), THTTPHdrVal(connPtr));
 
-
 			iPodcastModel.SetProxyUsageIfNeededL(iSession);
-			DoGetAfterConnectL();		
+			DoGetAfterConnectL();
 			}
 		else
 			{
 			ClientRequestCompleteL(KErrCouldNotConnect);
 			iSession.Close();			
 			}
-		}				
+		}
+	DP("CHttpClient::ConnectCompleteL END");
 	}
 
 void CHttpClient::Disconnected()
@@ -144,6 +146,7 @@ void CHttpClient::Disconnected()
 
 void  CHttpClient::DoGetAfterConnectL()
 	{	
+	DP("CHttpClient::DoGetAfterConnectL BEGIN");
 	// since nothing should be downloading now. Delete the handler
 	if (iHandler)
 		{
@@ -158,7 +161,7 @@ void  CHttpClient::DoGetAfterConnectL()
 	TBuf8<KTempBufferSize> rangeText;
 
 	if (iResumeEnabled && iPodcastModel.FsSession().Entry(iCurrentFileName, entry) == KErrNone) {
-		DP1("Found file, with size=%d", entry.iSize);
+		DP1("    Found file, with size=%d", entry.iSize);
 		// file exists, so we should probably resume
 		rangeText.Format(_L8("bytes=%d-"), (entry.iSize-KByteOverlap > 0 ? entry.iSize-KByteOverlap : 0));
 		iHandler->SetSaveFileName(iCurrentFileName, ETrue);
@@ -179,7 +182,7 @@ void  CHttpClient::DoGetAfterConnectL()
 	SetHeaderL(hdr, HTTP::EAccept, KAccept);
 	TBuf<KTempBufferSize> range16;
 	range16.Copy(rangeText);
-	DP1("range text: %S", &range16);
+	DP1("    range text: %S", &range16);
 	if (rangeText.Length() > 0) {
 		SetHeaderL(hdr, HTTP::ERange, rangeText);
 	}
@@ -187,11 +190,12 @@ void  CHttpClient::DoGetAfterConnectL()
 	// submit the transaction
 	iTrans.SubmitL();
 	iIsActive = ETrue;	
-	DP("CHttpClient::Get END");		
+	DP("CHttpClient::DoGetAfterConnectL END");
 	}
 
 TBool CHttpClient::GetL(const TDesC& aUrl, const TDesC& aFileName,  TBool aSilent) {
 	DP("CHttpClient::Get START");
+	DP2("Getting '%S' to '%S'", &aUrl, &aFileName);
 	
 	if (iIsActive)
 		{
@@ -215,17 +219,18 @@ TBool CHttpClient::GetL(const TDesC& aUrl, const TDesC& aFileName,  TBool aSilen
 	
 	iSilentGet = aSilent;
 	iCurrentFileName.Copy(aFileName);
-	iWaitingForGet = ETrue;
 	
 	if (iTransactionCount == 0) 
 		{
 		DP("CHttpClient::GetL\t*** Opening HTTP session ***");
 		iSession.Close();
 		iSession.OpenL();
+		iWaitingForGet = ETrue;
 		ConnectHttpSessionL();			
 		}
 	else
 		{
+		iWaitingForGet = EFalse;
 		DoGetAfterConnectL();		
 		}
 	return ETrue;
@@ -257,9 +262,10 @@ void CHttpClient::Stop()
 	}
 
 void CHttpClient::ClientRequestCompleteL(TInt aErrorCode) {
+	DP1("CHttpClient::ClientRequestCompleteL BEGIN, aErrorCode=%d", aErrorCode);
 	iIsActive = EFalse;
 	iObserver.CompleteL(this, aErrorCode);
-	DP("CHttpClient::ClientRequestCompleteL");
+	DP1("    iTransactionCount=%d", iTransactionCount);
 	if(iTransactionCount>0)
 		{
 		iTransactionCount--;
@@ -272,4 +278,5 @@ void CHttpClient::ClientRequestCompleteL(TInt aErrorCode) {
 			iSession.Close();
 			}
 		}
+	DP("CHttpClient::ClientRequestCompleteL END");
 }

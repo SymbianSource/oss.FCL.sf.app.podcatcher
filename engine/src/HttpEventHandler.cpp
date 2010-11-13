@@ -23,6 +23,7 @@
 #include "HttpEventHandler.h"
 #include "bautils.h"
 #include "Httpclient.h"
+#include "Podcatcher.pan"
 
 const TInt64 KMinDiskSpace = 1024 * 1024; // at least 1 MB must remain
 
@@ -61,6 +62,7 @@ CHttpEventHandler* CHttpEventHandler::NewL(CHttpClient* aClient, MHttpClientObse
 
 void CHttpEventHandler::MHFRunL(RHTTPTransaction aTransaction, const THTTPEvent& aEvent)
 	{
+	//DP1("CHttpEventHandler::MHFRunL, aEvent.iStatus=%d", aEvent.iStatus);
 	switch (aEvent.iStatus)
 		{
 		case THTTPEvent::EGotResponseHeaders:
@@ -258,6 +260,7 @@ void CHttpEventHandler::SetSaveFileName(const TDesC &fName, TBool aContinue)
 	switch(fName[0])
 		{
 		case 'C':
+		case '\\':
 			iDriveNo = EDriveC;
 			break;
 		case 'E':
@@ -270,7 +273,7 @@ void CHttpEventHandler::SetSaveFileName(const TDesC &fName, TBool aContinue)
 			iDriveNo = EDriveG;
 			break;
 		default:
-			iDriveNo = -1;
+			Panic(EPodcatcherDownloadDrive);
 			break;
 		}
 	DP1("iDriveNo set to %d", iDriveNo);
@@ -431,6 +434,7 @@ void CHttpEventHandler::SetSilent(TBool aSilent)
 
 void CHttpEventHandler::CloseSaveFile()
 {
+	DP("CHttpEventHandler::CloseSaveFile BEGIN");
 	if(iRespBody != NULL)
 	{		
 		if(iRespBodyFile.SubSessionHandle() != 0)
@@ -441,5 +445,6 @@ void CHttpEventHandler::CloseSaveFile()
 			iRespBodyFile.Close();
 			}
 	}
+	DP("CHttpEventHandler::CloseSaveFile BEGIN");
 }
 
