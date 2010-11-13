@@ -123,6 +123,7 @@ void CPodcastSearchView::DoActivateL(const TVwsViewId& aPrevViewId,
 	titlePane->SetTextL(*text , ETrue );
 	CleanupStack::PopAndDestroy(text);
 	UpdateListboxItemsL();
+	((CPodcastAppUi*)AppUi())->SetTabsDimmed(ETrue);
 }
 
 void CPodcastSearchView::DoDeactivate()
@@ -133,6 +134,7 @@ void CPodcastSearchView::DoDeactivate()
 			  ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
 		
 	titlePane->SetTextToDefaultL();
+	((CPodcastAppUi*)AppUi())->SetTabsDimmed(EFalse);
 }
 
 

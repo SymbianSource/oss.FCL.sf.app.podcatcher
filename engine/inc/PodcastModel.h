@@ -91,6 +91,7 @@ public:
 	
 	IMPORT_C void GetShowsDownloadingL();
 	IMPORT_C void GetShowsByFeedL(TUint aFeedUid);
+	IMPORT_C void GetNewShowsL();
 	IMPORT_C void MarkSelectionPlayedL();
 	
 	TInt FindActiveShowByUid(TUint aUid);

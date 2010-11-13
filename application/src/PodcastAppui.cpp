@@ -207,8 +207,14 @@ void CPodcastAppUi::NaviShowTabGroupL()
 	{
 	iTabGroup = STATIC_CAST(CAknTabGroup*, iNaviPane->ResourceDecorator()->DecoratedControl());
 	iTabGroup->SetObserver(this); 
+
 	iNaviStyle = ENaviTabGroup;
 	UpdateQueueTabL(iPodcastModel->ShowEngine().GetNumDownloadingShows());
+	}
+
+void CPodcastAppUi::SetTabsDimmed(TBool aDimmed)
+	{
+	iTabGroup->SetDimmed(aDimmed);
 	}
 
 void CPodcastAppUi::TabChangedL (TInt aIndex)
@@ -221,15 +227,24 @@ void CPodcastAppUi::TabChangedL (TInt aIndex)
 		TUid messageUid = TUid::Uid(0);
 		if (aIndex == KTabIdFeeds) 
 			{
+			DP("one");
 			if (iFeedView->ViewingShows())
 				{
+				DP("two");
 				newview = KUidPodcastShowsViewID;
+				messageUid = TUid::Uid(2);
 				}
 			else
 				{
+				DP("three");
 				newview = KUidPodcastFeedViewID;
 				}
 			} 
+		else if (aIndex == KTabIdNew)
+			{
+			newview = KUidPodcastShowsViewID;
+			messageUid = KUidShowNewShows;
+			}
 		else if (aIndex == KTabIdQueue)
 			{
 			newview = KUidPodcastQueueViewID;
@@ -241,6 +256,7 @@ void CPodcastAppUi::TabChangedL (TInt aIndex)
 		
 		if(newview.iUid != 0)
 			{			
+			DP("four");
 			ActivateLocalViewL(newview,  messageUid, KNullDesC8());
 			}
 		}

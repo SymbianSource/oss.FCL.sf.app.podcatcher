@@ -31,6 +31,7 @@
 #include <barsread.h>
 #include <aknnotedialog.h>
 #include <aknmessagequerydialog.h>
+#include <akntitle.h>
 
 #define KMaxMessageLength 200
 
@@ -125,7 +126,7 @@ void CPodcastQueueView::DoActivateL(const TVwsViewId& aPrevViewId,
 	
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
 	iPreviousView = aPrevViewId;
-	
+	UpdateViewTitleL();
 	UpdateFeedUpdateStateL();
 	UpdateToolbar();
 	DP("CPodcastQueueView::DoActivateL END");
@@ -397,3 +398,13 @@ void CPodcastQueueView::HandleLongTapEventL( const TPoint& aPenEventLocation, co
     
 	DP("CPodcastQueueView::HandleLongTapEventL END");
 }
+
+void CPodcastQueueView::UpdateViewTitleL()
+	{
+	 CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
+		      ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
+		 
+	HBufC *title = iEikonEnv->AllocReadResourceLC(R_DOWNLOAD_QUEUE);
+	titlePane->SetTextL(*title);
+	CleanupStack::PopAndDestroy(title);
+	}

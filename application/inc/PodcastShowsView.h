@@ -116,6 +116,7 @@ protected:
 	TBool iProgressAdded;	
 	TInt iLastImageHandlerError;
 	TBool iSetTitlebarImage;
+	TBool iShowNewShows;
 	};
 
 #endif // PODCASTSHOWSVIEWH

@@ -61,7 +61,8 @@ RESOURCE :
 		$(DPATH)\tab_queue1.svg\
 		$(DPATH)\tab_queue2.svg\
 		$(DPATH)\tab_queue3.svg\
-
+		$(DPATH)\tab_new.svg\
+		
 FREEZE : do_nothing
 
 SAVESPACE : do_nothing

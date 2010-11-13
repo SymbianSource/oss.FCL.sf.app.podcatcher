@@ -477,6 +477,12 @@ EXPORT_C void CPodcastModel::GetShowsByFeedL(TUint aFeedUid)
 	iShowEngine->GetShowsByFeedL(iActiveShowList, aFeedUid);
 	}
 
+EXPORT_C void CPodcastModel::GetNewShowsL()
+	{
+	iActiveShowList.ResetAndDestroy();
+	iShowEngine->GetNewShowsL(iActiveShowList);
+	}
+
 EXPORT_C void CPodcastModel::MarkSelectionPlayedL()
 	{
 	for (int i=0;i<iActiveShowList.Count();i++) {

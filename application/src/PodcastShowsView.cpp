@@ -217,6 +217,21 @@ void CPodcastShowsView::DoActivateL(const TVwsViewId& aPrevViewId,
 	
 	iPreviousView = TVwsViewId(KUidPodcast, KUidPodcastFeedViewID);
 	
+	iShowNewShows = (aCustomMessageId.iUid == 1);
+	
+	if (iShowNewShows)
+		{
+		CEikButtonGroupContainer* cba = CEikButtonGroupContainer::Current();
+		cba->SetCommandSetL(R_PODCAST_CBA);
+		cba->DrawDeferred();
+		}
+	else
+		{
+		CEikButtonGroupContainer* cba = CEikButtonGroupContainer::Current();
+		cba->SetCommandSetL(R_AVKON_SOFTKEYS_OPTIONS_BACK);
+		cba->DrawDeferred();		
+		}
+	
 	UpdateViewTitleL();
 	UpdateFeedUpdateStateL();
 	DP("CPodcastShowsView::DoActivateL END");
@@ -509,8 +524,15 @@ void CPodcastShowsView::UpdateListboxItemsL()
 		TListItemProperties itemProps;
 		TInt len = 0;
 
-		iPodcastModel.GetShowsByFeedL(iPodcastModel.ActiveFeedInfo()->Uid());
-
+		if (iShowNewShows)
+			{
+			iPodcastModel.GetNewShowsL();
+			}
+		else
+			{
+			iPodcastModel.GetShowsByFeedL(iPodcastModel.ActiveFeedInfo()->Uid());
+			}
+		
 		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
 		len = fItems.Count();
 
@@ -588,9 +610,11 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 		{
 		case EPodcastMarkAsPlayed:
 			HandleSetShowPlayedL(ETrue);
+			if (iShowNewShows) UpdateListboxItemsL();
 			break;
 		case EPodcastMarkAsUnplayed:
 			HandleSetShowPlayedL(EFalse);
+			if (iShowNewShows) UpdateListboxItemsL();
 			break;
 		case EPodcastMarkAllPlayed:
 			iPodcastModel.MarkSelectionPlayedL();
@@ -627,6 +651,11 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 				}
 			}
 			break;
+		case EPodcastUpdateAllFeeds:
+			{
+			iPodcastModel.FeedEngine().UpdateAllFeedsL();
+			UpdateToolbar();
+			}break;
 		case EPodcastCancelUpdateAllFeeds:
 			iPodcastModel.FeedEngine().CancelUpdateAllFeeds();
 			break;
@@ -711,8 +740,20 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 		TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && iPodcastModel.ActiveFeedInfo() && 
 				iPodcastModel.FeedEngine().ActiveClientUid() == iPodcastModel.ActiveFeedInfo()->Uid();
 	
-		toolbar->HideItem(EPodcastUpdateFeed, updatingState, ETrue ); 
+		if (iShowNewShows)
+			{
+			updatingState = iPodcastModel.FeedEngine().ClientState();
+			toolbar->HideItem(EPodcastUpdateFeed, ETrue, ETrue ); 
+			toolbar->HideItem(EPodcastUpdateAllFeeds, updatingState, ETrue ); 
+			}
+		else
+			{
+			toolbar->HideItem(EPodcastUpdateFeed, updatingState, ETrue ); 
+			toolbar->HideItem(EPodcastUpdateAllFeeds, ETrue, ETrue ); 
+			}
+
 		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !updatingState, ETrue );
+
 		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
 		TInt itemCnt = fItems.Count();
 	
@@ -864,7 +905,7 @@ void CPodcastShowsView::UpdateViewTitleL()
 	 CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
 		      ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
 		 
-		TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && 
+		TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && iPodcastModel.ActiveFeedInfo() &&
 				iPodcastModel.FeedEngine().ActiveClientUid() == iPodcastModel.ActiveFeedInfo()->Uid();
 
 		if (updatingState) {
@@ -873,7 +914,13 @@ void CPodcastShowsView::UpdateViewTitleL()
 			SetEmptyTextL(R_PODCAST_EMPTY_LIST);
 		}
 		
-		if(iPodcastModel.ActiveFeedInfo())
+		if(iShowNewShows)
+			{
+			HBufC *title = iEikonEnv->AllocReadResourceLC(R_NEW_SHOWS);
+			titlePane->SetTextL(*title);
+			CleanupStack::PopAndDestroy(title);
+			}
+		else if(iPodcastModel.ActiveFeedInfo())
 			{
 			if (iPodcastModel.ActiveFeedInfo()->Title() != KNullDesC)
 				{
