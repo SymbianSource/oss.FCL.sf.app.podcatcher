@@ -55,6 +55,10 @@ void CFeedParser::ParseFeedL(const TFileName &feedFileName, CFeedInfo *info, TUi
 	iStoppedParsing = EFalse;
 	iEncoding = ELatin1;
 
+	TEntry entry;
+	User::LeaveIfError(iRfs.Entry(feedFileName, entry));
+	iFileSize = entry.iSize;
+	
 	ParseL(*parser, iRfs, feedFileName);
 
 	CleanupStack::PopAndDestroy(parser);	
@@ -250,18 +254,21 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 			TBuf8<128> temp;
 			temp.Copy(iBuffer);
 					
+			DP2("iFileSize=%d, iActiveFeed->FeedFileSize()=%d", iFileSize, iActiveFeed->FeedFileSize());
+					
 			TRAPD(parseError, internetDate.SetDateL(temp));
 			if(parseError == KErrNone) {				
 				if (TTime(internetDate.DateTime()) > iActiveFeed->BuildDate()) {
 					DP("Successfully parsed build date");
 					iActiveFeed->SetBuildDate(TTime(internetDate.DateTime()));
-				} else {
+				} else if (iFileSize == iActiveFeed->FeedFileSize()){
 					DP("*** Nothing new, aborting parsing");
 					iStoppedParsing = ETrue;
 				}
 			} else {
 				DP("Failed to parse last build date");
 			}
+			iActiveFeed->SetFeedFileSize(iFileSize);
 			iFeedState = EStateChannel;
 			}
 			break;
