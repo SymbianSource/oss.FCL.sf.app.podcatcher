@@ -101,6 +101,7 @@ private:
 	TBool iStoppedParsing;
 	TEncoding iEncoding;
 	RFs& iRfs;
+	TInt iFileSize;
 };
 
 #endif

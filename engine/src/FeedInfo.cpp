@@ -279,3 +279,15 @@ void CFeedInfo::ImageOperationCompleteL(TInt aError, TUint /*aHandle*/, CPodcast
 		aPodcastModel.FeedEngine().NotifyFeedUpdateComplete(this->iUid, KErrNone);
 		}
 	}
+
+
+EXPORT_C TInt CFeedInfo::FeedFileSize() const
+	{
+	return iFeedSize;
+	}
+
+EXPORT_C void CFeedInfo::SetFeedFileSize(TInt aSize)
+	{
+	iFeedSize = aSize;
+	}
+

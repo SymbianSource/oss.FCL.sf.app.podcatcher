@@ -53,6 +53,8 @@ void CFeedEngine::ConstructL()
 	TInt err = KErrNone;
 	TInt feedCount = 0;
 	
+	DBEnsureFileSizeFieldExists();
+	
 	TRAP(err, feedCount = DBGetFeedCountL());
     if (err == KErrNone && feedCount > 0)
     	{
@@ -410,10 +412,10 @@ void CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 	descPtr.Copy(aItem.Description());
 	PodcastUtils::SQLEncode(descPtr);
 	
-	_LIT(KSqlStatement, "insert into feeds (url, title, description, imageurl, imagefile, link, built, lastupdated, uid, feedtype, customtitle, lasterror) values (\"%S\",\"%S\", \"%S\", \"%S\", \"%S\", \"%S\", \"%Ld\", \"%Ld\", \"%u\", \"%u\", \"%u\", \"%d\")");
+	_LIT(KSqlStatement, "insert into feeds (url, title, description, imageurl, imagefile, link, built, lastupdated, uid, feedtype, customtitle, lasterror, filesize) values (\"%S\",\"%S\", \"%S\", \"%S\", \"%S\", \"%S\", \"%Ld\", \"%Ld\", \"%u\", \"%u\", \"%u\", \"%d\", \"%d\")");
 	iSqlBuffer.Format(KSqlStatement,
 			&aItem.Url(), titleBuf, descBuf, &aItem.ImageUrl(), &aItem.ImageFileName(), &aItem.Link(),
-			aItem.BuildDate().Int64(), aItem.LastUpdated().Int64(), aItem.Uid(), EAudioPodcast, aItem.CustomTitle(), aItem.LastError());
+			aItem.BuildDate().Int64(), aItem.LastUpdated().Int64(), aItem.Uid(), EAudioPodcast, aItem.CustomTitle(), aItem.LastError(), aItem.FeedFileSize());
 
 	CleanupStack::PopAndDestroy(descBuf);
 	CleanupStack::PopAndDestroy(titleBuf);
@@ -523,11 +525,10 @@ void CFeedEngine::DBUpdateFeedL(const CFeedInfo &aItem)
 	TPtr descPtr(descBuf->Des());
 	descPtr.Copy(aItem.Description());
 	PodcastUtils::SQLEncode(descPtr);
-	
-	_LIT(KSqlStatement, "update feeds set url=\"%S\", title=\"%S\", description=\"%S\", imageurl=\"%S\", imagefile=\"%S\", link=\"%S\", built=\"%Lu\", lastupdated=\"%Lu\", feedtype=\"%u\", customtitle=\"%u\", lasterror=\"%d\" where uid=\"%u\"");
+	_LIT(KSqlStatement, "update feeds set url=\"%S\", title=\"%S\", description=\"%S\", imageurl=\"%S\", imagefile=\"%S\", link=\"%S\", built=\"%Lu\", lastupdated=\"%Lu\", feedtype=\"%u\", customtitle=\"%u\", lasterror=\"%d\", filesize=\"%d\" where uid=\"%u\"");
 	iSqlBuffer.Format(KSqlStatement,
 			&aItem.Url(), titleBuf, descBuf, &aItem.ImageUrl(), &aItem.ImageFileName(), &aItem.Link(),
-			aItem.BuildDate().Int64(), aItem.LastUpdated().Int64(), EAudioPodcast, aItem.CustomTitle(), aItem.LastError(), aItem.Uid());
+			aItem.BuildDate().Int64(), aItem.LastUpdated().Int64(), EAudioPodcast, aItem.CustomTitle(), aItem.LastError(), aItem.FeedFileSize(), aItem.Uid());
 
 	CleanupStack::PopAndDestroy(descBuf);
 	CleanupStack::PopAndDestroy(titleBuf);
@@ -731,6 +732,25 @@ void CFeedEngine::Disconnected(CHttpClient* /*aClient*/)
 
 void CFeedEngine::DownloadInfo(CHttpClient* /*aHttpClient */, int /*aTotalBytes*/)
 	{	
+	
+	}
+
+void CFeedEngine::DBEnsureFileSizeFieldExists()
+	{
+	DP("DBEnsureFileSizeFieldExists BEGIN");
+	sqlite3_stmt *st;
+	int rc = sqlite3_prepare_v2(&iDB,"alter table feeds add column filesize int" , -1, &st, (const char**) NULL);
+	DP1("    rc=%d", rc);
+	 
+	if( rc==SQLITE_OK )
+		{
+		Cleanup_sqlite3_finalize_PushL(st);
+		rc = sqlite3_step(st);
+		DP1("    rc=%d", rc);
+		CleanupStack::PopAndDestroy(); // st
+		}
+
+	DP("DBEnsureFileSizeFieldExists END");
 	}
 
 EXPORT_C void CFeedEngine::ImportFeedsL(const TDesC& aFile)
@@ -949,7 +969,7 @@ void CFeedEngine::DBLoadFeedsL()
 	iSortedFeeds.Reset();
 	CFeedInfo *feedInfo = NULL;
 	
-	_LIT(KSqlStatement, "select url, title, description, imageurl, imagefile, link, built, lastupdated, uid, feedtype, customtitle, lasterror from feeds");
+	_LIT(KSqlStatement, "select url, title, description, imageurl, imagefile, link, built, lastupdated, uid, feedtype, customtitle, lasterror, filesize from feeds");
 	iSqlBuffer.Format(KSqlStatement);
 
 	sqlite3_stmt *st;
@@ -1009,7 +1029,10 @@ void CFeedEngine::DBLoadFeedsL()
 			
 			sqlite3_int64 lasterror = sqlite3_column_int(st, 11);
 			feedInfo->SetLastError(lasterror);
-			
+		
+			TInt filesize = sqlite3_column_int(st, 12);
+			feedInfo->SetFeedFileSize(filesize);
+
 			TLinearOrder<CFeedInfo> sortOrder( CFeedEngine::CompareFeedsByTitle);
 
 			iSortedFeeds.InsertInOrder(feedInfo, sortOrder);
@@ -1032,7 +1055,7 @@ CFeedInfo* CFeedEngine::DBGetFeedInfoByUidL(TUint aFeedUid)
 	{
 	DP("CFeedEngine::DBGetFeedInfoByUid BEGIN");
 	CFeedInfo *feedInfo = NULL;
-	_LIT(KSqlStatement, "select url, title, description, imageurl, imagefile, link, built, lastupdated, uid, feedtype, customtitle, lasterror from feeds where uid=%u");
+	_LIT(KSqlStatement, "select url, title, description, imageurl, imagefile, link, built, lastupdated, uid, feedtype, customtitle, lasterror, filesize from feeds where uid=%u");
 	iSqlBuffer.Format(KSqlStatement, aFeedUid);
 
 	sqlite3_stmt *st;
@@ -1086,7 +1109,10 @@ CFeedInfo* CFeedEngine::DBGetFeedInfoByUidL(TUint aFeedUid)
 			
 			TInt lasterror = sqlite3_column_int(st, 11);
 			feedInfo->SetLastError(lasterror);
-						
+	
+			TInt filesize = sqlite3_column_int(st, 12);
+			feedInfo->SetFeedFileSize(filesize);
+		
 			CleanupStack::Pop(feedInfo);
 			}
 		else
