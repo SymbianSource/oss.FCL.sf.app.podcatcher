@@ -205,6 +205,10 @@ TBool CHttpClient::GetL(const TDesC& aUrl, const TDesC& aFileName,  TBool aSilen
 		{
 		return EFalse;
 		}
+
+	DP1("Getting URL: %S", &aUrl);
+	DP1("Writing file: %S", &aFileName);
+
 	iCurrentURL.Copy(aUrl);	
 		
 	TInt urlError = iUriParser.Parse(iCurrentURL);
@@ -262,7 +266,7 @@ void CHttpClient::Stop()
 	}
 
 void CHttpClient::ClientRequestCompleteL(TInt aErrorCode) {
-	DP1("CHttpClient::ClientRequestCompleteL, aErrorCode=%d", aErrorCode);
+	DP1("CHttpClient::ClientRequestCompleteL BEGIN, aErrorCode=%d", aErrorCode);
 	iIsActive = EFalse;
 	iObserver.CompleteL(this, aErrorCode);
 	DP1("    iTransactionCount=%d", iTransactionCount);
@@ -278,4 +282,5 @@ void CHttpClient::ClientRequestCompleteL(TInt aErrorCode) {
 			iSession.Close();
 			}
 		}
+	DP("CHttpClient::ClientRequestCompleteL END");
 }

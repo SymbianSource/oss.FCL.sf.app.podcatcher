@@ -105,7 +105,6 @@ void CPodcastModel::ConstructL()
 		
 		if (err != KErrNone)
 			{
-			DP1("err=%d", err);
 			Panic(EPodcatcherPanicDB);
 			}
 		

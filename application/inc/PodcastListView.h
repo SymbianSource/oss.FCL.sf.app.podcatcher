@@ -168,7 +168,7 @@ public MProgressDialogCallback, public MContainerListener, MEikListBoxObserver
 		 
 		 CAknToolbar *iToolbar;
 		 CAknWaitDialog *iWaitDialog;
-		 TBool flipFlop;
+
     };
 #endif // PODCASTBASEVIEWH
 

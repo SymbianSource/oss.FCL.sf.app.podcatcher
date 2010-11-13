@@ -42,7 +42,6 @@ const TInt KADayInHours = 24;
 #define KMaxTitleLength 100
 
 _LIT(KFeedFormatPortrait, "%d\t%S\t%S%S");
-//_LIT(KFeedFormatPortrait, "%d\t%S");
 _LIT(KFeedFormatLandscape, "%d\t%S");
 enum 
 {
@@ -236,7 +235,6 @@ void CPodcastFeedView::HandleListBoxEventL(CEikListBox* /* aListBox */, TListBox
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
 			sortedItems = &iPodcastModel.FeedEngine().GetSortedFeeds();
 
-			DP1("Desc: %S",&((*sortedItems)[index]->Description().Left(30)));
 			if(index >= 0 && index < sortedItems->Count())
 				{
 				iPodcastModel.SetActiveFeedInfo((*sortedItems)[index]);			
@@ -395,6 +393,7 @@ void CPodcastFeedView::FormatFeedInfoListBoxItemL(CFeedInfo& aFeedInfo, TBool aI
 		}
 	
 	iconIndex = iFeedIdForIconArray.Find(aFeedInfo.Uid());
+	DP1("    iconIndex = %d", iconIndex);
 	if(iconIndex == KErrNotFound && aFeedInfo.FeedIcon() != NULL && aFeedInfo.ImageFileName().Length() > 0 && 
 			aFeedInfo.FeedIcon()->SizeInPixels().iHeight > 0 &&
 			aFeedInfo.FeedIcon()->SizeInPixels().iWidth > 0)
@@ -496,7 +495,6 @@ void CPodcastFeedView::UpdateListboxItemsL()
 			iItemArray->Delete(iItemArray->Count() - 1);
 			iItemArrayShort->Delete(iItemArray->Count() - 1);		
 			}
-		//iListContainer->Listbox()->
 		iUpdater->StartUpdate(nbrItems);
 		}
 	else

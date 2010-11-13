@@ -14,6 +14,7 @@
   <outline xmlUrl="www.3sat.de/neues/podcast/podcast.xml"/>
   <outline xmlUrl="http://podkast.nrk.no/program/radioresepsjonen.rss"/>
   <outline xmlUrl="http://www.europe1.fr/rss_export/feed/revue-de-presque-nicolas-canteloup"/>
+  <outline xmlUrl="http://feeds.feedburner.com/rapaduracast"/>
  
 <!-- previously broken feeds, uncomment for regression testing -->
   <outline xmlUrl="http://www.cnet.com/i/pod/cnet_buzz.xml"/>

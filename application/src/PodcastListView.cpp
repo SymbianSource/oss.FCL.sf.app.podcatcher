@@ -302,6 +302,8 @@ CPodcastListView::~CPodcastListView()
     	delete iListContainer;
     	}
          
+    iItemArray->Reset();
+    iItemArrayShort->Reset();
     delete iItemArray;
     delete iItemArrayShort;
     iItemIdArray.Close();
