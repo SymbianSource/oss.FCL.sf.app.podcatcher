@@ -80,3 +80,5 @@ RESOURCE TBUF r_error_playback_failed {buf = STRING_r_error_playback_failed; }
 RESOURCE TBUF r_podcast_searchfeed_prompt {buf = STRING_r_search_feed_prompt;}
 RESOURCE TBUF r_new_shows {buf = STRING_r_new_shows;}
 RESOURCE TBUF r_download_queue {buf = STRING_r_download_queue;}
+RESOURCE TBUF r_download_all_query {buf = STRING_r_download_all_query;}
+RESOURCE TBUF r_mark_all_old_query {buf = STRING_r_mark_all_old_query;}

@@ -142,11 +142,13 @@ void CPodcastAppUi::HandleCommandL( TInt aCommand )
 			const TUid KUidFastSwap = { 0x10207218 };
 			if (activeAppUid == KUidFastSwap)
 				{
+				DP("Exit called by task manager");
 				// closed by task manager
 				Exit();
 				}
 			else
         		{
+				DP("Red button pressed, going into background");
         		// red button pressed
 				TApaTask task(iEikonEnv->WsSession());
 				task.SetWgId(iEikonEnv->RootWin().Identifier());
@@ -227,16 +229,13 @@ void CPodcastAppUi::TabChangedL (TInt aIndex)
 		TUid messageUid = TUid::Uid(0);
 		if (aIndex == KTabIdFeeds) 
 			{
-			DP("one");
 			if (iFeedView->ViewingShows())
 				{
-				DP("two");
 				newview = KUidPodcastShowsViewID;
 				messageUid = TUid::Uid(2);
 				}
 			else
 				{
-				DP("three");
 				newview = KUidPodcastFeedViewID;
 				}
 			} 
@@ -256,7 +255,6 @@ void CPodcastAppUi::TabChangedL (TInt aIndex)
 		
 		if(newview.iUid != 0)
 			{			
-			DP("four");
 			ActivateLocalViewL(newview,  messageUid, KNullDesC8());
 			}
 		}

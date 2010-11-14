@@ -154,6 +154,7 @@ void CPodcastListContainer::ScrollToVisible() {
 		iListbox->ScrollToMakeItemVisible(iListbox->CurrentItemIndex());
 	}
 }
+
 void CPodcastListContainer::SizeChanged()
 {
 	DP2("CPodcastListContainer::SizeChanged() BEGIN, width=%d, height=%d",Size().iWidth, Size().iHeight);

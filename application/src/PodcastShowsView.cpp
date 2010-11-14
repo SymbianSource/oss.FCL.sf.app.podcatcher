@@ -663,22 +663,6 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 			{
 			DisplayShowInfoDialogL();
 			}break;
-		case EPodcastFilterShowsAll:
-			iPodcastModel.ShowEngine().SetShowFilter(EAllShows);
-			UpdateListboxItemsL();
-			break;
-		case EPodcastFilterShowsDownloaded:
-			iPodcastModel.ShowEngine().SetShowFilter(EDownloadedShows);
-			UpdateListboxItemsL();
-			break;			
-		case EPodcastFilterShowsNew:
-			iPodcastModel.ShowEngine().SetShowFilter(ENewShows);
-			UpdateListboxItemsL();
-			break;
-		case EPodcastFilterShowsNewAndDownloaded:
-			iPodcastModel.ShowEngine().SetShowFilter(ENewAndDownloadedShows);
-			UpdateListboxItemsL();
-			break;	
 		default:
 			CPodcastListView::HandleCommandL(aCommand);
 			break;

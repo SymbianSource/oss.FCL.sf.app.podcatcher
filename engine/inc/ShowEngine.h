@@ -34,14 +34,6 @@ struct TDownload
 	TUint iIndex;
 	TUint iUid;
 	};
-	
-typedef enum TShowFilter
-	{
-	EAllShows,
-	ENewShows,
-	EDownloadedShows,
-	ENewAndDownloadedShows
-	};
 
 class CShowEngine : public CBase, public MHttpClientObserver, public MMetaDataReaderObserver
 	{
@@ -86,7 +78,6 @@ public:
 
 	IMPORT_C void CheckForDeletedShows(TUint aFeedUid);
 	IMPORT_C CMetaDataReader& MetaDataReader();
-	IMPORT_C void SetShowFilter(TShowFilter aFilter);
 	IMPORT_C void MoveDownloadUpL(TUint aUid);
 	IMPORT_C void MoveDownloadDownL(TUint aUid);
 
@@ -160,7 +151,6 @@ private:
 	
 	sqlite3& iDB;
     TBuf<KDefaultSQLDataBufferLength> iSqlBuffer;
-   	TShowFilter iShowFilter;
 	};
 
 #endif /*SHOWENGINE_H_*/

@@ -505,7 +505,7 @@ void CPodcastSettingsView::DoActivateL(const TVwsViewId& aPrevViewId,
 	if(iNaviDecorator && iNaviPane)
 		{
 		iNaviPane->PushL(*iNaviDecorator);
-	}
+		}
 
 	((CPodcastAppUi*)AppUi())->SetTabsDimmed(ETrue);
 	DP("CPodcastSettingsView::DoActivateL END");

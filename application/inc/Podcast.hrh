@@ -63,12 +63,6 @@ enum TPodcastCommandIds
 	EPodcastSearch,
 	EPodcastAddSearchResult,
 	EPodcastResetDb,
-	EPodcastFilterShows,
-	EPodcastFilterShowsAll,
-	EPodcastFilterShowsNew,
-	EPodcastFilterShowsDownloaded,
-	EPodcastFilterShowsNewAndDownloaded,
-	// Tabs
 	EPodcastTabFeeds,
 	EPodcastTabQueue,
 	EPodcastTabNew

@@ -160,4 +160,5 @@ rls_string STRING_r_add_search "Search for feed"
 rls_string STRING_r_search_feed_prompt "Enter search terms:"
 rls_string STRING_r_new_shows "New shows"
 rls_string STRING_r_download_queue "Download queue"
-
+rls_string STRING_r_mark_all_old_query "Mark all shows old?"
+rls_string STRING_r_download_all_query "Add all shows to download queue?"
