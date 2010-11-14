@@ -210,8 +210,14 @@ void CPodcastAppUi::NaviShowTabGroupL()
 	{
 	iTabGroup = STATIC_CAST(CAknTabGroup*, iNaviPane->ResourceDecorator()->DecoratedControl());
 	iTabGroup->SetObserver(this); 
+
 	iNaviStyle = ENaviTabGroup;
 	UpdateQueueTabL(iPodcastModel->ShowEngine().GetNumDownloadingShows());
+	}
+
+void CPodcastAppUi::SetTabsDimmed(TBool aDimmed)
+	{
+	iTabGroup->SetDimmed(aDimmed);
 	}
 
 void CPodcastAppUi::TabChangedL (TInt aIndex)
@@ -227,12 +233,18 @@ void CPodcastAppUi::TabChangedL (TInt aIndex)
 			if (iFeedView->ViewingShows())
 				{
 				newview = KUidPodcastShowsViewID;
+				messageUid = TUid::Uid(2);
 				}
 			else
 				{
 				newview = KUidPodcastFeedViewID;
 				}
 			} 
+		else if (aIndex == KTabIdNew)
+			{
+			newview = KUidPodcastShowsViewID;
+			messageUid = KUidShowNewShows;
+			}
 		else if (aIndex == KTabIdQueue)
 			{
 			newview = KUidPodcastQueueViewID;

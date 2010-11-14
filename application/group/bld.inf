@@ -63,6 +63,7 @@ OPTION SOURCES \
 	-c16,1 remove.svg\
 	-c16,1 remove_all.svg\
 	-c16,1 download.svg\
+	-c16,1 download_all.svg\
 	-c16,1 markold.svg\
 	-c16,1 marknew.svg\
 	-c16,1 markold_all.svg\
@@ -70,5 +71,6 @@ OPTION SOURCES \
 	-c16,1 tab_queue.svg\
 	-c16,1 tab_queue1.svg\
 	-c16,1 tab_queue2.svg\
-	-c16,1 tab_queue3.svg
+	-c16,1 tab_queue3.svg\
+	-c16,1 tab_new.svg
 END

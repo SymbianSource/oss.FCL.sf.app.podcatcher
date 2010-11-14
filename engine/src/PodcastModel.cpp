@@ -351,8 +351,7 @@ void CPodcastModel::OpenDBL()
 	TFileName dbFileName;
 	dbFileName.Copy(iSettingsEngine->PrivatePath());
 	dbFileName.Append(KDBFileName);
-	
-	DP1("dbFileName=%S", &dbFileName);
+		
 	if (!BaflUtils::FileExists(iFsSession, dbFileName))
 		{
 		User::Leave(KErrNotFound);
@@ -477,6 +476,12 @@ EXPORT_C void CPodcastModel::GetShowsByFeedL(TUint aFeedUid)
 	iShowEngine->DeleteOldShowsByFeedL(aFeedUid);
 	iShowEngine->CheckForDeletedShows(aFeedUid);
 	iShowEngine->GetShowsByFeedL(iActiveShowList, aFeedUid);
+	}
+
+EXPORT_C void CPodcastModel::GetNewShowsL()
+	{
+	iActiveShowList.ResetAndDestroy();
+	iShowEngine->GetNewShowsL(iActiveShowList);
 	}
 
 EXPORT_C void CPodcastModel::MarkSelectionPlayedL()

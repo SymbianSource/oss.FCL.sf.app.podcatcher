@@ -91,6 +91,7 @@ public:
 	
 	IMPORT_C void GetShowsDownloadingL();
 	IMPORT_C void GetShowsByFeedL(TUint aFeedUid);
+	IMPORT_C void GetNewShowsL();
 	IMPORT_C void MarkSelectionPlayedL();
 	
 	TInt FindActiveShowByUid(TUint aUid);
@@ -105,8 +106,7 @@ protected:
 	void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel);	
 
 private:  // Functions from base classes
-
-   /**
+    /**
      * From MAknServerAppExitObserver.
      * Handles the exit of a connected server application.
      */ 

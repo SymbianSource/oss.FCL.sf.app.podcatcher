@@ -214,10 +214,12 @@ void CPodcastListContainer::SetListboxTextArrays(CDesCArray* aPortraitArray, CDe
 
 CPodcastListContainer::~CPodcastListContainer()
 {
+	DP("CPodcastListContainer::~CPodcastListContainer BEGIN");
 	iListboxLandscape->ItemDrawer()->ColumnData()->SetIconArray(NULL);
 	delete iListboxPortrait;
 	delete iListboxLandscape;
 	delete iBgContext;
+	DP("CPodcastListContainer::~CPodcastListContainer END");
 }
 
 void CPodcastListContainer::SetEmptyText(const TDesC &aText)
@@ -477,3 +479,4 @@ TKeyResponse CPodcastListView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventC
 		}
 	return EKeyWasNotConsumed;
 	}
+

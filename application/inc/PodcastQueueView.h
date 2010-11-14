@@ -79,6 +79,7 @@ protected:
 	TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
 	void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);
 	
+	void UpdateViewTitleL();
 private:
 	TBool iDontUpdateList;
 	};

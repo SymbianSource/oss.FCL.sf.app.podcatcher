@@ -108,6 +108,7 @@ protected:
 	void HandleDeleteShow();
 	void UpdateViewTitleL();
 	void GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode);
+	void HandleDownloadAllL();
 
 protected:
 	
@@ -115,6 +116,7 @@ protected:
 	TBool iProgressAdded;	
 	TInt iLastImageHandlerError;
 	TBool iSetTitlebarImage;
+	TBool iShowNewShows;
 	};
 
 #endif // PODCASTSHOWSVIEWH

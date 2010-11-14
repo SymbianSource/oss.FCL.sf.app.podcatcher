@@ -677,7 +677,6 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 				// now the image has been downloaded, so we set it again in the FeedInfo to start
 				// converting it
 				HBufC *fileNameCopy = iActiveFeed->ImageFileName().AllocLC();
-				DP1("fnc=%S", fileNameCopy);
 				TRAP_IGNORE(iActiveFeed->SetImageFileNameL(*fileNameCopy, &iPodcastModel));
 				CleanupStack::PopAndDestroy(fileNameCopy);
 				}

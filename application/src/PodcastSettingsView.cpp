@@ -24,6 +24,7 @@
 #include <aknnavide.h> 
 #include <podcast.rsg>
 #include "SettingsEngine.h"
+#include <akntitle.h>
 
 #include <akncommondialogsdynmem.h> 
 #include <pathinfo.h>
@@ -487,10 +488,13 @@ void CPodcastSettingsView::DoActivateL(const TVwsViewId& aPrevViewId,
 	DP("Creating navipane");
 	iNaviPane =( CAknNavigationControlContainer * ) StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidNavi ) );
 		
-	HBufC *titleBuffer = iEikonEnv->AllocReadResourceL(R_SETTINGS_TITLE);
-	iNaviDecorator  = iNaviPane->CreateNavigationLabelL(*titleBuffer);
-	delete titleBuffer;
-
+	CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
+			  ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
+		 
+	HBufC *titleBuffer = iEikonEnv->AllocReadResourceLC(R_SETTINGS_TITLE);
+	titlePane->SetTextL(*titleBuffer);
+	CleanupStack::PopAndDestroy(titleBuffer);
+	
 	DP("Updating listbox");
 	AppUi()->AddToStackL(*this, iListbox);
 	iListbox->UpdateSettingVisibility();
@@ -503,6 +507,7 @@ void CPodcastSettingsView::DoActivateL(const TVwsViewId& aPrevViewId,
 		iNaviPane->PushL(*iNaviDecorator);
 		}
 
+	((CPodcastAppUi*)AppUi())->SetTabsDimmed(ETrue);
 	DP("CPodcastSettingsView::DoActivateL END");
 }
 
@@ -522,6 +527,8 @@ void CPodcastSettingsView::DoDeactivate()
 		delete iNaviDecorator;
 		iNaviDecorator = NULL;
 		}
+	
+	((CPodcastAppUi*)AppUi())->SetTabsDimmed(EFalse);
 	DP("CPodcastSettingsView::DoDeactivate END");
 	}
 

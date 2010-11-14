@@ -166,4 +166,7 @@ EXPORTS
 	?MoveDownloadUpL@CShowEngine@@QAEXI@Z @ 165 NONAME ; void CShowEngine::MoveDownloadUpL(unsigned int)
 	?MoveDownloadDownL@CShowEngine@@QAEXI@Z @ 166 NONAME ; void CShowEngine::MoveDownloadDownL(unsigned int)
 	?RemoveObserver@CConnectionEngine@@QAEXPAVMConnectionObserver@@@Z @ 167 NONAME ; void CConnectionEngine::RemoveObserver(class MConnectionObserver *)
+	?FeedFileSize@CFeedInfo@@QBEHXZ @ 168 NONAME ; int CFeedInfo::FeedFileSize(void) const
+	?SetFeedFileSize@CFeedInfo@@QAEXH@Z @ 169 NONAME ; void CFeedInfo::SetFeedFileSize(int)
+	?GetNewShowsL@CPodcastModel@@QAEXXZ @ 170 NONAME ; void CPodcastModel::GetNewShowsL(void)
 

@@ -91,6 +91,25 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
         TBAR_CTRL
             {
             type = EAknCtButton;
+            id = EPodcastUpdateAllFeeds;
+            control = AVKON_BUTTON
+                {
+                states =
+                    {
+                    AVKON_BUTTON_STATE
+                        {
+                        bmpfile = APPICON;
+                        bmpid = EMbmPodcastReload_all;
+                        bmpmask = EMbmPodcastReload_all_mask;
+                        //txt = STRING_r_update_feed_short_cmd;
+                        helptxt = STRING_r_update_all_feeds_cmd;
+                        }  
+                    };
+                };
+            },
+        TBAR_CTRL
+            {
+            type = EAknCtButton;
             id = EPodcastUpdateFeed;
             control = AVKON_BUTTON
                 {
@@ -145,6 +164,25 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
                             };
                         };
                     },
+				TBAR_CTRL
+					 {
+					 type = EAknCtButton;
+					 id = EPodcastDownloadAll;
+					 control = AVKON_BUTTON
+						 {
+						 states =
+							 {
+							 AVKON_BUTTON_STATE
+								 {
+								 bmpfile = APPICON;
+								 bmpid = EMbmPodcastDownload_all;
+								 bmpmask = EMbmPodcastDownload_all_mask;
+								 //txt = STRING_r_cancel_update_all_feeds_short_cmd;
+								 helptxt = STRING_r_download_all_shows;
+								}  
+							 };
+						 };
+					 },
 // we keep the download toolbar button in S^3, but always disable it
 // because there are drawing issues with only one item in the toolbar
             TBAR_CTRL

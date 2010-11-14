@@ -53,6 +53,7 @@ enum TPodcastCommandIds
 	EPodcastMarkAsPlayed,
 	EPodcastMarkAsUnplayed,
 	EPodcastShowInfo,
+	EPodcastDownloadAll,
 	// Common commands
 	EPodcastBack,
 	EPodcastSettings,
@@ -64,8 +65,9 @@ enum TPodcastCommandIds
 	EPodcastAddSearchResult,
 	EPodcastResetDb,
 	EPodcastTabFeeds,
-	EPodcastTabQueue
-};
+	EPodcastTabQueue,
+	EPodcastTabNew
+	};
 
 enum TPodcastControl
 	{
