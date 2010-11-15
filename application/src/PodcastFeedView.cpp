@@ -119,12 +119,14 @@ void CPodcastFeedView::ConstructL()
     
 CPodcastFeedView::~CPodcastFeedView()
     {
+	DP("CPodcastFeedView::~CPodcastFeedView BEGIN");
 	iPodcastModel.FeedEngine().RemoveObserver(this);
 	delete iFeedsFormat;
 	delete iNeverUpdated;
 	delete iStylusPopupMenu;
 	delete iUpdater;
 	iFeedIdForIconArray.Close();
+	DP("CPodcastFeedView::~CPodcastFeedView END");
     }
 
 void CPodcastFeedView::UpdateItemL(TInt aIndex)
@@ -637,7 +639,7 @@ void CPodcastFeedView::HandleAddFeedL()
 void CPodcastFeedView::ShowItem(TUint aUid)
 	{
 	TInt listIndex = -1;
-	for (TUint i=0;i<iItemIdArray.Count();i++)
+	for (TInt i=0;i<iItemIdArray.Count();i++)
 		{
 		if (iItemIdArray[i] == aUid)
 			{

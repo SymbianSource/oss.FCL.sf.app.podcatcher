@@ -38,11 +38,13 @@ CShowEngine::CShowEngine(CPodcastModel& aPodcastModel) :
 
 EXPORT_C CShowEngine::~CShowEngine()
 	{	
+	DP("CShowEngine::~CShowEngine BEGIN");
 	delete iShowClient;
 	iObservers.Close();
 	delete iShowDownloading;
 	delete iMetaDataReader;
 	iApaSession.Close();
+	DP("CShowEngine::~CShowEngine END");
 	}
 
 EXPORT_C CShowEngine* CShowEngine::NewL(CPodcastModel& aPodcastModel)

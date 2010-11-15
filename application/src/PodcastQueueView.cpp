@@ -106,11 +106,13 @@ TKeyResponse CPodcastQueueView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEvent
 
 CPodcastQueueView::~CPodcastQueueView()
 	{
+	DP("CPodcastQueueView::~CPodcastQueueView BEGIN");
 	iPodcastModel.ShowEngine().RemoveObserver(this);
 	iPodcastModel.FeedEngine().RemoveObserver(this);
 	
     if(iStylusPopupMenu)
         delete iStylusPopupMenu, iStylusPopupMenu = NULL;
+	DP("CPodcastQueueView::~CPodcastQueueView END");
 	}
 
 
@@ -385,9 +387,9 @@ void CPodcastQueueView::HandleLongTapEventL( const TPoint& aPenEventLocation, co
     if(iStylusPopupMenu && aPenEventLocation.iY < lbHeight)
     {
 		TBool dimDown = (iListContainer->Listbox()->CurrentItemIndex() >= iPodcastModel.ActiveShowList().Count() - 1 ?
-				ETrue : EFalse);
+				(TBool)ETrue : (TBool)EFalse);
 		TBool dimUp = (iListContainer->Listbox()->CurrentItemIndex() <= 0 ?
-				ETrue : EFalse);
+				(TBool)ETrue : (TBool)EFalse);
 		
 		iStylusPopupMenu->SetItemDimmed(EPodcastMoveDownloadDown, dimDown);
 		iStylusPopupMenu->SetItemDimmed(EPodcastMoveDownloadUp, dimUp);

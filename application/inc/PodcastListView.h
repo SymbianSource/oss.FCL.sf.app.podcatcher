@@ -77,7 +77,6 @@ class CPodcastListContainer : public CCoeControl
 		TBool iLongTapDetected;
         CEikColumnListBox * iListbox;
         TBool iLandscape;
-
 	};
 
 

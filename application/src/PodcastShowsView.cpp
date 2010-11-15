@@ -236,11 +236,14 @@ TKeyResponse CPodcastShowsView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEvent
 
 CPodcastShowsView::~CPodcastShowsView()
 	{
+	DP("CPodcastShowsView::~CPodcastShowsView BEGIN");
 	iPodcastModel.ShowEngine().RemoveObserver(this);
 	iPodcastModel.FeedEngine().RemoveObserver(this);
 	
     if(iStylusPopupMenu)
         delete iStylusPopupMenu, iStylusPopupMenu = NULL;
+	
+    DP("CPodcastShowsView::~CPodcastShowsView END");
 	}
 
 
@@ -475,7 +478,7 @@ void CPodcastShowsView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aS
 		{
 		if (aShowInfo.ShowSize() > 0)
 			{
-				TUint showSize = aShowInfo.ShowSize() >= aSizeDownloaded ? aShowInfo.ShowSize() : aSizeDownloaded;
+				TInt showSize = aShowInfo.ShowSize() >= aSizeDownloaded ? aShowInfo.ShowSize() : aSizeDownloaded;
 				infoSize.Format(KSizeDownloadingOf(), ((float) aSizeDownloaded / (float) KSizeMb),
 						((float) showSize / (float)KSizeMb));
 			}
