@@ -337,7 +337,7 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			}
 			break;
 		default:
-			CPodcastListView::HandleCommandL(aCommand);
+			CPodcastShowsView::HandleCommandL(aCommand);
 			break;
 		}
 	iListContainer->SetLongTapDetectedL(EFalse); // in case we got here by long tapping
@@ -391,7 +391,13 @@ void CPodcastQueueView::HandleLongTapEventL( const TPoint& aPenEventLocation, co
 		
 		iStylusPopupMenu->SetItemDimmed(EPodcastMoveDownloadDown, dimDown);
 		iStylusPopupMenu->SetItemDimmed(EPodcastMoveDownloadUp, dimUp);
-		
+
+		TInt index = iListContainer->Listbox()->CurrentItemIndex();
+		CShowInfo *info = iPodcastModel.ActiveShowList()[index];
+
+		iStylusPopupMenu->SetItemDimmed(EPodcastMarkAsPlayed, info->PlayState() != ENeverPlayed);
+		iStylusPopupMenu->SetItemDimmed(EPodcastMarkAsUnplayed, info->PlayState() == ENeverPlayed);
+	
 		iStylusPopupMenu->ShowMenu();
 		iStylusPopupMenu->SetPosition(aPenEventLocation);
     }
