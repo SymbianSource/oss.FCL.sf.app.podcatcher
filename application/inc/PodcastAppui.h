@@ -41,8 +41,11 @@ const TUid KUidPodcastQueueViewID = {0x00000003};
 const TUid KUidPodcastSearchViewID = {0x00000004};
 const TUid KUidPodcastSettingsViewID = {0x00000005};
 
+const TUid KUidShowNewShows = {0x00000001};
+
 const TInt KTabIdFeeds = 0;
-const TInt KTabIdQueue = 1;
+const TInt KTabIdNew = 1;
+const TInt KTabIdQueue = 2;
 
 const TInt KTimeoutPrio = CActive::EPriorityStandard;
 
@@ -121,6 +124,7 @@ class CPodcastAppUi : public CAknViewAppUi, public MAknTabObserver,
        void NaviSetTextL(TInt aResourceId);
        void NaviShowTabGroupL();
        void GetErrorTextL(TDes &aErrorMessage, TInt aErrorCode);
+       void SetTabsDimmed(TBool aDimmed);
 
     private:
         // From MEikMenuObserver

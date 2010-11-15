@@ -93,6 +93,7 @@ void CPodcastSearchView::ConstructL()
     
 CPodcastSearchView::~CPodcastSearchView()
     {
+	DP("CPodcastSearchView::~CPodcastSearchView BEGIN");
 	iPodcastModel.FeedEngine().RemoveObserver(this);
  
     if(iLongTapDetector)
@@ -101,6 +102,7 @@ CPodcastSearchView::~CPodcastSearchView()
     if(iStylusPopupMenu)
         delete iStylusPopupMenu, iStylusPopupMenu = NULL;
 
+	DP("CPodcastSearchView::~CPodcastSearchView END");
     }
 
 TUid CPodcastSearchView::Id() const
@@ -123,6 +125,7 @@ void CPodcastSearchView::DoActivateL(const TVwsViewId& aPrevViewId,
 	titlePane->SetTextL(*text , ETrue );
 	CleanupStack::PopAndDestroy(text);
 	UpdateListboxItemsL();
+	((CPodcastAppUi*)AppUi())->SetTabsDimmed(ETrue);
 }
 
 void CPodcastSearchView::DoDeactivate()
@@ -133,6 +136,7 @@ void CPodcastSearchView::DoDeactivate()
 			  ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
 		
 	titlePane->SetTextToDefaultL();
+	((CPodcastAppUi*)AppUi())->SetTabsDimmed(EFalse);
 }
 
 

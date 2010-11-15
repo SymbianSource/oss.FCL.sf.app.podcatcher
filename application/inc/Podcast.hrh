@@ -53,6 +53,7 @@ enum TPodcastCommandIds
 	EPodcastMarkAsPlayed,
 	EPodcastMarkAsUnplayed,
 	EPodcastShowInfo,
+	EPodcastDownloadAll,
 	// Common commands
 	EPodcastBack,
 	EPodcastSettings,
@@ -63,14 +64,9 @@ enum TPodcastCommandIds
 	EPodcastSearch,
 	EPodcastAddSearchResult,
 	EPodcastResetDb,
-	EPodcastFilterShows,
-	EPodcastFilterShowsAll,
-	EPodcastFilterShowsNew,
-	EPodcastFilterShowsDownloaded,
-	EPodcastFilterShowsNewAndDownloaded,
-	// Tabs
 	EPodcastTabFeeds,
-	EPodcastTabQueue
+	EPodcastTabQueue,
+	EPodcastTabNew
 	};
 
 enum TPodcastControl
@@ -79,6 +75,7 @@ enum TPodcastControl
 	EPodcastSettingShowDir,
 	EPodcastSettingAutoDownload,
 	EPodcastSettingAutoUpdate,
+	EPodcastSettingAutoDelete,
 	EPodcastSettingMaxsimdls,
 	EPodcastSettingConnection,
 	EPodcastSettingIAPList,
@@ -92,13 +89,17 @@ enum TPodcastControl
 enum TShowsIconIndex
 	{
 	EShowIcon = 0,
-	ENewShowIcon,
+	EShowIconNew,
 	EQuedShowIcon,
+	EQuedShowIconNew,
 	EDownloadingShowIcon,
+	EDownloadingShowIconNew,
 	EDownloadedShowIcon,
-	EDownloadedNewShowIcon,
+	EDownloadedShowIconNew,
 	EFailedShowIcon,
-	ESuspendedShowIcon
+	EFailedShowIconNew,
+	ESuspendedShowIcon,
+	ESuspendedShowIconNew
 	};
 
 enum TConnectionSetting {

@@ -74,7 +74,6 @@ class CPodcastSettingsView : public CAknView
 		CPodcastModel& iPodcastModel;
 		 /** Previous activated view */
 		 TVwsViewId iPreviousView;
-		 TInt iAutoDownloadValue;
 		 CAknNavigationDecorator* iNaviDecorator;
 		 CAknNavigationControlContainer* iNaviPane;
 		 CPodcastSettingItemList  * iListbox;

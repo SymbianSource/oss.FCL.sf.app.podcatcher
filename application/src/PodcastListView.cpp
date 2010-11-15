@@ -73,7 +73,8 @@ void CPodcastListContainer::ConstructL( const TRect& aRect, TInt aListboxFlags )
 	iListboxLandscape->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EAuto, CEikScrollBarFrame::EAuto );
 	iListboxLandscape->SetSize(aRect.Size());
 	iListboxLandscape->MakeVisible(EFalse);
-
+	iListboxLandscape->ItemDrawer()->ColumnData()->EnableMarqueeL(ETrue);
+	
 	iListboxPortrait = new (ELeave) CAknDoubleLargeStyleListBox;
 	iListboxPortrait->ConstructL(this, aListboxFlags);
 	iListboxPortrait->SetMopParent( this );
@@ -82,6 +83,7 @@ void CPodcastListContainer::ConstructL( const TRect& aRect, TInt aListboxFlags )
 	iListboxPortrait->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EAuto, CEikScrollBarFrame::EAuto );
 	iListboxPortrait->SetSize(aRect.Size());
 	iListboxPortrait->MakeVisible(EFalse);
+	iListboxPortrait->ItemDrawer()->ColumnData()->EnableMarqueeL(ETrue);
 	
 	if (aRect.Width() > aRect.Height())
 		{
@@ -154,6 +156,7 @@ void CPodcastListContainer::ScrollToVisible() {
 		iListbox->ScrollToMakeItemVisible(iListbox->CurrentItemIndex());
 	}
 }
+
 void CPodcastListContainer::SizeChanged()
 {
 	DP2("CPodcastListContainer::SizeChanged() BEGIN, width=%d, height=%d",Size().iWidth, Size().iHeight);
@@ -169,9 +172,16 @@ void CPodcastListContainer::SizeChanged()
 		iListboxPortrait->UpdateScrollBarsL();
 		iListboxPortrait->MakeVisible(EFalse);
 
+
 		iListboxLandscape->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EAuto, CEikScrollBarFrame::EAuto );
 		iListboxLandscape->MakeVisible(ETrue);
 		iListboxLandscape->SetFocus(ETrue, EDrawNow);
+
+		TInt index = iListboxPortrait->CurrentItemIndex();
+		
+		if (IsVisible())
+			iListboxLandscape->SetCurrentItemIndex(index);
+
 		iListbox = iListboxLandscape;
 		}
 	else
@@ -183,9 +193,15 @@ void CPodcastListContainer::SizeChanged()
 		iListboxPortrait->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EAuto, CEikScrollBarFrame::EAuto );
 		iListboxPortrait->MakeVisible(ETrue);
 		iListboxPortrait->SetFocus(ETrue, EDrawNow);
+
+		TInt index = iListboxLandscape->CurrentItemIndex();
+		
+		if (IsVisible())
+			iListboxPortrait->SetCurrentItemIndex(index);
+
 		iListbox = (CEikColumnListBox*) iListboxPortrait;
 		}
-
+	
 	iListbox->SetSize(Size());
     ActivateL();  		
 	DrawNow();
@@ -227,10 +243,12 @@ void CPodcastListContainer::SetListboxTextArrays(CDesCArray* aPortraitArray, CDe
 
 CPodcastListContainer::~CPodcastListContainer()
 {
+	DP("CPodcastListContainer::~CPodcastListContainer BEGIN");
 	iListboxLandscape->ItemDrawer()->ColumnData()->SetIconArray(NULL);
 	delete iListboxPortrait;
 	delete iListboxLandscape;
 	delete iBgContext;
+	DP("CPodcastListContainer::~CPodcastListContainer END");
 }
 
 void CPodcastListContainer::SetEmptyText(const TDesC &aText)
@@ -304,8 +322,6 @@ void CPodcastListView::ConstructL()
 
 void CPodcastListView::HandleViewRectChange()
 {    
-	TBool wasVisible = iListContainer->IsVisible();
-
 	if ( iListContainer )
 	{
         iListContainer->SetRect( ClientRect() );

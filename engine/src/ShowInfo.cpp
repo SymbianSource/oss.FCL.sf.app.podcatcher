@@ -255,3 +255,13 @@ EXPORT_C TInt CShowInfo::LastError() const
 	{
 	return iLastError;
 	}
+
+EXPORT_C const TTime CShowInfo::DeleteDate() const
+	{
+	return iDeleteDate;
+	}
+
+EXPORT_C void CShowInfo::SetDeleteDate(TTime aDeleteDate)
+	{
+	iDeleteDate = aDeleteDate;
+	}

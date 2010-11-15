@@ -80,7 +80,7 @@ protected:
 	void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);
 	
 	virtual void HandleLongTapEventL( const TPoint& aPenEventLocation, const TPoint& aPenEventScreenLocation);
-	
+	void UpdateViewTitleL();
 private:
 	TBool iDontUpdateList;
 	};
