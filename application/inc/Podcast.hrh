@@ -74,6 +74,7 @@ enum TPodcastControl
 	EPodcastSettingShowDir,
 	EPodcastSettingAutoDownload,
 	EPodcastSettingAutoUpdate,
+	EPodcastSettingAutoDelete,
 	EPodcastSettingMaxsimdls,
 	EPodcastSettingConnection,
 	EPodcastSettingIAPList,

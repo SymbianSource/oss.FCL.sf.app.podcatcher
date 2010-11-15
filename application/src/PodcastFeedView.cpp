@@ -180,6 +180,7 @@ void CPodcastFeedView::DoActivateL(const TVwsViewId& aPrevViewId,
 	DP("CPodcastFeedView::DoActivateL BEGIN");
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
 	
+	iPodcastModel.ShowEngine().ExpireOldShows();
 	if (aPrevViewId.iViewUid == KUidPodcastShowsViewID)
 		{
 		// back key from shows view

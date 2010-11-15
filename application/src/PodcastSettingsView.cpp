@@ -257,6 +257,9 @@ public:
 		
 		DP1("Download automatically: %d", iAutoDownload);
 		se.SetDownloadAutomatically(iAutoDownload);
+
+		DP1("Delete automatically: %d", iAutoDownload);
+		se.SetDeleteAutomatically((TAutoDeleteSetting)iAutoDelete);
 		se.SaveSettingsL();
 		DP("StoreSettings END");
 	}
@@ -376,6 +379,7 @@ public:
 			}
 									
 		iAutoDownload = se.DownloadAutomatically();
+		iAutoDelete = se.DeleteAutomatically();
 			
 		switch(aSettingId)
 			{
@@ -402,6 +406,11 @@ public:
 				iSettingAutoDownload = new (ELeave) CAknBinaryPopupSettingItem (aSettingId, iAutoDownload);
 				return iSettingAutoDownload;
 				break;
+			case EPodcastSettingAutoDelete:
+				DP("EPodcastSettingAutoDelete");
+				iSettingAutoDelete = new (ELeave) CAknEnumeratedTextPopupSettingItem (aSettingId, iAutoDelete);
+				return iSettingAutoDelete;
+				break;
 			default:
 				return CAknSettingItemList::CreateSettingItemL(aSettingId);
 				break;
@@ -417,6 +426,9 @@ public:
 	
 	TInt iAutoDownload;
 	CAknSettingItem *iSettingAutoDownload; 
+
+	TInt iAutoDelete;
+	CAknSettingItem *iSettingAutoDelete; 
 
 	TInt iConnection;
 	

@@ -239,8 +239,7 @@ EXPORT_C void CPodcastModel::PlayPausePodcastL(CShowInfo* aPodcast, TBool /* aPl
 	
 	if (err == KErrNone)
 		{
-		aPodcast->SetPlayState(EPlayed);
-		iShowEngine->UpdateShowL(*aPodcast);
+		iShowEngine->PostPlayHandling(aPodcast);
 		}
 	else
 		{
