@@ -415,7 +415,6 @@ void CPodcastShowsView::GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex)
 	{
 	TBool dlStop = iPodcastModel.SettingsEngine().DownloadSuspended();
 	TBool isNew = aShowInfo->PlayState() == ENeverPlayed;
-	DP1("downloadstate=%d", aShowInfo->DownloadState());
 	switch (aShowInfo->DownloadState())
 		{
 		case EDownloaded:
@@ -443,7 +442,7 @@ void CPodcastShowsView::GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex)
 		aIconIndex += KVideoIconOffset;
 		}
 	
-	DP3("dlStop=%d, isNew=%d, aIconIndex=%d", dlStop, isNew, aIconIndex);
+	//DP3("dlStop=%d, isNew=%d, aIconIndex=%d", dlStop, isNew, aIconIndex);
 	}
 	
 
@@ -476,8 +475,9 @@ void CPodcastShowsView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aS
 		{
 		if (aShowInfo.ShowSize() > 0)
 			{
+				TUint showSize = aShowInfo.ShowSize() >= aSizeDownloaded ? aShowInfo.ShowSize() : aSizeDownloaded;
 				infoSize.Format(KSizeDownloadingOf(), ((float) aSizeDownloaded / (float) KSizeMb),
-						((float)aShowInfo.ShowSize() / (float)KSizeMb));
+						((float) showSize / (float)KSizeMb));
 			}
 		else
 			{
@@ -648,11 +648,9 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 		{
 		case EPodcastMarkAsPlayed:
 			HandleSetShowPlayedL(ETrue);
-			if (iShowNewShows) UpdateListboxItemsL();
 			break;
 		case EPodcastMarkAsUnplayed:
 			HandleSetShowPlayedL(EFalse);
-			if (iShowNewShows) UpdateListboxItemsL();
 			break;
 		case EPodcastMarkAllPlayed:
 			iPodcastModel.MarkSelectionPlayedL();
@@ -809,7 +807,8 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 			toolbar->HideItem(EPodcastMarkAsUnplayed, ETrue, ETrue );
 			
 			TBool showDownloadAll = EFalse;
-			for (int i=0;i<iPodcastModel.ActiveShowList().Count();i++)
+			TInt count = iPodcastModel.ActiveShowList().Count();
+			for (int i=0;i<count;i++)
 				{
 				CShowInfo* info = iPodcastModel.ActiveShowList()[i];
 				if (info->DownloadState() == ENotDownloaded)
@@ -818,6 +817,7 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 					}
 				}
 	
+			toolbar->SetItemDimmed(EPodcastMarkAllPlayed, !count, ETrue);
 			toolbar->SetItemDimmed(EPodcastDownloadAll, !showDownloadAll, ETrue);
 			}
 		else
@@ -923,9 +923,30 @@ void CPodcastShowsView::HandleSetShowPlayedL(TBool aPlayed)
 		{
 		CShowInfo *info = iPodcastModel.ActiveShowList()[index];
 		info->SetPlayState(aPlayed ? EPlayed : ENeverPlayed);
-		iPodcastModel.ShowEngine().UpdateShowL(*info);
-		UpdateShowItemDataL(iPodcastModel.ActiveShowList()[index], index, 0);
-		iListContainer->Listbox()->DrawItem(index);					
+		if (aPlayed)
+			{
+			// PostPlayHandling calls UpdateShow, which is slow, so we don't need to do it again
+			iPodcastModel.ShowEngine().PostPlayHandling(info);
+			}
+		else
+			{
+			iPodcastModel.ShowEngine().UpdateShowL(*info);
+			}
+		
+		if (iShowNewShows)
+			{
+			UpdateListboxItemsL();
+
+			if (index > 0)
+				{
+				iListContainer->Listbox()->SetCurrentItemIndex(index - 1);
+				}
+			}
+		else
+			{
+			UpdateShowItemDataL(iPodcastModel.ActiveShowList()[index], index, 0);
+			iListContainer->Listbox()->DrawItem(index);	
+			}
 		}
 	}
 

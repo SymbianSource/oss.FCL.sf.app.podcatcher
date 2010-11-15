@@ -519,8 +519,11 @@ void CShowEngine::DBGetOldShowsL(RShowInfoArray& aShowArray)
 	DP("CShowEngine::DBGetOldShowsL BEGIN");
 	TTime now;
 	now.HomeTime();
-	_LIT(KSqlStatement, "select filename, deletedate shows where deletedate < %Ld");
-	iSqlBuffer.Format(KSqlStatement, now.Int64());
+//	TTimeIntervalYears years(5);
+//	now += years;
+	
+	_LIT(KSqlStatement, "select filename from shows where downloadstate=%d and deletedate < \"%Ld\"");
+	iSqlBuffer.Format(KSqlStatement, EDownloaded, now.Int64());
 
 	sqlite3_stmt *st;
 
@@ -535,13 +538,9 @@ void CShowEngine::DBGetOldShowsL(RShowInfoArray& aShowArray)
 			{
 			CShowInfo* showInfo = CShowInfo::NewLC();
 
-			const void *filez = sqlite3_column_text16(st, 3);
+			const void *filez = sqlite3_column_text16(st, 0);
 			TPtrC16 file((const TUint16*) filez);
 			showInfo->SetFileNameL(file);
-
-			sqlite3_int64 deletedate = sqlite3_column_int64(st, 15);
-			TTime timedeletedate(deletedate);
-			showInfo->SetDeleteDate(timedeletedate);
 
 			aShowArray.Append(showInfo);
 			CleanupStack::Pop(showInfo);

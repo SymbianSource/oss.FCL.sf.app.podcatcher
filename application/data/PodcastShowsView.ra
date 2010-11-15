@@ -37,6 +37,11 @@ RESOURCE MENU_PANE r_podcast_showsview_menu
         {
         MENU_ITEM
 			{
+			command = EPodcastMarkAllPlayed;
+			txt = STRING_r_view_mark_all_played_cmd_short;
+			},
+        MENU_ITEM
+			{
 			command = EPodcastAbout;
 			txt = STRING_r_view_about_cmd;
 			}, 
