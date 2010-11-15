@@ -37,11 +37,6 @@ RESOURCE MENU_PANE r_podcast_showsview_menu
         {
         MENU_ITEM
 			{
-			command = EPodcastMarkAllPlayed;
-			txt = STRING_r_view_mark_all_played_cmd;
-			},
-		MENU_ITEM
-			{
 			command = EPodcastAbout;
 			txt = STRING_r_view_about_cmd;
 			}, 
@@ -183,6 +178,25 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
 		TBAR_CTRL
 			{
 			type = EAknCtButton;
+			id = EPodcastMarkAllPlayed;
+			control = AVKON_BUTTON
+				{
+				states =
+					{
+					AVKON_BUTTON_STATE
+						{
+						bmpfile = APPICON;
+						bmpid = EMbmPodcastMark_old_all;
+						bmpmask = EMbmPodcastMark_old_all_mask;
+						//txt = STRING_r_cancel_update_all_feeds_short_cmd;
+						helptxt = STRING_r_view_mark_all_played_cmd;
+					   }  
+					};
+				};
+			},
+		TBAR_CTRL
+			{
+			type = EAknCtButton;
 			id = EPodcastMarkAsPlayed;
 			control = AVKON_BUTTON
 				{
@@ -194,7 +208,7 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
 						bmpid = EMbmPodcastMark_old;
 						bmpmask = EMbmPodcastMark_old_mask;
 						//txt = STRING_r_view_mark_as_played_cmd_short;
-						helptxt = STRING_r_view_mark_as_played_cmd_short;
+						helptxt = STRING_r_view_mark_as_played_cmd;
 						}  
 					};
 				};
@@ -213,7 +227,7 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
 							bmpid = EMbmPodcastMark_new;
 							bmpmask = EMbmPodcastMark_new_mask;
 							//txt = STRING_r_view_mark_as_unplayed_cmd_short;
-							helptxt = STRING_r_view_mark_as_unplayed_cmd_short;
+							helptxt = STRING_r_view_mark_as_unplayed_cmd;
 							}  
 						};
 					};

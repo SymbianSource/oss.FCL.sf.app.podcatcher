@@ -65,6 +65,7 @@ RESOURCE :
 		$(DPATH)\toolbar\mark_new.svg\
 		$(DPATH)\toolbar\mark_new_all.svg\
 		$(DPATH)\toolbar\mark_old.svg\
+		$(DPATH)\toolbar\mark_old_all.svg\
 		$(DPATH)\toolbar\settings.svg\
 		$(DPATH)\toolbar\update.svg\
 		$(DPATH)\toolbar\update_all.svg\

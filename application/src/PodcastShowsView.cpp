@@ -715,7 +715,7 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 	
 void CPodcastShowsView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane)
 {
-	if(aResourceId == R_PODCAST_SHOWSVIEW_MENU)
+	if(aResourceId == R_PODCAST_SHOWSVIEW_MENU && !iShowNewShows)
 		{
 		TBool showMarkAllPlayed = EFalse;
 		for (int i=0;i<iPodcastModel.ActiveShowList().Count();i++)
@@ -730,9 +730,7 @@ void CPodcastShowsView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPan
 			}
 		
 		TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && iPodcastModel.FeedEngine().ActiveClientUid() == iPodcastModel.ActiveFeedInfo()->Uid();
-		aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, updatingState || !showMarkAllPlayed);
-
-			
+		aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, updatingState || !showMarkAllPlayed);	
 		}
 }
 	
@@ -800,10 +798,15 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 
 		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !updatingState, ETrue );
 		toolbar->HideItem(EPodcastDownloadAll, !iShowNewShows, ETrue);
+		toolbar->HideItem(EPodcastMarkAllPlayed, !iShowNewShows, ETrue );
 
 		if (iShowNewShows) 
 			{
 			toolbar->HideItem(EPodcastDownloadShow, ETrue, ETrue );
+			toolbar->HideItem(EPodcastDownloadShow, ETrue, ETrue );
+			toolbar->HideItem(EPodcastDeleteShow, ETrue, ETrue);
+			toolbar->HideItem(EPodcastMarkAsPlayed, ETrue, ETrue );
+			toolbar->HideItem(EPodcastMarkAsUnplayed, ETrue, ETrue );
 			
 			TBool showDownloadAll = EFalse;
 			for (int i=0;i<iPodcastModel.ActiveShowList().Count();i++)
@@ -817,62 +820,64 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 	
 			toolbar->SetItemDimmed(EPodcastDownloadAll, !showDownloadAll, ETrue);
 			}
-		
-		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
-		TInt itemCnt = fItems.Count();
-	
-		TBool hideDownloadShowCmd = EFalse;
-		TBool dimDownloadShowCmd = EFalse;
-		TBool hideSetPlayed = EFalse;
-	
-			if(iListContainer->Listbox() != NULL)
+		else
 			{
-				TInt index = iListContainer->Listbox()->CurrentItemIndex();
-				
-				if(index>= 0 && index < itemCnt)
+			RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
+			TInt itemCnt = fItems.Count();
+		
+			TBool hideDownloadShowCmd = EFalse;
+			TBool dimDownloadShowCmd = EFalse;
+			TBool hideSetPlayed = EFalse;
+		
+				if(iListContainer->Listbox() != NULL)
 				{
-					switch(fItems[index]->DownloadState())
-						{
-						case ENotDownloaded:
-						case EFailedDownload:
-							hideDownloadShowCmd = EFalse;
-							dimDownloadShowCmd = EFalse;
-							break;
-						case EQueued:
-						case EDownloading:
-							hideDownloadShowCmd = EFalse;
-							dimDownloadShowCmd = ETrue;
-							break;
-						case EDownloaded:
-							hideDownloadShowCmd = ETrue;
-							break;
+					TInt index = iListContainer->Listbox()->CurrentItemIndex();
+					
+					if(index>= 0 && index < itemCnt)
+					{
+						switch(fItems[index]->DownloadState())
+							{
+							case ENotDownloaded:
+							case EFailedDownload:
+								hideDownloadShowCmd = EFalse;
+								dimDownloadShowCmd = EFalse;
+								break;
+							case EQueued:
+							case EDownloading:
+								hideDownloadShowCmd = EFalse;
+								dimDownloadShowCmd = ETrue;
+								break;
+							case EDownloaded:
+								hideDownloadShowCmd = ETrue;
+								break;
+							}
+							
+						if(fItems[index]->PlayState() == EPlayed) {
+							hideSetPlayed = ETrue;
 						}
-						
-					if(fItems[index]->PlayState() == EPlayed) {
-						hideSetPlayed = ETrue;
 					}
-				}
-			}		
-		
-		if (hideDownloadShowCmd) {
-			toolbar->HideItem(EPodcastDownloadShow, ETrue, ETrue );
-			toolbar->HideItem(EPodcastDeleteShow, EFalse, ETrue);
-			toolbar->SetItemDimmed(EPodcastDeleteShow, updatingState , ETrue);
-		} else {
-			toolbar->HideItem(EPodcastDownloadShow, EFalse, ETrue );
-			toolbar->HideItem(EPodcastDeleteShow, ETrue, ETrue);
-			toolbar->SetItemDimmed(EPodcastDownloadShow, updatingState || dimDownloadShowCmd || !itemCnt, ETrue);	
-		}
-		
-		if (hideSetPlayed) {
-			toolbar->HideItem(EPodcastMarkAsPlayed, ETrue, ETrue );
-			toolbar->HideItem(EPodcastMarkAsUnplayed, EFalse, ETrue );
-			toolbar->SetItemDimmed(EPodcastMarkAsUnplayed, updatingState, ETrue);
-		} else {
-			toolbar->HideItem(EPodcastMarkAsPlayed, EFalse, ETrue );
-			toolbar->HideItem(EPodcastMarkAsUnplayed, ETrue, ETrue );
-			toolbar->SetItemDimmed(EPodcastMarkAsPlayed, updatingState|| !itemCnt, ETrue);
-		}
+				}		
+			
+			if (hideDownloadShowCmd) {
+				toolbar->HideItem(EPodcastDownloadShow, ETrue, ETrue );
+				toolbar->HideItem(EPodcastDeleteShow, EFalse, ETrue);
+				toolbar->SetItemDimmed(EPodcastDeleteShow, updatingState , ETrue);
+			} else {
+				toolbar->HideItem(EPodcastDownloadShow, EFalse, ETrue );
+				toolbar->HideItem(EPodcastDeleteShow, ETrue, ETrue);
+				toolbar->SetItemDimmed(EPodcastDownloadShow, updatingState || dimDownloadShowCmd || !itemCnt, ETrue);	
+			}
+			
+			if (hideSetPlayed) {
+				toolbar->HideItem(EPodcastMarkAsPlayed, ETrue, ETrue );
+				toolbar->HideItem(EPodcastMarkAsUnplayed, EFalse, ETrue );
+				toolbar->SetItemDimmed(EPodcastMarkAsUnplayed, updatingState, ETrue);
+			} else {
+				toolbar->HideItem(EPodcastMarkAsPlayed, EFalse, ETrue );
+				toolbar->HideItem(EPodcastMarkAsUnplayed, ETrue, ETrue );
+				toolbar->SetItemDimmed(EPodcastMarkAsPlayed, updatingState|| !itemCnt, ETrue);
+			}
+		}		
 	}
 }
 
@@ -896,8 +901,8 @@ void CPodcastShowsView::HandleLongTapEventL( const TPoint& aPenEventLocation, co
 			TBool hideDeleteShowCmd = info->DownloadState() != EDownloaded;
 			TBool hideMarkOld = info->PlayState() == EPlayed;
 			
-			iStylusPopupMenu->SetItemDimmed(EPodcastMarkAsPlayed, hideMarkOld);
-			iStylusPopupMenu->SetItemDimmed(EPodcastMarkAsUnplayed, !hideMarkOld);
+			iStylusPopupMenu->SetItemDimmed(EPodcastMarkAsPlayed, hideMarkOld || !iShowNewShows);
+			iStylusPopupMenu->SetItemDimmed(EPodcastMarkAsUnplayed, !hideMarkOld || !iShowNewShows);
 						
 			iStylusPopupMenu->SetItemDimmed(EPodcastDownloadShow, hideDownloadShowCmd);
 			iStylusPopupMenu->SetItemDimmed(EPodcastDeleteShow, hideDeleteShowCmd);

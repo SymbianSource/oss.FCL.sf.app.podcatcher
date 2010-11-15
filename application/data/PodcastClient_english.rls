@@ -19,7 +19,7 @@
 // Menu items
 
 rls_string STRING_r_settings_cmd "Settings"
-rls_string STRING_r_view_mark_all_played_cmd "Mark all old"
+rls_string STRING_r_view_mark_all_played_cmd "Mark all shows old"
 rls_string STRING_r_exit_cmd "Exit"
 rls_string STRING_r_view_help "Help"
 rls_string STRING_r_view_about_cmd "About"
@@ -108,7 +108,7 @@ rls_string STRING_r_view_edit_feed_cmd_short "Edit"
 rls_string STRING_r_view_delete_feed_cmd "Remove feed"
 rls_string STRING_r_view_delete_feed_cmd_short "Remove"
 rls_string STRING_r_update_feed_cmd "Update feed"
-rls_string STRING_r_update_feed_short_cmd "Update feed"
+rls_string STRING_r_update_feed_short_cmd "Update"
 rls_string STRING_r_update_all_feeds_cmd "Update all feeds"
 rls_string STRING_r_update_all_feeds_short_cmd "Update"
 rls_string STRING_r_podcast_feeds_is_updating "Updating..."
@@ -128,8 +128,10 @@ rls_string STRING_r_search_results "Search results"
 
 // Show view
 
-rls_string STRING_r_view_mark_as_played_cmd_short "Mark show old"
-rls_string STRING_r_view_mark_as_unplayed_cmd_short "Mark show new"
+rls_string STRING_r_view_mark_as_played_cmd "Mark show old"
+rls_string STRING_r_view_mark_as_played_cmd_short "Mark old"
+rls_string STRING_r_view_mark_as_unplayed_cmd "Mark show new"
+rls_string STRING_r_view_mark_as_unplayed_cmd_short "Mark  new"
 rls_string STRING_r_view_download_show_cmd "Download show"
 rls_string STRING_r_view_delete_show_cmd "Delete show"
 rls_string STRING_r_view_show_info_cmd "Info"

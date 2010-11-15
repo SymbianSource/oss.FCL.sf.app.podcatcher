@@ -128,14 +128,14 @@ CCoeControl* CPodcastListContainer::ComponentControl(TInt aIndex) const
 void CPodcastListContainer::SetLongTapDetectedL(TBool aLongTapDetected)
 	{
 	DP("CPodcastListContainer::SetLongTapDetectedL BEGIN");
-//	iLongTapDetected = aLongTapDetected;
-//	
-//	if (aLongTapDetected == EFalse)
-//		{
-//		TPointerEvent event;
-//		event.iType = TPointerEvent::EButton1Up;
-//		//CCoeControl::HandlePointerEventL(event);
-//		}
+	iLongTapDetected = aLongTapDetected;
+	
+	if (aLongTapDetected == EFalse)
+		{
+		TPointerEvent event;
+		event.iType = TPointerEvent::EButton1Up;
+		//CCoeControl::HandlePointerEventL(event);
+		}
 	DP("CPodcastListContainer::SetLongTapDetectedL END");
 	}
 

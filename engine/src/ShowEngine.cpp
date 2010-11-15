@@ -934,7 +934,7 @@ void CShowEngine::DBUpdateShowL(CShowInfo& aItem)
 			&aItem.FileName(), aItem.Position().Int64(), aItem.PlayTime(),
 			aItem.PlayState(), aItem.DownloadState(), aItem.FeedUid(),
 			aItem.ShowSize(), aItem.TrackNo(), aItem.PubDate().Int64(),
-			aItem.ShowType(), aItem.LastError(), aItem.DeleteDate(), aItem.Uid());
+			aItem.ShowType(), aItem.LastError(), aItem.DeleteDate().Int64(), aItem.Uid());
 
 	CleanupStack::PopAndDestroy(descBuf);
 	CleanupStack::PopAndDestroy(titleBuf);
