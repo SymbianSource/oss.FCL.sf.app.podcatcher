@@ -712,7 +712,8 @@ void CShowEngine::DBGetDownloadedShowsL(RShowInfoArray& aShowArray)
 void CShowEngine::DBGetNewShowsL(RShowInfoArray& aShowArray)
 	{
 	DP("CShowEngine::DBGetNewShows");
-	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype, lasterror, deletedate from shows where playstate=%u");
+	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype, lasterror from shows where playstate=%u order by pubdate desc");
+
 	iSqlBuffer.Format(KSqlStatement, ENeverPlayed);
 
 	sqlite3_stmt *st;
