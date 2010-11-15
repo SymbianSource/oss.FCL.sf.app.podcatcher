@@ -25,7 +25,7 @@
 #include "PodcastListView.h"
 #include "Podcast.hrh"
 
-class CPodcastSearchView : public CPodcastListView, public MEikListBoxObserver, 
+class CPodcastSearchView : public CPodcastListView, 
 	public MFeedEngineObserver
     {
     public: 

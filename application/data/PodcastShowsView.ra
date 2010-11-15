@@ -74,8 +74,8 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
                     AVKON_BUTTON_STATE
                         {
                         bmpfile = APPICON;
-                        bmpid = EMbmPodcastReload_all;
-                        bmpmask = EMbmPodcastReload_all_mask;
+                        bmpid = EMbmPodcastUpdate_all;
+                        bmpmask = EMbmPodcastUpdate_all_mask;
                         //txt = STRING_r_update_feed_short_cmd;
                         helptxt = STRING_r_update_all_feeds_cmd;
                         }  
@@ -93,8 +93,8 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
                     AVKON_BUTTON_STATE
                         {
                         bmpfile = APPICON;
-                        bmpid = EMbmPodcastReload;
-                        bmpmask = EMbmPodcastReload_mask;
+                        bmpid = EMbmPodcastUpdate;
+                        bmpmask = EMbmPodcastUpdate_mask;
                         //txt = STRING_r_update_feed_short_cmd;
                         helptxt = STRING_r_update_feed_cmd;
                         }  
@@ -112,8 +112,8 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
                         AVKON_BUTTON_STATE
                             {
                             bmpfile = APPICON;
-                            bmpid = EMbmPodcastCancel;
-                            bmpmask = EMbmPodcastCancel_mask;
+                            bmpid = EMbmPodcastUpdate_cancel;
+                            bmpmask = EMbmPodcastUpdate_cancel_mask;
                             //txt = STRING_r_cancel_update_all_feeds_short_cmd;
                             helptxt = STRING_r_cancel_update_all_feeds_cmd;
                            }  
@@ -162,6 +162,25 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
 				};
 			},
 		TBAR_CTRL
+				 {
+				 type = EAknCtButton;
+				 id = EPodcastDownloadAll;
+				 control = AVKON_BUTTON
+					 {
+					 states =
+						 {
+						 AVKON_BUTTON_STATE
+							 {
+							 bmpfile = APPICON;
+							 bmpid = EMbmPodcastDownload_all;
+							 bmpmask = EMbmPodcastDownload_all_mask;
+							 //txt = STRING_r_cancel_update_all_feeds_short_cmd;
+							 helptxt = STRING_r_download_all_shows;
+							}  
+						 };
+					 };
+				 },
+		TBAR_CTRL
 			{
 			type = EAknCtButton;
 			id = EPodcastMarkAsPlayed;
@@ -172,8 +191,8 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
 					AVKON_BUTTON_STATE
 						{
 						bmpfile = APPICON;
-						bmpid = EMbmPodcastMarkold;
-						bmpmask = EMbmPodcastMarkold_mask;
+						bmpid = EMbmPodcastMark_old;
+						bmpmask = EMbmPodcastMark_old_mask;
 						//txt = STRING_r_view_mark_as_played_cmd_short;
 						helptxt = STRING_r_view_mark_as_played_cmd_short;
 						}  
@@ -191,8 +210,8 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
 						AVKON_BUTTON_STATE
 							{
 							bmpfile = APPICON;
-							bmpid = EMbmPodcastMarknew;
-							bmpmask = EMbmPodcastMarknew_mask;
+							bmpid = EMbmPodcastMark_new;
+							bmpmask = EMbmPodcastMark_new_mask;
 							//txt = STRING_r_view_mark_as_unplayed_cmd_short;
 							helptxt = STRING_r_view_mark_as_unplayed_cmd_short;
 							}  
@@ -210,7 +229,18 @@ RESOURCE STYLUS_POPUP_MENU r_showview_popup_menu
 				{
 					txt = STRING_r_view_show_info_cmd;
 					command = EPodcastShowInfo;
+				},
+			STYLUS_POPUP_MENU_ITEM
+				{
+					txt = STRING_r_view_mark_as_unplayed_cmd_short;
+					command = EPodcastMarkAsUnplayed;
+				},
+			STYLUS_POPUP_MENU_ITEM
+				{
+					txt = STRING_r_view_mark_as_played_cmd_short;
+					command = EPodcastMarkAsPlayed;
 				}
+
 		};
 	}
 

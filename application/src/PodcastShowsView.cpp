@@ -44,45 +44,85 @@ _LIT(KShowFormatLandscape, "%d\t%S");
 
 const TUint KShowIconArrayIds[] =
 	{
-			EMbmPodcastAudio,
-			EMbmPodcastAudio_mask,
-			EMbmPodcastAudio_new,
-			EMbmPodcastAudio_new_mask,
-			EMbmPodcastAudio_queued,
-			EMbmPodcastAudio_queued_mask,
-			EMbmPodcastAudio_downloading,
-			EMbmPodcastAudio_downloading_mask,
-			EMbmPodcastAudio_downloaded,
-			EMbmPodcastAudio_downloaded_mask,
-			EMbmPodcastAudio_downloaded_new,
-			EMbmPodcastAudio_downloaded_new_mask,
-			EMbmPodcastAudio_failed,
-			EMbmPodcastAudio_failed_mask,
-			EMbmPodcastAudio_suspended,
-			EMbmPodcastAudio_suspended_mask,
-			EMbmPodcastVideo,
-			EMbmPodcastVideo_mask,
-			EMbmPodcastVideo_new,
-			EMbmPodcastVideo_new_mask,
-			EMbmPodcastVideo_queued,
-			EMbmPodcastVideo_queued_mask,
-			EMbmPodcastVideo_downloading,
-			EMbmPodcastVideo_downloading_mask,
-			EMbmPodcastVideo_downloaded,
-			EMbmPodcastVideo_downloaded_mask,
-			EMbmPodcastVideo_downloaded_new,
-			EMbmPodcastVideo_downloaded_new_mask,
-			EMbmPodcastVideo_failed,
-			EMbmPodcastVideo_failed_mask,
-			EMbmPodcastVideo_suspended,
-			EMbmPodcastVideo_suspended_mask,
-			EMbmPodcastFeed,
-			EMbmPodcastFeed_mask,
-			0,
-			0
+	//	EShowIcon = 0,
+	EMbmPodcastAudio,
+	EMbmPodcastAudio_mask,
+	//	EShowIconNew,
+	EMbmPodcastAudio_new,
+	EMbmPodcastAudio_new_mask,
+	//	EQuedShowIcon,
+	EMbmPodcastAudio_dl_queued,
+	EMbmPodcastAudio_dl_queued_mask,
+	//	EQuedShowIconNew,
+	EMbmPodcastAudio_dl_queued_new,
+	EMbmPodcastAudio_dl_queued_new_mask,
+	//	EDownloadingShowIcon,
+	EMbmPodcastAudio_dl_active,
+	EMbmPodcastAudio_dl_active_mask,
+	//	EDownloadingShowIconNew,
+	EMbmPodcastAudio_dl_active_new,
+	EMbmPodcastAudio_dl_active_new_mask,
+	//	EDownloadedShowIcon,
+	EMbmPodcastAudio_dl,
+	EMbmPodcastAudio_dl_mask,
+	//	EDownloadedShowIconNew,
+	EMbmPodcastAudio_dl_new,
+	EMbmPodcastAudio_dl_new_mask,
+	//	EFailedShowIcon,
+	EMbmPodcastAudio_dl_failed,
+	EMbmPodcastAudio_dl_failed_mask,
+	//	EFailedShowIconNew,
+	EMbmPodcastAudio_dl_failed_new,
+	EMbmPodcastAudio_dl_failed_new_mask,
+	//	ESuspendedShowIcon,
+	EMbmPodcastAudio_dl_suspended,
+	EMbmPodcastAudio_dl_suspended_mask,
+	//	ESuspendedShowIconNew
+	EMbmPodcastAudio_dl_suspended_new,
+	EMbmPodcastAudio_dl_suspended_new_mask,
+	//	EShowIcon = 0,
+	EMbmPodcastVideo,
+	EMbmPodcastVideo_mask,
+	//	EShowIconNew,
+	EMbmPodcastVideo_new,
+	EMbmPodcastVideo_new_mask,
+	//	EQuedShowIcon,
+	EMbmPodcastVideo_dl_queued,
+	EMbmPodcastVideo_dl_queued_mask,
+	//	EQuedShowIconNew,
+	EMbmPodcastVideo_dl_queued_new,
+	EMbmPodcastVideo_dl_queued_new_mask,
+	//	EDownloadingShowIcon,
+	EMbmPodcastVideo_dl_active,
+	EMbmPodcastVideo_dl_active_mask,
+	//	EDownloadingShowIconNew,
+	EMbmPodcastVideo_dl_active_new,
+	EMbmPodcastVideo_dl_active_new_mask,
+	//	EDownloadedShowIcon,
+	EMbmPodcastVideo_dl,
+	EMbmPodcastVideo_dl_mask,
+	//	EDownloadedShowIconNew,
+	EMbmPodcastVideo_dl_new,
+	EMbmPodcastVideo_dl_new_mask,
+	//	EFailedShowIcon,
+	EMbmPodcastVideo_dl_failed,
+	EMbmPodcastVideo_dl_failed_mask,
+	//	EFailedShowIconNew,
+	EMbmPodcastVideo_dl_failed_new,
+	EMbmPodcastVideo_dl_failed_new_mask,
+	//	ESuspendedShowIcon,
+	EMbmPodcastVideo_dl_suspended,
+	EMbmPodcastVideo_dl_suspended_mask,
+	//	ESuspendedShowIconNew
+	EMbmPodcastVideo_dl_suspended_new,
+	EMbmPodcastVideo_dl_suspended_new_mask,
+	EMbmPodcastFeed,
+	EMbmPodcastFeed_mask,
+	0,
+	0
 	};
 
-const TInt KVideoIconOffset = 8;
+const TInt KVideoIconOffset = 12;
 
 CPodcastShowsView* CPodcastShowsView::NewL(CPodcastModel& aPodcastModel)
 	{
@@ -374,31 +414,27 @@ void CPodcastShowsView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 void CPodcastShowsView::GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex)
 	{
 	TBool dlStop = iPodcastModel.SettingsEngine().DownloadSuspended();
-
+	TBool isNew = aShowInfo->PlayState() == ENeverPlayed;
+	DP1("downloadstate=%d", aShowInfo->DownloadState());
 	switch (aShowInfo->DownloadState())
 		{
 		case EDownloaded:
-			if (aShowInfo->PlayState() == ENeverPlayed) {
-				aIconIndex = EDownloadedNewShowIcon;
-			} else {
-				aIconIndex = EDownloadedShowIcon;
-			}
+			aIconIndex = isNew ? EDownloadedShowIconNew : EDownloadedShowIcon;
 			break;
 		case ENotDownloaded:
-			if (aShowInfo->PlayState() == ENeverPlayed) {
-				aIconIndex = ENewShowIcon;
-			} else {
-				aIconIndex = EShowIcon;
-			}
+			aIconIndex = isNew ? EShowIconNew : EShowIcon;
 			break;
 		case EQueued:
-			aIconIndex = dlStop ? ESuspendedShowIcon : EQuedShowIcon;
+			aIconIndex = dlStop ? (isNew ? ESuspendedShowIconNew : ESuspendedShowIcon) : 
+								  (isNew ? EQuedShowIconNew : EQuedShowIcon);
 			break;
 		case EDownloading:
-			aIconIndex = dlStop ? ESuspendedShowIcon : EDownloadingShowIcon;		
+			aIconIndex = dlStop ? (isNew ? ESuspendedShowIconNew : ESuspendedShowIcon) : 
+								  (isNew ? EDownloadingShowIconNew : EDownloadingShowIcon);	
 			break;
 		case EFailedDownload:
-			aIconIndex = EFailedShowIcon;
+			aIconIndex = dlStop ? (isNew ? ESuspendedShowIconNew : ESuspendedShowIcon) : 
+								  (isNew ? EFailedShowIconNew : EFailedShowIconNew);
 			break;
 		}
 	
@@ -406,6 +442,8 @@ void CPodcastShowsView::GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex)
 		{
 		aIconIndex += KVideoIconOffset;
 		}
+	
+	DP3("dlStop=%d, isNew=%d, aIconIndex=%d", dlStop, isNew, aIconIndex);
 	}
 	
 
@@ -623,6 +661,9 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 		case EPodcastDeleteShow:
 			HandleDeleteShowL();
 			break;
+		case EPodcastDownloadAll:
+			HandleDownloadAllL();
+			break;
 		case EPodcastDownloadShow:
 			{
 			TInt index = iListContainer->Listbox()->CurrentItemIndex();
@@ -712,6 +753,27 @@ void CPodcastShowsView::DisplayShowInfoDialogL()
 		}
 	}
 
+void CPodcastShowsView::HandleDownloadAllL()
+	{
+	
+	TBuf<KMaxMessageLength> msg;
+	iEikonEnv->ReadResourceL(msg, R_DOWNLOAD_ALL_QUERY);
+	if (!ShowQueryMessageL(msg))
+		{
+		return;
+		}
+		
+	for (int i=0;i<iPodcastModel.ActiveShowList().Count();i++)
+		{
+		CShowInfo* info = iPodcastModel.ActiveShowList()[i];
+
+		if (info->DownloadState() == ENotDownloaded)
+			{
+			TRAP_IGNORE(iPodcastModel.ShowEngine().AddDownloadL(*info));
+			}
+		}
+	}
+
 void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 {
 	CAknToolbar* toolbar = Toolbar();
@@ -737,7 +799,25 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 			}
 
 		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !updatingState, ETrue );
+		toolbar->HideItem(EPodcastDownloadAll, !iShowNewShows, ETrue);
 
+		if (iShowNewShows) 
+			{
+			toolbar->HideItem(EPodcastDownloadShow, ETrue, ETrue );
+			
+			TBool showDownloadAll = EFalse;
+			for (int i=0;i<iPodcastModel.ActiveShowList().Count();i++)
+				{
+				CShowInfo* info = iPodcastModel.ActiveShowList()[i];
+				if (info->DownloadState() == ENotDownloaded)
+					{
+					showDownloadAll = ETrue;
+					}
+				}
+	
+			toolbar->SetItemDimmed(EPodcastDownloadAll, !showDownloadAll, ETrue);
+			}
+		
 		RShowInfoArray &fItems = iPodcastModel.ActiveShowList();
 		TInt itemCnt = fItems.Count();
 	
@@ -745,43 +825,43 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 		TBool dimDownloadShowCmd = EFalse;
 		TBool hideSetPlayed = EFalse;
 	
-		if(iListContainer->Listbox() != NULL)
-		{
-			TInt index = iListContainer->Listbox()->CurrentItemIndex();
-			
-			if(index>= 0 && index < itemCnt)
+			if(iListContainer->Listbox() != NULL)
 			{
-				switch(fItems[index]->DownloadState())
-					{
-					case ENotDownloaded:
-					case EFailedDownload:
-						hideDownloadShowCmd = EFalse;
-						dimDownloadShowCmd = EFalse;
-						break;
-					case EQueued:
-					case EDownloading:
-						hideDownloadShowCmd = EFalse;
-						dimDownloadShowCmd = ETrue;
-						break;
-					case EDownloaded:
-						hideDownloadShowCmd = ETrue;
-						break;
+				TInt index = iListContainer->Listbox()->CurrentItemIndex();
+				
+				if(index>= 0 && index < itemCnt)
+				{
+					switch(fItems[index]->DownloadState())
+						{
+						case ENotDownloaded:
+						case EFailedDownload:
+							hideDownloadShowCmd = EFalse;
+							dimDownloadShowCmd = EFalse;
+							break;
+						case EQueued:
+						case EDownloading:
+							hideDownloadShowCmd = EFalse;
+							dimDownloadShowCmd = ETrue;
+							break;
+						case EDownloaded:
+							hideDownloadShowCmd = ETrue;
+							break;
+						}
+						
+					if(fItems[index]->PlayState() == EPlayed) {
+						hideSetPlayed = ETrue;
 					}
-					
-				if(fItems[index]->PlayState() == EPlayed) {
-					hideSetPlayed = ETrue;
 				}
-			}
-		}
+			}		
 		
 		if (hideDownloadShowCmd) {
 			toolbar->HideItem(EPodcastDownloadShow, ETrue, ETrue );
 			toolbar->HideItem(EPodcastDeleteShow, EFalse, ETrue);
-			toolbar->SetItemDimmed(EPodcastDeleteShow, updatingState, ETrue);
+			toolbar->SetItemDimmed(EPodcastDeleteShow, updatingState , ETrue);
 		} else {
 			toolbar->HideItem(EPodcastDownloadShow, EFalse, ETrue );
 			toolbar->HideItem(EPodcastDeleteShow, ETrue, ETrue);
-			toolbar->SetItemDimmed(EPodcastDownloadShow, updatingState || dimDownloadShowCmd, ETrue);	
+			toolbar->SetItemDimmed(EPodcastDownloadShow, updatingState || dimDownloadShowCmd || !itemCnt, ETrue);	
 		}
 		
 		if (hideSetPlayed) {
@@ -791,7 +871,7 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 		} else {
 			toolbar->HideItem(EPodcastMarkAsPlayed, EFalse, ETrue );
 			toolbar->HideItem(EPodcastMarkAsUnplayed, ETrue, ETrue );
-			toolbar->SetItemDimmed(EPodcastMarkAsPlayed, updatingState, ETrue);
+			toolbar->SetItemDimmed(EPodcastMarkAsPlayed, updatingState|| !itemCnt, ETrue);
 		}
 	}
 }

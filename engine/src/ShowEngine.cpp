@@ -928,12 +928,12 @@ void CShowEngine::DBUpdateShowL(CShowInfo& aItem)
 	descPtr.Copy(aItem.Description());
 	PodcastUtils::SQLEncode(descPtr);
 
-	_LIT(KSqlStatement, "update shows set url=\"%S\", title=\"%S\", description=\"%S\", filename=\"%S\", position=\"%Lu\", playtime=\"%u\", playstate=\"%u\", downloadstate=\"%u\", feeduid=\"%u\", showsize=\"%u\", trackno=\"%u\",pubdate=\"%Lu\", showtype=\"%d\", lasterror=\"%d\",deletedate=\"%Lu\" where uid=\"%u\"");
+	_LIT(KSqlStatement, "update shows set url=\"%S\", title=\"%S\", description=\"%S\", filename=\"%S\", position=\"%Lu\", playtime=\"%u\", playstate=\"%u\", downloadstate=\"%u\", feeduid=\"%u\", showsize=\"%u\", trackno=\"%u\",pubdate=\"%Lu\", showtype=\"%d\", lasterror=\"%d\", deletedate=\"%Lu\" where uid=\"%u\"");
 	iSqlBuffer.Format(KSqlStatement, &aItem.Url(), &titlePtr, &descPtr,
 			&aItem.FileName(), aItem.Position().Int64(), aItem.PlayTime(),
 			aItem.PlayState(), aItem.DownloadState(), aItem.FeedUid(),
 			aItem.ShowSize(), aItem.TrackNo(), aItem.PubDate().Int64(),
-			aItem.ShowType(), aItem.LastError(), aItem.Uid(), aItem.DeleteDate());
+			aItem.ShowType(), aItem.LastError(), aItem.DeleteDate(), aItem.Uid());
 
 	CleanupStack::PopAndDestroy(descBuf);
 	CleanupStack::PopAndDestroy(titleBuf);

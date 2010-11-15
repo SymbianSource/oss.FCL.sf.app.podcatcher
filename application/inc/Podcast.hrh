@@ -53,6 +53,7 @@ enum TPodcastCommandIds
 	EPodcastMarkAsPlayed,
 	EPodcastMarkAsUnplayed,
 	EPodcastShowInfo,
+	EPodcastDownloadAll,
 	// Common commands
 	EPodcastBack,
 	EPodcastSettings,
@@ -88,13 +89,17 @@ enum TPodcastControl
 enum TShowsIconIndex
 	{
 	EShowIcon = 0,
-	ENewShowIcon,
+	EShowIconNew,
 	EQuedShowIcon,
+	EQuedShowIconNew,
 	EDownloadingShowIcon,
+	EDownloadingShowIconNew,
 	EDownloadedShowIcon,
-	EDownloadedNewShowIcon,
+	EDownloadedShowIconNew,
 	EFailedShowIcon,
-	ESuspendedShowIcon
+	EFailedShowIconNew,
+	ESuspendedShowIcon,
+	ESuspendedShowIconNew
 	};
 
 enum TConnectionSetting {
