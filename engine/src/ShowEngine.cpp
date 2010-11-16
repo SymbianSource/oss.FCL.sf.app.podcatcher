@@ -1689,10 +1689,13 @@ EXPORT_C void CShowEngine::PostPlayHandling(CShowInfo *aShow)
 			break;
 		}
 	
-	TTime deleteDate;
-	deleteDate.HomeTime();
-	deleteDate += daysAhead;
-	aShow->SetDeleteDate(deleteDate);
+	if (daysAhead.Int() > 0)
+		{
+		TTime deleteDate;
+		deleteDate.HomeTime();
+		deleteDate += daysAhead;
+		aShow->SetDeleteDate(deleteDate);
+		}
 	
 	UpdateShowL(*aShow);
 	DP("CShowEngine::PostPlayHandling END");
