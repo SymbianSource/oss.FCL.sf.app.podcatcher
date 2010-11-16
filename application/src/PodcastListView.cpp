@@ -180,7 +180,7 @@ void CPodcastListContainer::SizeChanged()
 
 		TInt index = iListboxPortrait->CurrentItemIndex();
 		
-		if (IsVisible())
+		if (IsVisible() && index >=0)
 			iListboxLandscape->SetCurrentItemIndex(index);
 
 		iListbox = iListboxLandscape;
@@ -197,7 +197,7 @@ void CPodcastListContainer::SizeChanged()
 
 		TInt index = iListboxLandscape->CurrentItemIndex();
 		
-		if (IsVisible())
+		if (IsVisible() && index >=0)
 			iListboxPortrait->SetCurrentItemIndex(index);
 
 		iListbox = (CEikColumnListBox*) iListboxPortrait;

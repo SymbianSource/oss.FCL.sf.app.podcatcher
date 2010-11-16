@@ -314,7 +314,8 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 				}
 			
 			UpdateListboxItemsL();
-			iListContainer->Listbox()->SetCurrentItemIndex(index + 1);
+			if (index < iPodcastModel.ActiveShowList().Count() -1)
+				iListContainer->Listbox()->SetCurrentItemIndex(index + 1);
 			}
 			break;
 		case EPodcastSuspendDownloads:
