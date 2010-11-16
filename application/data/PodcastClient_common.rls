@@ -24,4 +24,4 @@ rls_string STRING_r_caption "Podcatcher"
 rls_string STRING_r_short_caption "Podcatcher"
 
 rls_string STRING_r_about_title "About Podcatcher"
-rls_string STRING_r_about_body "Version 1.10 (%d) for Symbian 1\n© 2007-2010 Sebastian Brannstrom, Lars Persson, Anders Fridlund"
+rls_string STRING_r_about_body "Version 1.10 (%d) for S60 5th ed.\n© 2007-2010 Sebastian Brannstrom, Lars Persson, Anders Fridlund"
