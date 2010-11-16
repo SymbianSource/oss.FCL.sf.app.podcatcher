@@ -478,7 +478,7 @@ void CPodcastShowsView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aS
 		{
 		if (aShowInfo.ShowSize() > 0)
 			{
-				TInt showSize = aShowInfo.ShowSize() >= aSizeDownloaded ? aShowInfo.ShowSize() : aSizeDownloaded;
+				TUint showSize = aShowInfo.ShowSize() >= (TUint) aSizeDownloaded ? aShowInfo.ShowSize() : (TUint) aSizeDownloaded;
 				infoSize.Format(KSizeDownloadingOf(), ((float) aSizeDownloaded / (float) KSizeMb),
 						((float) showSize / (float)KSizeMb));
 			}
@@ -724,22 +724,22 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 	
 void CPodcastShowsView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane)
 {
-	if(aResourceId == R_PODCAST_SHOWSVIEW_MENU && !iShowNewShows)
+	if(aResourceId == R_PODCAST_SHOWSVIEW_MENU)
 		{
-		TBool showMarkAllPlayed = EFalse;
+		TBool hideMarkAllPlayed = ETrue;
 		for (int i=0;i<iPodcastModel.ActiveShowList().Count();i++)
 			{
 			CShowInfo* info = iPodcastModel.ActiveShowList()[i];
 			if (info->PlayState() == ENeverPlayed)
 				{
-				showMarkAllPlayed = ETrue;
+				hideMarkAllPlayed = EFalse;
 				break;
 				}
 			
 			}
 		
 		TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && iPodcastModel.FeedEngine().ActiveClientUid() == iPodcastModel.ActiveFeedInfo()->Uid();
-		aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, updatingState || !showMarkAllPlayed);	
+		aMenuPane->SetItemDimmed(EPodcastMarkAllPlayed, updatingState || hideMarkAllPlayed || iShowNewShows);	
 		}
 }
 	
