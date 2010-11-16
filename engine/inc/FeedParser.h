@@ -62,6 +62,13 @@ enum TEncoding {
 	ELatin1
 };
 
+enum TFeedDirection
+	{
+	EFeedUnknown,
+	EFeedAddsAtTop,
+	EFeedAddsAtBottom
+	};
+
 const int KBufferLength = 1024;
 
 class CFeedParser : public CBase, public Xml::MContentHandler 
@@ -102,6 +109,8 @@ private:
 	TEncoding iEncoding;
 	RFs& iRfs;
 	TInt iFileSize;
+	TFeedDirection iFeedDirection;
+	TTime iPreviousPubDate;
 };
 
 #endif
