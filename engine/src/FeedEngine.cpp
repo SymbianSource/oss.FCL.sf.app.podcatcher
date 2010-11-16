@@ -393,7 +393,7 @@ void CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 	{
 	DP2("CFeedEngine::DBAddFeed BEGIN, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 	
-	CFeedInfo *info;
+	CFeedInfo *info = NULL;
 	
 	TRAPD(err, info = DBGetFeedInfoByUidL(aItem.Uid()));
 	
