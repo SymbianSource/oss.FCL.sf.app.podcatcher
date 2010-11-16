@@ -27,7 +27,6 @@
 #include <cmmanager.h>
 #include <aknserverapp.h>  // MAknServerAppExitObserver
 #include <DocumentHandler.h>
-
 #include "FeedInfo.h"
 #include "ShowInfo.h"
 #include "debug.h"

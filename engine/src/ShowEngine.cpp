@@ -1666,9 +1666,6 @@ EXPORT_C void CShowEngine::PostPlayHandling(CShowInfo *aShow)
 		case EAutoDeleteAfter7Days:
 			daysAhead = 7;
 			break;
-		case EAutoDeleteAfter3Days:
-			daysAhead = 30;
-			break;
 		}
 	
 	TTime deleteDate;

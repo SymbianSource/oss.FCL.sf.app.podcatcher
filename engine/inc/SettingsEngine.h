@@ -52,8 +52,7 @@ enum TAutoDeleteSetting
 	{
 	EAutoDeleteOff,
 	EAutoDeleteAfter1Day,	
-	EAutoDeleteAfter7Days,
-	EAutoDeleteAfter3Days
+	EAutoDeleteAfter7Days
 	};
 
 class CSettingsEngine : public CBase

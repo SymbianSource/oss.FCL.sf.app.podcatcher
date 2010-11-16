@@ -656,6 +656,7 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 			HandleSetShowPlayedL(EFalse);
 			break;
 		case EPodcastMarkAllPlayed:
+			{
 			if (iShowNewShows) {
 				TBuf<KMaxMessageLength> msg;
 				iEikonEnv->ReadResourceL(msg, R_MARK_ALL_OLD_QUERY);
@@ -666,6 +667,7 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 			}
 			iPodcastModel.MarkSelectionPlayedL();
 			UpdateListboxItemsL();
+			}
 			break;
 		case EPodcastDeleteShow:
 			HandleDeleteShowL();
