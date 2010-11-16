@@ -190,7 +190,6 @@ EXPORT_C void PodcastUtils::CleanHtmlL(TDes &str)
 		
 		if (startPos+1 <= str.Length()) {
 			TInt newPos = str.Mid(startPos+1).Locate('&');
-			DP("two");
 			if (newPos != KErrNotFound)
 				{
 				startPos = startPos+1 + newPos;
