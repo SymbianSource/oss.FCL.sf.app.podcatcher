@@ -99,8 +99,10 @@ TKeyResponse CPodcastQueueView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEvent
 
 CPodcastQueueView::~CPodcastQueueView()
 	{
+	DP("CPodcastQueueView::~CPodcastQueueView BEGIN");
 	iPodcastModel.ShowEngine().RemoveObserver(this);
 	iPodcastModel.FeedEngine().RemoveObserver(this);
+	DP("CPodcastQueueView::~CPodcastQueueView END");
 	}
 
 
@@ -303,7 +305,8 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 				}
 			
 			UpdateListboxItemsL();
-			iListContainer->Listbox()->SetCurrentItemIndex(index + 1);
+			if (index < iPodcastModel.ActiveShowList().Count() -1)
+				iListContainer->Listbox()->SetCurrentItemIndex(index + 1);
 			}
 			break;
 		case EPodcastSuspendDownloads:
@@ -328,7 +331,7 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			}
 			break;
 		default:
-			CPodcastListView::HandleCommandL(aCommand);
+			CPodcastShowsView::HandleCommandL(aCommand);
 			break;
 		}
 	UpdateToolbar();

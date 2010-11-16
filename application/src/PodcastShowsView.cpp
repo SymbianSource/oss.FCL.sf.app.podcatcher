@@ -44,45 +44,85 @@ _LIT(KShowFormatLandscape, "%d\t%S");
 
 const TUint KShowIconArrayIds[] =
 	{
-			EMbmPodcastAudio,
-			EMbmPodcastAudio_mask,
-			EMbmPodcastAudio_new,
-			EMbmPodcastAudio_new_mask,
-			EMbmPodcastAudio_queued,
-			EMbmPodcastAudio_queued_mask,
-			EMbmPodcastAudio_downloading,
-			EMbmPodcastAudio_downloading_mask,
-			EMbmPodcastAudio_downloaded,
-			EMbmPodcastAudio_downloaded_mask,
-			EMbmPodcastAudio_downloaded_new,
-			EMbmPodcastAudio_downloaded_new_mask,
-			EMbmPodcastAudio_failed,
-			EMbmPodcastAudio_failed_mask,
-			EMbmPodcastAudio_suspended,
-			EMbmPodcastAudio_suspended_mask,
-			EMbmPodcastVideo,
-			EMbmPodcastVideo_mask,
-			EMbmPodcastVideo_new,
-			EMbmPodcastVideo_new_mask,
-			EMbmPodcastVideo_queued,
-			EMbmPodcastVideo_queued_mask,
-			EMbmPodcastVideo_downloading,
-			EMbmPodcastVideo_downloading_mask,
-			EMbmPodcastVideo_downloaded,
-			EMbmPodcastVideo_downloaded_mask,
-			EMbmPodcastVideo_downloaded_new,
-			EMbmPodcastVideo_downloaded_new_mask,
-			EMbmPodcastVideo_failed,
-			EMbmPodcastVideo_failed_mask,
-			EMbmPodcastVideo_suspended,
-			EMbmPodcastVideo_suspended_mask,
-			EMbmPodcastFeed,
-			EMbmPodcastFeed_mask,
-			0,
-			0
+	//	EShowIcon = 0,
+	EMbmPodcastAudio,
+	EMbmPodcastAudio_mask,
+	//	EShowIconNew,
+	EMbmPodcastAudio_new,
+	EMbmPodcastAudio_new_mask,
+	//	EQuedShowIcon,
+	EMbmPodcastAudio_dl_queued,
+	EMbmPodcastAudio_dl_queued_mask,
+	//	EQuedShowIconNew,
+	EMbmPodcastAudio_dl_queued_new,
+	EMbmPodcastAudio_dl_queued_new_mask,
+	//	EDownloadingShowIcon,
+	EMbmPodcastAudio_dl_active,
+	EMbmPodcastAudio_dl_active_mask,
+	//	EDownloadingShowIconNew,
+	EMbmPodcastAudio_dl_active_new,
+	EMbmPodcastAudio_dl_active_new_mask,
+	//	EDownloadedShowIcon,
+	EMbmPodcastAudio_dl,
+	EMbmPodcastAudio_dl_mask,
+	//	EDownloadedShowIconNew,
+	EMbmPodcastAudio_dl_new,
+	EMbmPodcastAudio_dl_new_mask,
+	//	EFailedShowIcon,
+	EMbmPodcastAudio_dl_failed,
+	EMbmPodcastAudio_dl_failed_mask,
+	//	EFailedShowIconNew,
+	EMbmPodcastAudio_dl_failed_new,
+	EMbmPodcastAudio_dl_failed_new_mask,
+	//	ESuspendedShowIcon,
+	EMbmPodcastAudio_dl_suspended,
+	EMbmPodcastAudio_dl_suspended_mask,
+	//	ESuspendedShowIconNew
+	EMbmPodcastAudio_dl_suspended_new,
+	EMbmPodcastAudio_dl_suspended_new_mask,
+	//	EShowIcon = 0,
+	EMbmPodcastVideo,
+	EMbmPodcastVideo_mask,
+	//	EShowIconNew,
+	EMbmPodcastVideo_new,
+	EMbmPodcastVideo_new_mask,
+	//	EQuedShowIcon,
+	EMbmPodcastVideo_dl_queued,
+	EMbmPodcastVideo_dl_queued_mask,
+	//	EQuedShowIconNew,
+	EMbmPodcastVideo_dl_queued_new,
+	EMbmPodcastVideo_dl_queued_new_mask,
+	//	EDownloadingShowIcon,
+	EMbmPodcastVideo_dl_active,
+	EMbmPodcastVideo_dl_active_mask,
+	//	EDownloadingShowIconNew,
+	EMbmPodcastVideo_dl_active_new,
+	EMbmPodcastVideo_dl_active_new_mask,
+	//	EDownloadedShowIcon,
+	EMbmPodcastVideo_dl,
+	EMbmPodcastVideo_dl_mask,
+	//	EDownloadedShowIconNew,
+	EMbmPodcastVideo_dl_new,
+	EMbmPodcastVideo_dl_new_mask,
+	//	EFailedShowIcon,
+	EMbmPodcastVideo_dl_failed,
+	EMbmPodcastVideo_dl_failed_mask,
+	//	EFailedShowIconNew,
+	EMbmPodcastVideo_dl_failed_new,
+	EMbmPodcastVideo_dl_failed_new_mask,
+	//	ESuspendedShowIcon,
+	EMbmPodcastVideo_dl_suspended,
+	EMbmPodcastVideo_dl_suspended_mask,
+	//	ESuspendedShowIconNew
+	EMbmPodcastVideo_dl_suspended_new,
+	EMbmPodcastVideo_dl_suspended_new_mask,
+	EMbmPodcastFeed,
+	EMbmPodcastFeed_mask,
+	0,
+	0
 	};
 
-const TInt KVideoIconOffset = 8;
+const TInt KVideoIconOffset = 12;
 
 CPodcastShowsView* CPodcastShowsView::NewL(CPodcastModel& aPodcastModel)
 	{
@@ -189,8 +229,10 @@ TKeyResponse CPodcastShowsView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEvent
 
 CPodcastShowsView::~CPodcastShowsView()
 	{
+	DP("CPodcastShowsView::~CPodcastShowsView BEGIN");
 	iPodcastModel.ShowEngine().RemoveObserver(this);
 	iPodcastModel.FeedEngine().RemoveObserver(this);
+    DP("CPodcastShowsView::~CPodcastShowsView END");
 	}
 
 
@@ -366,31 +408,26 @@ void CPodcastShowsView::HandleListBoxEventL(CEikListBox* /*aListBox*/,
 void CPodcastShowsView::GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex)
 	{
 	TBool dlStop = iPodcastModel.SettingsEngine().DownloadSuspended();
-
+	TBool isNew = aShowInfo->PlayState() == ENeverPlayed;
 	switch (aShowInfo->DownloadState())
 		{
 		case EDownloaded:
-			if (aShowInfo->PlayState() == ENeverPlayed) {
-				aIconIndex = EDownloadedNewShowIcon;
-			} else {
-				aIconIndex = EDownloadedShowIcon;
-			}
+			aIconIndex = isNew ? EDownloadedShowIconNew : EDownloadedShowIcon;
 			break;
 		case ENotDownloaded:
-			if (aShowInfo->PlayState() == ENeverPlayed) {
-				aIconIndex = ENewShowIcon;
-			} else {
-				aIconIndex = EShowIcon;
-			}
+			aIconIndex = isNew ? EShowIconNew : EShowIcon;
 			break;
 		case EQueued:
-			aIconIndex = dlStop ? ESuspendedShowIcon : EQuedShowIcon;
+			aIconIndex = dlStop ? (isNew ? ESuspendedShowIconNew : ESuspendedShowIcon) : 
+								  (isNew ? EQuedShowIconNew : EQuedShowIcon);
 			break;
 		case EDownloading:
-			aIconIndex = dlStop ? ESuspendedShowIcon : EDownloadingShowIcon;		
+			aIconIndex = dlStop ? (isNew ? ESuspendedShowIconNew : ESuspendedShowIcon) : 
+								  (isNew ? EDownloadingShowIconNew : EDownloadingShowIcon);	
 			break;
 		case EFailedDownload:
-			aIconIndex = EFailedShowIcon;
+			aIconIndex = dlStop ? (isNew ? ESuspendedShowIconNew : ESuspendedShowIcon) : 
+								  (isNew ? EFailedShowIconNew : EFailedShowIconNew);
 			break;
 		}
 	
@@ -398,6 +435,8 @@ void CPodcastShowsView::GetShowIcons(CShowInfo* aShowInfo, TInt& aIconIndex)
 		{
 		aIconIndex += KVideoIconOffset;
 		}
+	
+	//DP3("dlStop=%d, isNew=%d, aIconIndex=%d", dlStop, isNew, aIconIndex);
 	}
 	
 
@@ -430,8 +469,9 @@ void CPodcastShowsView::FormatShowInfoListBoxItemL(CShowInfo& aShowInfo, TInt aS
 		{
 		if (aShowInfo.ShowSize() > 0)
 			{
+				TUint showSize = aShowInfo.ShowSize() >= (TUint) aSizeDownloaded ? aShowInfo.ShowSize() : (TUint) aSizeDownloaded;
 				infoSize.Format(KSizeDownloadingOf(), ((float) aSizeDownloaded / (float) KSizeMb),
-						((float)aShowInfo.ShowSize() / (float)KSizeMb));
+						((float) showSize / (float)KSizeMb));
 			}
 		else
 			{
@@ -602,11 +642,9 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 		{
 		case EPodcastMarkAsPlayed:
 			HandleSetShowPlayedL(ETrue);
-			if (iShowNewShows) UpdateListboxItemsL();
 			break;
 		case EPodcastMarkAsUnplayed:
 			HandleSetShowPlayedL(EFalse);
-			if (iShowNewShows) UpdateListboxItemsL();
 			break;
 		case EPodcastMarkAllPlayed:
 			{
@@ -716,6 +754,27 @@ void CPodcastShowsView::DisplayShowInfoDialogL()
 		}
 	}
 
+void CPodcastShowsView::HandleDownloadAllL()
+	{
+	
+	TBuf<KMaxMessageLength> msg;
+	iEikonEnv->ReadResourceL(msg, R_DOWNLOAD_ALL_QUERY);
+	if (!ShowQueryMessageL(msg))
+		{
+		return;
+		}
+		
+	for (int i=0;i<iPodcastModel.ActiveShowList().Count();i++)
+		{
+		CShowInfo* info = iPodcastModel.ActiveShowList()[i];
+
+		if (info->DownloadState() == ENotDownloaded)
+			{
+			TRAP_IGNORE(iPodcastModel.ShowEngine().AddDownloadL(*info));
+			}
+		}
+	}
+
 void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 {
 	CAknToolbar* toolbar = Toolbar();
@@ -727,7 +786,7 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 	
 		TBool updatingState = iPodcastModel.FeedEngine().ClientState() != EIdle && iPodcastModel.ActiveFeedInfo() && 
 				iPodcastModel.FeedEngine().ActiveClientUid() == iPodcastModel.ActiveFeedInfo()->Uid();
-
+	
 		if (iShowNewShows)
 			{
 			updatingState = iPodcastModel.FeedEngine().ClientState();
@@ -777,9 +836,30 @@ void CPodcastShowsView::HandleSetShowPlayedL(TBool aPlayed)
 		{
 		CShowInfo *info = iPodcastModel.ActiveShowList()[index];
 		info->SetPlayState(aPlayed ? EPlayed : ENeverPlayed);
-		iPodcastModel.ShowEngine().UpdateShowL(*info);
-		UpdateShowItemDataL(iPodcastModel.ActiveShowList()[index], index, 0);
-		iListContainer->Listbox()->DrawItem(index);					
+		if (aPlayed)
+			{
+			// PostPlayHandling calls UpdateShow, which is slow, so we don't need to do it again
+			iPodcastModel.ShowEngine().PostPlayHandling(info);
+			}
+		else
+			{
+			iPodcastModel.ShowEngine().UpdateShowL(*info);
+			}
+		
+		if (iShowNewShows)
+			{
+			UpdateListboxItemsL();
+
+			if (index > 0)
+				{
+				iListContainer->Listbox()->SetCurrentItemIndex(index - 1);
+				}
+			}
+		else
+			{
+			UpdateShowItemDataL(iPodcastModel.ActiveShowList()[index], index, 0);
+			iListContainer->Listbox()->DrawItem(index);	
+			}
 		}
 	}
 
@@ -806,27 +886,6 @@ void CPodcastShowsView::HandleDeleteShowL()
 			
 			UpdateShowItemDataL(iPodcastModel.ActiveShowList()[index], index, 0);
 			iListContainer->Listbox()->DrawItem(index);					
-			}
-		}
-	}
-
-void CPodcastShowsView::HandleDownloadAllL()
-	{
-	
-	TBuf<KMaxMessageLength> msg;
-	iEikonEnv->ReadResourceL(msg, R_DOWNLOAD_ALL_QUERY);
-	if (!ShowQueryMessageL(msg))
-		{
-		return;
-		}
-		
-	for (int i=0;i<iPodcastModel.ActiveShowList().Count();i++)
-		{
-		CShowInfo* info = iPodcastModel.ActiveShowList()[i];
-
-		if (info->DownloadState() == ENotDownloaded)
-			{
-			TRAP_IGNORE(iPodcastModel.ShowEngine().AddDownloadL(*info));
 			}
 		}
 	}

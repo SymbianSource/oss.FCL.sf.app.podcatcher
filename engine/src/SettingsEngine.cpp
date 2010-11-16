@@ -160,8 +160,9 @@ void CSettingsEngine::LoadSettingsL()
 		TInt low = stream.ReadInt32L();
 		TInt high = stream.ReadInt32L();
 		iUpdateFeedTime = MAKE_TINT64(high, low);
+		
+		iDeleteAutomatically = (TAutoDeleteSetting) stream.ReadInt32L();
 		TInt dummy;		
-		dummy = stream.ReadInt32L(); // was iSelectOnlyUnplayed
 		dummy = stream.ReadInt32L(); // was iSeekStepTime
 				
 		CleanupStack::PopAndDestroy(1); // readStream and iniFile
@@ -193,7 +194,7 @@ EXPORT_C void CSettingsEngine::SaveSettingsL()
 	
 	stream.WriteInt32L(I64LOW(iUpdateFeedTime.Int64()));
 	stream.WriteInt32L(I64HIGH(iUpdateFeedTime.Int64()));
-	stream.WriteInt32L(0); // was iSelectOnlyUnplayed
+	stream.WriteInt32L(iDeleteAutomatically);
 	stream.WriteInt32L(0); // was iSeekStepTime
 
 	stream.CommitL();
@@ -347,4 +348,14 @@ EXPORT_C void CSettingsEngine::SetDownloadSuspended(TBool aSuspended)
 	{
 	DP1("CSettingsEngine::SetDownloadSuspended, aSuspended=%d", aSuspended);
 	iDownloadSuspended = aSuspended;
+	}
+
+EXPORT_C TAutoDeleteSetting CSettingsEngine::DeleteAutomatically() 
+	{
+	return iDeleteAutomatically;
+	}
+
+EXPORT_C void CSettingsEngine::SetDeleteAutomatically(TAutoDeleteSetting aDeleteAuto)
+	{
+	iDeleteAutomatically = aDeleteAuto;
 	}

@@ -25,14 +25,14 @@
 #include <es_sock.h>
 #include <http/rhttpsession.h>
 #include <cmmanager.h>
-#include "defines.h"
+#include <aknserverapp.h>  // MAknServerAppExitObserver
+#include <DocumentHandler.h>
 #include "FeedInfo.h"
 #include "ShowInfo.h"
 #include "debug.h"
 #include <sqlite3.h>
 #include "ImageHandler.h"
-#include <aknserverapp.h>  // MAknServerAppExitObserver
-#include <DocumentHandler.h>
+#include "defines.h"
 
 // SQLite leaks memory when sorting, so to test our own memory leaks we need to disable this
 //#define DONT_SORT_SQL
@@ -103,7 +103,7 @@ protected:
 	void ResetDB();
 	void OpenDBL();
 	// From ImageHandler
-	void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel);	
+	void ImageOperationCompleteL(TInt aError, TUint aHandle, CPodcastModel& aPodcastModel);
 
 private:  // Functions from base classes
     /**

@@ -98,6 +98,11 @@ public:
 	
 	IMPORT_C void SetLastError(TInt aLastError);
 	IMPORT_C TInt LastError() const;
+
+	IMPORT_C const TTime DeleteDate() const;
+	IMPORT_C void SetDeleteDate(TTime aDeleteDate);
+	
+	
 private:
 	CShowInfo();
 	void ConstructL();
@@ -119,6 +124,7 @@ private:
 	TBool iDelete;
 	TShowType iShowType;
 	TInt  iLastError;
+	TTime iDeleteDate;
 };
 
 typedef RPointerArray<CShowInfo> RShowInfoArray;

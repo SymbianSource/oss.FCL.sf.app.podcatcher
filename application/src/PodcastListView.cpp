@@ -32,6 +32,7 @@
 #include <akntitle.h>
 #include <akniconarray.h>
 #include <EIKCLBD.H>
+#include <aknmessagequerydialog.h>
 
 #include "buildno.h"
 
@@ -73,7 +74,8 @@ void CPodcastListContainer::ConstructL( const TRect& aRect, TInt aListboxFlags )
 	iListboxLandscape->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EAuto, CEikScrollBarFrame::EAuto );
 	iListboxLandscape->SetSize(aRect.Size());
 	iListboxLandscape->MakeVisible(EFalse);
-
+	iListboxLandscape->ItemDrawer()->ColumnData()->EnableMarqueeL(ETrue);
+	
 	iListboxPortrait = new (ELeave) CAknDoubleLargeStyleListBox;
 	iListboxPortrait->ConstructL(this, aListboxFlags);
 	iListboxPortrait->SetMopParent( this );
@@ -82,6 +84,7 @@ void CPodcastListContainer::ConstructL( const TRect& aRect, TInt aListboxFlags )
 	iListboxPortrait->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EAuto, CEikScrollBarFrame::EAuto );
 	iListboxPortrait->SetSize(aRect.Size());
 	iListboxPortrait->MakeVisible(EFalse);
+	iListboxPortrait->ItemDrawer()->ColumnData()->EnableMarqueeL(ETrue);
 	
 	if (aRect.Width() > aRect.Height())
 		{
@@ -156,9 +159,16 @@ void CPodcastListContainer::SizeChanged()
 		iListboxPortrait->UpdateScrollBarsL();
 		iListboxPortrait->MakeVisible(EFalse);
 
+
 		iListboxLandscape->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EAuto, CEikScrollBarFrame::EAuto );
 		iListboxLandscape->MakeVisible(ETrue);
 		iListboxLandscape->SetFocus(ETrue, EDrawNow);
+
+		TInt index = iListboxPortrait->CurrentItemIndex();
+		
+		if (IsVisible() && index >=0)
+			iListboxLandscape->SetCurrentItemIndex(index);
+
 		iListbox = iListboxLandscape;
 		}
 	else
@@ -170,9 +180,15 @@ void CPodcastListContainer::SizeChanged()
 		iListboxPortrait->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EAuto, CEikScrollBarFrame::EAuto );
 		iListboxPortrait->MakeVisible(ETrue);
 		iListboxPortrait->SetFocus(ETrue, EDrawNow);
+
+		TInt index = iListboxLandscape->CurrentItemIndex();
+		
+		if (IsVisible() && index >=0)
+			iListboxPortrait->SetCurrentItemIndex(index);
+
 		iListbox = (CEikColumnListBox*) iListboxPortrait;
 		}
-
+	
 	iListbox->SetSize(Size());
     ActivateL();  		
 	DrawNow();
@@ -280,8 +296,6 @@ void CPodcastListView::ConstructL()
 
 void CPodcastListView::HandleViewRectChange()
 {    
-	TBool wasVisible = iListContainer->IsVisible();
-
 	if ( iListContainer )
 	{
         iListContainer->SetRect( ClientRect() );
@@ -383,13 +397,22 @@ TBool CPodcastListView::IsVisible()
 
 void CPodcastListView::RunAboutDialogL()
 {
-	CAknNoteDialog* dlg = new(ELeave) CAknNoteDialog();
-	HBufC *aboutTextTemplate = iEikonEnv->AllocReadResourceLC(R_ABOUT_TEXT);
+	HBufC *aboutTextTitle = iEikonEnv->AllocReadResourceLC(R_ABOUT_TITLE);
+	
+	HBufC *aboutTextTemplate = iEikonEnv->AllocReadResourceLC(R_ABOUT_BODY);
 	TBuf<255> aboutText;
 	aboutText.Format(*aboutTextTemplate, BUILD_NO);
-	dlg->SetTextL(aboutText);
 	CleanupStack::PopAndDestroy(aboutTextTemplate);
-	dlg->ExecuteLD(R_DLG_ABOUT);
+	
+	HBufC *aboutTextBody = aboutText.AllocLC();
+	
+	CAknMessageQueryDialog* note = new ( ELeave ) CAknMessageQueryDialog(aboutTextBody, aboutTextTitle );
+						
+	note->PrepareLC( R_SHOW_INFO_NOTE ); // Adds to CleanupStack
+	note->RunLD();
+
+	CleanupStack::Pop(aboutTextBody);
+	CleanupStack::Pop(aboutTextTitle);
 }
 
 void CPodcastListView::SetEmptyTextL(TInt aResourceId)

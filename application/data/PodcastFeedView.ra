@@ -135,8 +135,8 @@ RESOURCE AVKON_TOOLBAR r_feedview_toolbar
                     AVKON_BUTTON_STATE
                         {
                         bmpfile = APPICON;
-                        bmpid = EMbmPodcastReload_all;
-                        bmpmask = EMbmPodcastReload_all_mask;
+                        bmpid = EMbmPodcastUpdate_all;
+                        bmpmask = EMbmPodcastUpdate_all_mask;
                         //txt = STRING_r_update_feed_short_cmd;
                         helptxt = STRING_r_update_all_feeds_cmd;
                         }  
@@ -154,8 +154,8 @@ RESOURCE AVKON_TOOLBAR r_feedview_toolbar
 					AVKON_BUTTON_STATE
 						{
 						bmpfile = APPICON;
-						bmpid = EMbmPodcastCancel;
-						bmpmask = EMbmPodcastCancel_mask;
+						bmpid = EMbmPodcastUpdate_cancel;
+						bmpmask = EMbmPodcastUpdate_cancel_mask;
 						//txt = STRING_r_cancel_update_all_feeds_short_cmd;
 						helptxt = STRING_r_cancel_update_all_feeds_cmd;
 					   }  
@@ -174,8 +174,8 @@ RESOURCE AVKON_TOOLBAR r_feedview_toolbar
 					AVKON_BUTTON_STATE
 						{
 						bmpfile = APPICON;
-						bmpid = EMbmPodcastAdd_pod;
-						bmpmask = EMbmPodcastAdd_pod_mask;
+						bmpid = EMbmPodcastAdd_feed;
+						bmpmask = EMbmPodcastAdd_feed_mask;
 						//txt = STRING_r_view_add_feed_cmd_short;
 						helptxt = STRING_r_view_add_feed_cmd;
 						} 

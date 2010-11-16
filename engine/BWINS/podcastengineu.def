@@ -169,4 +169,10 @@ EXPORTS
 	?FeedFileSize@CFeedInfo@@QBEHXZ @ 168 NONAME ; int CFeedInfo::FeedFileSize(void) const
 	?SetFeedFileSize@CFeedInfo@@QAEXH@Z @ 169 NONAME ; void CFeedInfo::SetFeedFileSize(int)
 	?GetNewShowsL@CPodcastModel@@QAEXXZ @ 170 NONAME ; void CPodcastModel::GetNewShowsL(void)
+	?PostPlayHandling@CShowEngine@@QAEXPAVCShowInfo@@@Z @ 171 NONAME ; void CShowEngine::PostPlayHandling(class CShowInfo *)
+	?ExpireOldShows@CShowEngine@@QAEXXZ @ 172 NONAME ; void CShowEngine::ExpireOldShows(void)
+	?SetDeleteDate@CShowInfo@@QAEXVTTime@@@Z @ 173 NONAME ; void CShowInfo::SetDeleteDate(class TTime)
+	?DeleteAutomatically@CSettingsEngine@@QAE?AW4TAutoDeleteSetting@@XZ @ 174 NONAME ; enum TAutoDeleteSetting CSettingsEngine::DeleteAutomatically(void)
+	?SetDeleteAutomatically@CSettingsEngine@@QAEXW4TAutoDeleteSetting@@@Z @ 175 NONAME ; void CSettingsEngine::SetDeleteAutomatically(enum TAutoDeleteSetting)
+	?DeleteDate@CShowInfo@@QBE?BVTTime@@XZ @ 176 NONAME ; class TTime const CShowInfo::DeleteDate(void) const
 

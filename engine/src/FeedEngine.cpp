@@ -393,7 +393,7 @@ void CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 	{
 	DP2("CFeedEngine::DBAddFeed BEGIN, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 	
-	CFeedInfo *info;
+	CFeedInfo *info = NULL;
 	
 	TRAPD(err, info = DBGetFeedInfoByUidL(aItem.Uid()));
 	
@@ -749,6 +749,17 @@ void CFeedEngine::DBEnsureFileSizeFieldExists()
 		CleanupStack::PopAndDestroy(); // st
 		}
 
+	rc = sqlite3_prepare_v2(&iDB,"alter table shows add column deletedate int" , -1, &st, (const char**) NULL);
+	DP1("    rc=%d", rc);
+	 
+	if( rc==SQLITE_OK )
+		{
+		Cleanup_sqlite3_finalize_PushL(st);
+		rc = sqlite3_step(st);
+		DP1("    rc=%d", rc);
+		CleanupStack::PopAndDestroy(); // st
+		}
+	
 	DP("DBEnsureFileSizeFieldExists END");
 	}
 

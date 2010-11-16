@@ -309,11 +309,9 @@ void CConnectionEngine::ReportConnectionL(TInt aError)
 	{
 	DP1("CConnectionEngine::ReportConnectionL, aError=%d", aError);
 	TInt noObservers = iObserverArray.Count();
-	DP1("    noObservers=%d", noObservers);
 	while(noObservers)
 		{
 		noObservers--;
-		DP("    calling callback");
 		iObserverArray[noObservers]->ConnectCompleteL(aError);
 		}
 	}

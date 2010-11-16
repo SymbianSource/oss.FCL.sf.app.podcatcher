@@ -89,7 +89,9 @@ public:
 	IMPORT_C CMetaDataReader& MetaDataReader();
 	IMPORT_C void MoveDownloadUpL(TUint aUid);
 	IMPORT_C void MoveDownloadDownL(TUint aUid);
+	IMPORT_C void PostPlayHandling(CShowInfo *aShow);
 
+	IMPORT_C void ExpireOldShows();
 private:
 	// from HttpClientObserver, dont have to be public
 	void Connected(CHttpClient* aClient);
@@ -142,6 +144,7 @@ private:
 	void DBAddDownloadL(TUint aUid);
 	CShowInfo* DBGetNextDownloadL();
 	void DBSwapDownloadsL(TDownload aFirstDL, TDownload aSecondDL);
+	void DBGetOldShowsL(RShowInfoArray& aShowArray);
 	
 private:
 	CHttpClient* iShowClient;			

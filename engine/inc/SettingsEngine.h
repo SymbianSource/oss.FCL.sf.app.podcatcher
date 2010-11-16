@@ -48,6 +48,13 @@ enum TAutoUpdateSetting
 	EAutoUpdatePeriod4=1440
 	};
 
+enum TAutoDeleteSetting
+	{
+	EAutoDeleteOff,
+	EAutoDeleteAfter1Day,	
+	EAutoDeleteAfter7Days
+	};
+
 class CSettingsEngine : public CBase
 	{
 	public:
@@ -87,6 +94,9 @@ class CSettingsEngine : public CBase
 			
 		IMPORT_C void SaveSettingsL();
 
+		IMPORT_C TAutoDeleteSetting DeleteAutomatically();
+		IMPORT_C void SetDeleteAutomatically(TAutoDeleteSetting aAutoDeleteOn);
+
 	private:
 		CSettingsEngine(CPodcastModel& aPodcastModel);
 		void ConstructL();
@@ -104,7 +114,8 @@ class CSettingsEngine : public CBase
 		TInt iMaxListItems;
 		TTime iUpdateFeedTime;
 		TBool iDownloadSuspended;
-
+		TAutoDeleteSetting iDeleteAutomatically;
+		
 		// Other member variables		
 		CPodcastModel &iPodcastModel; 	// reference to the model
 	};

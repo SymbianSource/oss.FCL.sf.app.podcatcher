@@ -99,8 +99,8 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
                     AVKON_BUTTON_STATE
                         {
                         bmpfile = APPICON;
-                        bmpid = EMbmPodcastReload_all;
-                        bmpmask = EMbmPodcastReload_all_mask;
+                        bmpid = EMbmPodcastUpdate_all;
+                        bmpmask = EMbmPodcastUpdate_all_mask;
                         //txt = STRING_r_update_feed_short_cmd;
                         helptxt = STRING_r_update_all_feeds_cmd;
                         }  
@@ -118,8 +118,8 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
                     AVKON_BUTTON_STATE
                         {
                         bmpfile = APPICON;
-                        bmpid = EMbmPodcastReload;
-                        bmpmask = EMbmPodcastReload_mask;
+                        bmpid = EMbmPodcastUpdate;
+                        bmpmask = EMbmPodcastUpdate_mask;
                         //txt = STRING_r_update_feed_short_cmd;
                         helptxt = STRING_r_update_feed_cmd;
                         }  
@@ -137,8 +137,8 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
                         AVKON_BUTTON_STATE
                             {
                             bmpfile = APPICON;
-                            bmpid = EMbmPodcastCancel;
-                            bmpmask = EMbmPodcastCancel_mask;
+                            bmpid = EMbmPodcastUpdate_cancel;
+                            bmpmask = EMbmPodcastUpdate_cancel_mask;
                             //txt = STRING_r_cancel_update_all_feeds_short_cmd;
                             helptxt = STRING_r_cancel_update_all_feeds_cmd;
                            }  
@@ -156,8 +156,8 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
                             AVKON_BUTTON_STATE
                                 {
                                 bmpfile = APPICON;
-                                bmpid = EMbmPodcastMarkold_all;
-                                bmpmask = EMbmPodcastMarkold_all_mask;
+                                bmpid = EMbmPodcastMark_old_all;
+                                bmpmask = EMbmPodcastMark_old_all_mask;
                                 //txt = STRING_r_cancel_update_all_feeds_short_cmd;
                                 helptxt = STRING_r_view_mark_all_played_cmd;
                                }  

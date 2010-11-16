@@ -25,7 +25,7 @@
 #include "PodcastListView.h"
 #include "Podcast.hrh"
 
-class CPodcastSearchView : public CPodcastListView, public MEikListBoxObserver, 
+class CPodcastSearchView : public CPodcastListView, 
 	public MFeedEngineObserver
     {
     public: 
@@ -78,7 +78,7 @@ class CPodcastSearchView : public CPodcastListView, public MEikListBoxObserver,
 		 * @param aCommand ID of the command to respond to. 
 		 */
 		void HandleCommandL(TInt aCommand);
-
+				
 	private:
 		CPodcastModel& iPodcastModel;		
 		TBool iSearchRunning;

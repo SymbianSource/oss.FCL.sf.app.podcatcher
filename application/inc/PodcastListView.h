@@ -59,7 +59,6 @@ class CPodcastListContainer : public CCoeControl
 		virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
 		void SetContainerListener(MContainerListener *aContainerListener);
 		void SetListboxObserver(MEikListBoxObserver *aObserver);
-		
 		CEikColumnListBox* Listbox();
 		void SetListboxIcons(CArrayPtr< CGulIcon >* aIcons);
 		CArrayPtr<CGulIcon>* ListboxIcons();
@@ -68,7 +67,7 @@ class CPodcastListContainer : public CCoeControl
 		void ScrollToVisible();
     	void Draw(const TRect& aRect) const;   	
 
-    protected:
+	protected:
 		TTypeUid::Ptr MopSupplyObject( TTypeUid aId );
 
 	private:
@@ -82,7 +81,7 @@ class CPodcastListContainer : public CCoeControl
 
 
 class CPodcastListView : public CAknView, public MAknToolbarObserver,
-public MProgressDialogCallback, public MContainerListener, MEikListBoxObserver
+public MProgressDialogCallback, public MContainerListener, public MEikListBoxObserver
     {
     public: 
         ~CPodcastListView();

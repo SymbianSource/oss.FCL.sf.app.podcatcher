@@ -208,4 +208,10 @@ EXPORTS
 	_ZN13CPodcastModel12GetNewShowsLEv @ 207 NONAME
 	_ZN9CFeedInfo15SetFeedFileSizeEi @ 208 NONAME
 	_ZNK9CFeedInfo12FeedFileSizeEv @ 209 NONAME
+	_ZN11CShowEngine14ExpireOldShowsEv @ 210 NONAME
+	_ZN11CShowEngine16PostPlayHandlingEP9CShowInfo @ 211 NONAME
+	_ZN15CSettingsEngine19DeleteAutomaticallyEv @ 212 NONAME
+	_ZN15CSettingsEngine22SetDeleteAutomaticallyE18TAutoDeleteSetting @ 213 NONAME
+	_ZN9CShowInfo13SetDeleteDateE5TTime @ 214 NONAME
+	_ZNK9CShowInfo10DeleteDateEv @ 215 NONAME
 
