@@ -400,7 +400,6 @@ void CPodcastQueueView::HandleLongTapEventL( const TPoint& aPenEventLocation, co
 
 		iStylusPopupMenu->SetItemDimmed(EPodcastMarkAsPlayed, info->PlayState() != ENeverPlayed);
 		iStylusPopupMenu->SetItemDimmed(EPodcastMarkAsUnplayed, info->PlayState() == ENeverPlayed);
-	
 		iStylusPopupMenu->ShowMenu();
 		iStylusPopupMenu->SetPosition(aPenEventLocation);
     }

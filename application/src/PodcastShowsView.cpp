@@ -914,8 +914,8 @@ void CPodcastShowsView::HandleLongTapEventL( const TPoint& aPenEventLocation, co
 			TBool hideDeleteShowCmd = info->DownloadState() != EDownloaded;
 			TBool hideMarkOld = info->PlayState() == EPlayed;
 			
-			iStylusPopupMenu->SetItemDimmed(EPodcastMarkAsPlayed, hideMarkOld || !iShowNewShows);
-			iStylusPopupMenu->SetItemDimmed(EPodcastMarkAsUnplayed, !hideMarkOld || !iShowNewShows);
+			iStylusPopupMenu->SetItemDimmed(EPodcastMarkAsPlayed, hideMarkOld);
+			iStylusPopupMenu->SetItemDimmed(EPodcastMarkAsUnplayed, !hideMarkOld);
 						
 			iStylusPopupMenu->SetItemDimmed(EPodcastDownloadShow, hideDownloadShowCmd);
 			iStylusPopupMenu->SetItemDimmed(EPodcastDeleteShow, hideDeleteShowCmd);
