@@ -554,6 +554,23 @@ void CShowEngine::DBGetOldShowsL(RShowInfoArray& aShowArray)
 		{
 		User::Leave(KErrCorrupt);
 		}
+	
+	// now update DB
+	_LIT(KSqlStatement2, "update shows set downloadstate=%d and deletedate = 0 where downloadstate=%d and deletedate != 0 and deletedate < \"%Ld\"");
+	iSqlBuffer.Format(KSqlStatement2, ENotDownloaded, EDownloaded, now.Int64());
+
+
+	rc = sqlite3_prepare16_v2(&iDB, (const void*) iSqlBuffer.PtrZ(), -1,
+			&st, (const void**) NULL);
+
+	if (rc == SQLITE_OK)
+		{
+		rc = sqlite3_step(st);
+		Cleanup_sqlite3_finalize_PushL(st);
+		CleanupStack::PopAndDestroy();//st
+		}
+
+	
 	DP("CShowEngine::DBGetOldShowsL END");
 	}
 
@@ -1680,6 +1697,7 @@ EXPORT_C void CShowEngine::PostPlayHandling(CShowInfo *aShow)
 		deleteDate.HomeTime();
 		deleteDate += daysAhead;
 		aShow->SetDeleteDate(deleteDate);
+		DP2("Setting show %S to be deleted on the %d th", &aShow->Title(), deleteDate.DayNoInMonth());
 		}
 	
 	UpdateShowL(*aShow);

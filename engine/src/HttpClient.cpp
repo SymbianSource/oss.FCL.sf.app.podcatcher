@@ -198,7 +198,7 @@ void  CHttpClient::DoGetAfterConnectL()
 	}
 
 TBool CHttpClient::GetL(const TDesC& aUrl, const TDesC& aFileName,  TBool aSilent) {
-	DP("CHttpClient::Get START");
+	DP("CHttpClient::GetL START");
 	DP2("Getting '%S' to '%S'", &aUrl, &aFileName);
 	
 	if (iIsActive)
