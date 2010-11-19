@@ -983,9 +983,21 @@ void CPodcastShowsView::HandleDeleteShowL()
 			info->SetDownloadState(ENotDownloaded);
 			info->SetPlayState(EPlayed);
 			iPodcastModel.ShowEngine().UpdateShowL(*info);
-			
-			UpdateShowItemDataL(iPodcastModel.ActiveShowList()[index], index, 0);
-			iListContainer->Listbox()->DrawItem(index);					
+		
+			if (iShowNewShows)
+				{
+				UpdateListboxItemsL();
+
+				if (index > 0)
+					{
+					iListContainer->Listbox()->SetCurrentItemIndex(index - 1);
+					}
+				}
+			else
+				{
+				UpdateShowItemDataL(iPodcastModel.ActiveShowList()[index], index, 0);
+				iListContainer->Listbox()->DrawItem(index);
+				}
 			}
 		}
 	}
