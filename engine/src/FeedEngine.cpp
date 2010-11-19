@@ -1201,4 +1201,9 @@ void CFeedEngine::NotifyOpmlParsingCompleteL(TInt aError, TUint aNumFeedsAdded)
 void CFeedEngine::ParserShowUpdatedL(CShowInfo& aShow)
 	{
 	iPodcastModel.ShowEngine().UpdateShowL(aShow);
+	if (aShow.PlayState() == ENeverPlayed && 
+				iPodcastModel.SettingsEngine().DownloadAutomatically()) 
+			{
+			iPodcastModel.ShowEngine().AddDownloadL(aShow);
+			}
 	}

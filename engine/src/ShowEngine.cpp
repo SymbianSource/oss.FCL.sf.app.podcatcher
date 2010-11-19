@@ -524,7 +524,7 @@ void CShowEngine::DBGetOldShowsL(RShowInfoArray& aShowArray)
 //	TTimeIntervalYears years(5);
 //	now += years;
 	
-	_LIT(KSqlStatement, "select filename from shows where downloadstate=%d and deletedate < \"%Ld\"");
+	_LIT(KSqlStatement, "select filename from shows where downloadstate=%d and deletedate != 0 and deletedate < \"%Ld\"");
 	iSqlBuffer.Format(KSqlStatement, EDownloaded, now.Int64());
 
 	sqlite3_stmt *st;
@@ -1460,6 +1460,12 @@ void CShowEngine::ReadMetaDataCompleteL()
 EXPORT_C void CShowEngine::UpdateShowL(CShowInfo& aInfo)
 	{
 	DBUpdateShowL(aInfo);
+	
+	// hack to ensure change in playstate is stored for the show actively downloading
+	if (iShowDownloading && iShowDownloading->Uid() == aInfo.Uid())
+		{
+		iShowDownloading->SetPlayState(aInfo.PlayState());
+		}	
 	}
 
 EXPORT_C CMetaDataReader& CShowEngine::MetaDataReader()
