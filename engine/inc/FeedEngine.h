@@ -97,6 +97,7 @@ public:
 
 	IMPORT_C void OpmlParsingCompleteL(TInt aError, TUint aNumFeedsAdded);
 	void NotifyFeedUpdateComplete(TInt aFeedUid, TInt aError);
+	void ParserShowUpdatedL(CShowInfo& aShow);
 	
 protected:
 	
@@ -153,10 +154,6 @@ private:
 	
 	// observers that will receive callbacks, not owning
     RArray<MFeedEngineObserver*> iObservers;
-    
-    // new feeds only add one show to download list when auto downloading
-    TBool newFeed;
-    TUint showsAdded;
     
     // offline mode detection
     CRepository* iRepository;

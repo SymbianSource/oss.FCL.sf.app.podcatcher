@@ -54,6 +54,11 @@ void CFeedParser::ParseFeedL(const TFileName &feedFileName, CFeedInfo *info, TUi
 	iMaxItems = aMaxItems;
 	iStoppedParsing = EFalse;
 	iEncoding = ELatin1;
+	if (iNewestShow)
+		delete iNewestShow;
+	iNewestShow = 0;
+	
+	iNewFeed = (iActiveFeed->LastUpdated() == 0) ? ETrue : EFalse;
 
 	TEntry entry;
 	User::LeaveIfError(iRfs.Entry(feedFileName, entry));
@@ -89,6 +94,18 @@ void CFeedParser::OnStartDocumentL(const RDocumentParameters& aDocParam, TInt /*
 void CFeedParser::OnEndDocumentL(TInt /*aErrorCode*/)
 	{
 	//DP("OnEndDocumentL()");
+	if (iNewFeed)
+		{
+		// if the feed adds at bottom, this 
+		if (iNewestShow)
+			{
+			iNewestShow->SetPlayState(ENeverPlayed);
+			iCallbacks.ParserShowUpdatedL(*iNewestShow);
+			delete iNewestShow;
+			iNewestShow = 0;
+			}
+		}
+	
 	iCallbacks.ParsingCompleteL(iActiveFeed);
 	}
 
@@ -321,12 +338,25 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 					iPreviousPubDate = iActiveShow->PubDate();
 					}
 				
-				
 				if (iUid)
 					{
 					iActiveShow->SetUid(iUid);
 					}
+				
+				if (iNewFeed)
+					{
+					// set all played, except for the newest one
+					iActiveShow->SetPlayState(EPlayed);
+					
+					if (!iNewestShow || iActiveShow->PubDate() > iNewestShow->PubDate())
+						{
+						if (iNewestShow)
+							delete iNewestShow;
 						
+						iNewestShow = new CShowInfo(iActiveShow);
+						}
+					}
+					
 				iCallbacks.NewShowL(*iActiveShow);
 				
 				delete iActiveShow;				

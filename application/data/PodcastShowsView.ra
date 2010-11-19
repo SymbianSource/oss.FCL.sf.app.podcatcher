@@ -70,13 +70,13 @@ RESOURCE MENU_PANE r_podcast_showsview_menu
 			},
 		MENU_ITEM
 			{
-			txt = STRING_r_view_download_show_cmd;
+			txt = STRING_r_view_download_show_cmd_short;
 			command = EPodcastDownloadShow;
 			flags = EEikMenuItemSpecific;
 			},
 		MENU_ITEM
 			{
-			txt = STRING_r_view_delete_show_cmd;
+			txt = STRING_r_view_delete_show_cmd_short;
 			command = EPodcastDeleteShow;
 			flags = EEikMenuItemSpecific;
 			}
@@ -145,25 +145,6 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
                         };
                     };
                 },
-                TBAR_CTRL
-                    {
-                    type = EAknCtButton;
-                    id = EPodcastMarkAllPlayed;
-                    control = AVKON_BUTTON
-                        {
-                        states =
-                            {
-                            AVKON_BUTTON_STATE
-                                {
-                                bmpfile = APPICON;
-                                bmpid = EMbmPodcastMark_old_all;
-                                bmpmask = EMbmPodcastMark_old_all_mask;
-                                //txt = STRING_r_cancel_update_all_feeds_short_cmd;
-                                helptxt = STRING_r_view_mark_all_played_cmd;
-                               }  
-                            };
-                        };
-                    },
 				TBAR_CTRL
 					 {
 					 type = EAknCtButton;
@@ -183,6 +164,25 @@ RESOURCE AVKON_TOOLBAR r_showsview_toolbar
 							 };
 						 };
 					 },
+                TBAR_CTRL
+                    {
+                    type = EAknCtButton;
+                    id = EPodcastMarkAllPlayed;
+                    control = AVKON_BUTTON
+                        {
+                        states =
+                            {
+                            AVKON_BUTTON_STATE
+                                {
+                                bmpfile = APPICON;
+                                bmpid = EMbmPodcastMark_old_all;
+                                bmpmask = EMbmPodcastMark_old_all_mask;
+                                //txt = STRING_r_cancel_update_all_feeds_short_cmd;
+                                helptxt = STRING_r_view_mark_all_played_cmd;
+                               }  
+                            };
+                        };
+                    },
 // we keep the download toolbar button in S^3, but always disable it
 // because there are drawing issues with only one item in the toolbar
             TBAR_CTRL

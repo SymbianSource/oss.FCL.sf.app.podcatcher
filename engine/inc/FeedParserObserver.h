@@ -27,6 +27,7 @@ class MFeedParserObserver
 public:
 	virtual void NewShowL(CShowInfo& item) = 0;
 	virtual void ParsingCompleteL(CFeedInfo *item) = 0;
+	virtual void ParserShowUpdatedL(CShowInfo& item) = 0;
 };
 
 #endif
