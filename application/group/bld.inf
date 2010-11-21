@@ -80,5 +80,6 @@ OPTION SOURCES \
 	-c16,1 update.svg\
 	-c16,1 update_all.svg\
 	-c16,1 update_cancel.svg\
-	-c16,1 download.svg		
+	-c16,1 download.svg\
+	-c16,1 empty.svg
 END

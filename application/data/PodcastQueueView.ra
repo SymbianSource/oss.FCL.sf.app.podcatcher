@@ -139,6 +139,25 @@ RESOURCE AVKON_TOOLBAR r_queueview_toolbar
 						}  
 					};
 				};
+			},
+		TBAR_CTRL
+			{
+			type = EAknCtButton;
+			id = EPodcastEmpty;
+			control = AVKON_BUTTON
+				{
+				states =
+					{
+					AVKON_BUTTON_STATE
+						{
+						bmpfile = APPICON;
+						bmpid = EMbmPodcastEmpty;
+						bmpmask = EMbmPodcastEmpty_mask;
+						helptxt = "";
+						}  
+					};
+				};
 			}
+
         };
     }

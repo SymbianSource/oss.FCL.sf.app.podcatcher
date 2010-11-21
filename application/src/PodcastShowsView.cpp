@@ -801,10 +801,10 @@ void CPodcastShowsView::UpdateToolbar(TBool aVisible)
 
 		toolbar->HideItem(EPodcastCancelUpdateAllFeeds, !updatingState, ETrue );
 		
-		// there seems to be drawing bugs in the toolbar if there is only
-		// one or two buttons defined in the resource, so we have download
-		// there but always hidden
-		toolbar->HideItem(EPodcastDownloadShow, ETrue, ETrue );
+	
+		toolbar->HideItem(EPodcastEmpty, EFalse, ETrue );
+		toolbar->SetItemDimmed(EPodcastEmpty, ETrue, ETrue);
+		
 		toolbar->HideItem(EPodcastDownloadAll, !iShowNewShows, ETrue);
 		
 		TBool showMarkAllPlayed = EFalse;

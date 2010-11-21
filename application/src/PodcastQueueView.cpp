@@ -373,7 +373,10 @@ void CPodcastQueueView::UpdateToolbar(TBool aVisible)
 		toolbar->SetItemDimmed(EPodcastRemoveAllDownloads, itemCnt == 0, ETrue);
 		toolbar->HideItem(EPodcastSuspendDownloads,iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);
 		toolbar->HideItem(EPodcastResumeDownloads,!iPodcastModel.SettingsEngine().DownloadSuspended(), ETrue);	
-		toolbar->SetItemDimmed(EPodcastRemoveDownload, itemCnt == 0, ETrue);		
+		toolbar->SetItemDimmed(EPodcastRemoveDownload, itemCnt == 0, ETrue);
+		toolbar->HideItem(EPodcastEmpty, EFalse, ETrue );
+		toolbar->SetItemDimmed(EPodcastEmpty, ETrue, ETrue);
+
 		}
 	}
 
