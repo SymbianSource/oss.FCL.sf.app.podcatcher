@@ -48,6 +48,7 @@ RESOURCE MENU_PANE r_podcast_searchview_menu
         };
     }
 
+
 RESOURCE CBA r_podcast_search_cba
 	{
 	buttons =
@@ -58,6 +59,7 @@ RESOURCE CBA r_podcast_search_cba
 			{id=EAknSoftkeyCancel; txt = STRING_r_cba_cancel;}
 		};
 	}
+
 RESOURCE DIALOG r_podcast_search_dlg
 {
 	buttons = r_podcast_search_cba;
@@ -101,8 +103,8 @@ RESOURCE DIALOG r_waitdlg
 				flags= EAknWaitNoteFlags;
                 singular_label = STRING_r_searching;
                 imagefile = APPICON;
-                imageid = 	EMbmPodcastPodcatcher_64px;
-                imagemask = EMbmPodcastPodcatcher_64px_mask;
+                imageid = 	EMbmPodcastAppicon;
+                imagemask = EMbmPodcastAppicon_mask;
                 animation = R_QGN_GRAF_WAIT_BAR_ANIM;
                 };
             }

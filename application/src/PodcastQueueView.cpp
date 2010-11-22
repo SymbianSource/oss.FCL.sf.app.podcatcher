@@ -31,6 +31,7 @@
 #include <barsread.h>
 #include <aknnotedialog.h>
 #include <aknmessagequerydialog.h>
+#include <akntitle.h>
 
 #define KMaxMessageLength 200
 
@@ -92,11 +93,12 @@ TKeyResponse CPodcastQueueView::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEvent
 			}
 		}
 	}
-		return CPodcastListView::OfferKeyEventL(aKeyEvent, aType);
+		return CPodcastShowsView::OfferKeyEventL(aKeyEvent, aType);
 	}
 
 CPodcastQueueView::~CPodcastQueueView()
 	{
+	DP("CPodcastQueueView::~CPodcastQueueView BEGIN");
 	iPodcastModel.ShowEngine().RemoveObserver(this);
 	iPodcastModel.FeedEngine().RemoveObserver(this);
 	}
@@ -114,7 +116,7 @@ void CPodcastQueueView::DoActivateL(const TVwsViewId& aPrevViewId,
 	
 	CPodcastListView::DoActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
 	iPreviousView = aPrevViewId;
-	
+	UpdateViewTitleL();
 	UpdateFeedUpdateStateL();
 	DP("CPodcastQueueView::DoActivateL END");
 	}
@@ -320,7 +322,7 @@ void CPodcastQueueView::HandleCommandL(TInt aCommand)
 			}
 			break;
 		default:
-			CPodcastListView::HandleCommandL(aCommand);
+			CPodcastShowsView::HandleCommandL(aCommand);
 			break;
 		}
 	}
@@ -336,6 +338,12 @@ void CPodcastQueueView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPan
 		
 		aMenuPane->SetItemDimmed(EPodcastMoveDownloadDown, dimDown);
 		aMenuPane->SetItemDimmed(EPodcastMoveDownloadUp, dimUp);
+		
+		TInt index = iListContainer->Listbox()->CurrentItemIndex();
+		CShowInfo *info = iPodcastModel.ActiveShowList()[index];
+
+		aMenuPane->SetItemDimmed(EPodcastMarkAsPlayed, info->PlayState() != ENeverPlayed);
+		aMenuPane->SetItemDimmed(EPodcastMarkAsUnplayed, info->PlayState() == ENeverPlayed);
 		}
 	else if (aResourceId == R_PODCAST_QUEUEVIEW_MENU)
 		{
@@ -344,4 +352,15 @@ void CPodcastQueueView::DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPan
 		aMenuPane->SetItemDimmed(EPodcastSuspendDownloads, iPodcastModel.SettingsEngine().DownloadSuspended());
 		aMenuPane->SetItemDimmed(EPodcastResumeDownloads, !iPodcastModel.SettingsEngine().DownloadSuspended());				
 		}
+	}
+
+
+void CPodcastQueueView::UpdateViewTitleL()
+	{
+	 CAknTitlePane* titlePane = static_cast<CAknTitlePane*>
+		      ( StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidTitle ) ) );
+		 
+	HBufC *title = iEikonEnv->AllocReadResourceLC(R_DOWNLOAD_QUEUE);
+	titlePane->SetTextL(*title);
+	CleanupStack::PopAndDestroy(title);
 	}

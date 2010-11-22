@@ -28,7 +28,7 @@
 #include "Podcast.hrh"
 #include "PodcastListView.h"
 
-class CPodcastShowsView : public CPodcastListView, public MEikListBoxObserver, 
+class CPodcastShowsView : public CPodcastListView, 
 	public MFeedEngineObserver, public MShowEngineObserver
 	{
 public: 
@@ -104,13 +104,15 @@ protected:
 	void HandleDeleteShow();
 	void UpdateViewTitleL();
 	void GetShowErrorText(TDes &aErrorMessage, TInt aErrorCode);
-
+	void HandleDownloadAllL();
+	
 protected:
 	
 	CPodcastModel& iPodcastModel;
 	TBool iProgressAdded;	
 	TInt iLastImageHandlerError;
 	TBool iSetTitlebarImage;
+	TBool iShowNewShows;
 	};
 
 #endif // PODCASTSHOWSVIEWH

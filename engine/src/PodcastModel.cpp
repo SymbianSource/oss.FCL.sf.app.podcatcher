@@ -228,8 +228,7 @@ EXPORT_C void CPodcastModel::PlayPausePodcastL(CShowInfo* aPodcast, TBool /* aPl
 	
 	if (err == KErrNone)
 		{
-		aPodcast->SetPlayState(EPlayed);
-		iShowEngine->UpdateShowL(*aPodcast);
+		iShowEngine->PostPlayHandling(aPodcast);
 		}
 	else
 		{
@@ -457,12 +456,17 @@ EXPORT_C void CPodcastModel::GetShowsByFeedL(TUint aFeedUid)
 	iShowEngine->GetShowsByFeedL(iActiveShowList, aFeedUid);
 	}
 
+EXPORT_C void CPodcastModel::GetNewShowsL()
+	{
+	iActiveShowList.ResetAndDestroy();
+	iShowEngine->GetNewShowsL(iActiveShowList);
+	}
+
 EXPORT_C void CPodcastModel::MarkSelectionPlayedL()
 	{
 	for (int i=0;i<iActiveShowList.Count();i++) {
 		if(iActiveShowList[i]->PlayState() != EPlayed) {
-			iActiveShowList[i]->SetPlayState(EPlayed);
-			iShowEngine->UpdateShowL(*iActiveShowList[i]);
+			ShowEngine().PostPlayHandling(iActiveShowList[i]);
 		}
 	}
 	}

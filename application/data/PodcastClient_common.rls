@@ -23,4 +23,5 @@ CHARACTER_SET UTF8
 rls_string STRING_r_caption "Podcatcher"
 rls_string STRING_r_short_caption "Podcatcher"
 
-rls_string STRING_r_about_text_s60 "Podcatcher 1.00(%d)\n© 2007-2010 Sebastian Brannstrom, Lars Persson, Anders Fridlund, EmbedDev AB"
+rls_string STRING_r_about_title "About Podcatcher"
+rls_string STRING_r_about_body "Version 1.10 (%d) for S60 3rd ed.\n© 2007-2010 Sebastian Brannstrom, Lars Persson, Anders Fridlund"

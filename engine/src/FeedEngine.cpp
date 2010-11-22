@@ -261,15 +261,7 @@ EXPORT_C TBool CFeedEngine::UpdateFeedL(TUint aFeedUid)
 		}
 	
 	iActiveFeed = GetFeedInfoByUid(aFeedUid);
-	
 	iCancelRequested = EFalse;
-
-	if (iActiveFeed->LastUpdated() == 0)
-		{
-		newFeed = ETrue;	
-		}
-	
-	showsAdded = 0;
 	
 	iActiveFeed->SetLastError(KErrNone);
 	DBUpdateFeedL(*iActiveFeed);
@@ -312,14 +304,6 @@ void CFeedEngine::NewShowL(CShowInfo& aItem)
 	aItem.SetDescriptionL(*description);
 	CleanupStack::PopAndDestroy(description);
 
-	if (newFeed) {
-		// for new feeds, set all shows played
-		aItem.SetPlayState(EPlayed);
-		// except the first one
-		if (showsAdded == 0) {
-			aItem.SetPlayState(ENeverPlayed);	
-		}
-	}
 	
 	TRAPD(err, iPodcastModel.ShowEngine().AddShowL(aItem));
 
@@ -329,7 +313,6 @@ void CFeedEngine::NewShowL(CShowInfo& aItem)
 		iPodcastModel.ShowEngine().AddDownloadL(aItem);
 		}
 	
-	showsAdded++;
 	DP("CFeedEngine::NewShowL END");
 	}
 
@@ -393,7 +376,7 @@ void CFeedEngine::DBAddFeedL(const CFeedInfo& aItem)
 	{
 	DP2("CFeedEngine::DBAddFeed BEGIN, title=%S, URL=%S", &aItem.Title(), &aItem.Url());
 	
-	CFeedInfo *info;
+	CFeedInfo *info = NULL;
 	
 	TRAPD(err, info = DBGetFeedInfoByUidL(aItem.Uid()));
 	
@@ -609,10 +592,7 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 				{
 				if (!iCancelRequested) {
 					iActiveFeed->SetLastError(aError);
-					TTime time;
-					time.HomeTime();
-					iActiveFeed->SetLastUpdated(time);
-	
+		
 					if( aError == KErrNone)
 						{
 						// Parse the feed. We need to trap this call since it could leave and then
@@ -655,6 +635,9 @@ void CFeedEngine::CompleteL(CHttpClient* /*aClient*/, TInt aError)
 						// even if it fails, this will allow us to move on
 						iClientState = EIdle;
 						}
+					TTime time;
+					time.HomeTime();
+					iActiveFeed->SetLastUpdated(time);
 					}
 				iCancelRequested = EFalse;
 				}break;
@@ -749,6 +732,17 @@ void CFeedEngine::DBEnsureFileSizeFieldExists()
 		CleanupStack::PopAndDestroy(); // st
 		}
 
+	rc = sqlite3_prepare_v2(&iDB,"alter table shows add column deletedate int" , -1, &st, (const char**) NULL);
+	DP1("    rc=%d", rc);
+	 
+	if( rc==SQLITE_OK )
+		{
+		Cleanup_sqlite3_finalize_PushL(st);
+		rc = sqlite3_step(st);
+		DP1("    rc=%d", rc);
+		CleanupStack::PopAndDestroy(); // st
+		}
+	
 	DP("DBEnsureFileSizeFieldExists END");
 	}
 
@@ -1202,4 +1196,14 @@ void CFeedEngine::NotifyOpmlParsingCompleteL(TInt aError, TUint aNumFeedsAdded)
 		{
 		iObservers[i]->OpmlParsingComplete(aError, aNumFeedsAdded);
 		}
+	}
+
+void CFeedEngine::ParserShowUpdatedL(CShowInfo& aShow)
+	{
+	iPodcastModel.ShowEngine().UpdateShowL(aShow);
+	if (aShow.PlayState() == ENeverPlayed && 
+				iPodcastModel.SettingsEngine().DownloadAutomatically()) 
+			{
+			iPodcastModel.ShowEngine().AddDownloadL(aShow);
+			}
 	}

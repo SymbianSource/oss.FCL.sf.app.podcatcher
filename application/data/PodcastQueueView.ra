@@ -73,6 +73,21 @@ RESOURCE MENU_PANE r_queue_show_menu
 	items =	{
 		MENU_ITEM
 			{
+				txt = STRING_r_view_show_info_cmd;
+				command = EPodcastShowInfo;
+			},
+		MENU_ITEM
+			{
+				txt = STRING_r_view_mark_as_unplayed_cmd_short;
+				command = EPodcastMarkAsUnplayed;
+			},
+		MENU_ITEM
+			{
+				txt = STRING_r_view_mark_as_played_cmd_short;
+				command = EPodcastMarkAsPlayed;
+			},
+		MENU_ITEM
+			{
 				txt = STRING_r_view_remove_download_short_cmd;
 				command = EPodcastRemoveDownload;
 			},

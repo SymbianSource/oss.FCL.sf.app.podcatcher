@@ -118,8 +118,9 @@ EXPORT_C void PodcastUtils::CleanHtmlL(TDes &str)
 	DP("    change HTML encoded chars to unicode");
 	startPos = str.Locate('&');
 	endPos = str.Locate(';');
-	while (startPos != KErrNotFound && endPos != KErrNotFound && endPos > startPos)
+	while (startPos != KErrNotFound && endPos != KErrNotFound && endPos > startPos && endPos < str.Length())
 		{
+//		DP2("startPos=%d, endPos=%d", startPos, endPos);
 		TPtrC ptr(str.Mid(startPos+1, endPos-startPos));
 		// check for whitespace
 		if (ptr.Locate(' ') == KErrNotFound)
@@ -162,10 +163,9 @@ EXPORT_C void PodcastUtils::CleanHtmlL(TDes &str)
 				_LIT(KQuot, "quot;");
 				_LIT(KNbsp, "nbsp;");
 				_LIT(KCopy, "copy;");
-				
+
 				// copy start of string
 				tmp.Copy(str.Left(startPos));
-				
 				if (ptr.CompareF(KAmp) == 0)
 					{
 					tmp.Append('&');
@@ -182,27 +182,26 @@ EXPORT_C void PodcastUtils::CleanHtmlL(TDes &str)
 					{
 					tmp.Append('\xA9');
 					}
-				
 				// copy end of string
 				tmp.Append(str.Mid(endPos+1));
 				str.Copy(tmp);
 				}
 			}
 		
-		TInt newPos = str.Mid(startPos+1).Locate('&');
-		
-		if (newPos != KErrNotFound)
-			{
-			startPos = startPos+1 + newPos;
-			endPos = str.Locate(';');
-			}
-		else
-			{
-			startPos = KErrNotFound;
-			endPos = KErrNotFound;
+		if (startPos+1 <= str.Length()) {
+			TInt newPos = str.Mid(startPos+1).Locate('&');
+			if (newPos != KErrNotFound)
+				{
+				startPos = startPos+1 + newPos;
+				endPos = str.Locate(';');
+				}
+			else
+				{
+				startPos = KErrNotFound;
+				endPos = KErrNotFound;
+				}
 			}
 		}
-		
 	CleanupStack::PopAndDestroy(tmpBuf);
 	
 	if(str.Length()>1)

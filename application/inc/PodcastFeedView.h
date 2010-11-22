@@ -31,7 +31,7 @@ enum TOpmlState {
 	EOpmlSearching
 };
 
-class CPodcastFeedView : public CPodcastListView, public MEikListBoxObserver, 
+class CPodcastFeedView : public CPodcastListView, 
 	public MFeedEngineObserver, public MImageHandlerCallback
     {
     public: 

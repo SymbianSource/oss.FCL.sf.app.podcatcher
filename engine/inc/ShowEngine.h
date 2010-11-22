@@ -34,14 +34,6 @@ struct TDownload
 	TUint iIndex;
 	TUint iUid;
 	};
-	
-typedef enum TShowFilter
-	{
-	EAllShows,
-	ENewShows,
-	EDownloadedShows,
-	ENewAndDownloadedShows
-	};
 
 class CShowEngine : public CBase, public MHttpClientObserver, public MMetaDataReaderObserver
 	{
@@ -86,10 +78,11 @@ public:
 
 	IMPORT_C void CheckForDeletedShows(TUint aFeedUid);
 	IMPORT_C CMetaDataReader& MetaDataReader();
-	IMPORT_C void SetShowFilter(TShowFilter aFilter);
 	IMPORT_C void MoveDownloadUpL(TUint aUid);
 	IMPORT_C void MoveDownloadDownL(TUint aUid);
+	IMPORT_C void PostPlayHandling(CShowInfo *aShow);
 
+	IMPORT_C void ExpireOldShows();
 private:
 	// from HttpClientObserver, dont have to be public
 	void Connected(CHttpClient* aClient);
@@ -140,6 +133,7 @@ private:
 	void DBAddDownloadL(TUint aUid);
 	CShowInfo* DBGetNextDownloadL();
 	void DBSwapDownloadsL(TDownload aFirstDL, TDownload aSecondDL);
+	void DBGetOldShowsL(RShowInfoArray& aShowArray);
 	
 private:
 	CHttpClient* iShowClient;			
@@ -160,7 +154,6 @@ private:
 	
 	sqlite3& iDB;
     TBuf<KDefaultSQLDataBufferLength> iSqlBuffer;
-   	TShowFilter iShowFilter;
 	};
 
 #endif /*SHOWENGINE_H_*/

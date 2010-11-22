@@ -62,6 +62,13 @@ enum TEncoding {
 	ELatin1
 };
 
+enum TFeedDirection
+	{
+	EFeedUnknown,
+	EFeedAddsAtTop,
+	EFeedAddsAtBottom
+	};
+
 const int KBufferLength = 1024;
 
 class CFeedParser : public CBase, public Xml::MContentHandler 
@@ -87,13 +94,15 @@ public: // from MContentHandler
 	void OnError(TInt aErrorCode);
 	TAny* GetExtendedInterface(const TInt32 aUid);
 	CFeedInfo& ActiveFeed();
+	
 private:
 	MFeedParserObserver& iCallbacks;
 	TFeedState iFeedState;
 
 	CShowInfo* iActiveShow;
 	CFeedInfo *iActiveFeed;
-
+	CShowInfo *iNewestShow;
+	
 	TBuf<KBufferLength> iBuffer;
 	TUint iUid;
 	TUint iMaxItems;
@@ -102,6 +111,9 @@ private:
 	TEncoding iEncoding;
 	RFs& iRfs;
 	TInt iFileSize;
+	TFeedDirection iFeedDirection;
+	TTime iPreviousPubDate;
+	TBool iNewFeed;
 };
 
 #endif

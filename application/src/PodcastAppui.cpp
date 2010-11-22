@@ -142,11 +142,13 @@ void CPodcastAppUi::HandleCommandL( TInt aCommand )
 			const TUid KUidFastSwap = { 0x10207218 };
 			if (activeAppUid == KUidFastSwap)
 				{
+				DP("Exit called by task manager");
 				// closed by task manager
 				Exit();
 				}
 			else
         		{
+				DP("Red button pressed, going into background");
         		// red button pressed
 				TApaTask task(iEikonEnv->WsSession());
 				task.SetWgId(iEikonEnv->RootWin().Identifier());
@@ -216,11 +218,15 @@ void CPodcastAppUi::NaviShowTabGroupL()
 
 	HBufC *label1 = iEikonEnv->AllocReadResourceLC(R_TABGROUP_FEEDS);
 	iTabGroup->AddTabL(KTabIdFeeds,*label1);
-		
+	
+	HBufC *label2 = iEikonEnv->AllocReadResourceLC(R_TABGROUP_NEW);
+	iTabGroup->AddTabL(KTabIdNew,*label2);
+
 	HBufC *label3 = iEikonEnv->AllocReadResourceLC(R_TABGROUP_QUEUE);
 	iTabGroup->AddTabL(KTabIdQueue,*label3);
 
 	CleanupStack::PopAndDestroy(label3);
+	CleanupStack::PopAndDestroy(label2);
 	CleanupStack::PopAndDestroy(label1);
 	
 	iTabGroup->SetActiveTabByIndex(0);
@@ -230,6 +236,11 @@ void CPodcastAppUi::NaviShowTabGroupL()
 	iNaviStyle = ENaviTabGroup;
 
 	UpdateQueueTabL(iPodcastModel->ShowEngine().GetNumDownloadingShows());
+	}
+
+void CPodcastAppUi::SetTabsDimmed(TBool aDimmed)
+	{
+	iTabGroup->SetDimmed(aDimmed);
 	}
 
 void CPodcastAppUi::TabChangedL (TInt aIndex)
@@ -245,12 +256,18 @@ void CPodcastAppUi::TabChangedL (TInt aIndex)
 			if (iFeedView->ViewingShows())
 				{
 				newview = KUidPodcastShowsViewID;
+				messageUid = TUid::Uid(2);
 				}
 			else
 				{
 				newview = KUidPodcastFeedViewID;
 				}
 			} 
+		else if (aIndex == KTabIdNew)
+			{
+			newview = KUidPodcastShowsViewID;
+			messageUid = KUidShowNewShows;
+			}
 		else if (aIndex == KTabIdQueue)
 			{
 			newview = KUidPodcastQueueViewID;

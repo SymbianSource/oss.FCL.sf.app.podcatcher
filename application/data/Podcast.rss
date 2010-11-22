@@ -68,8 +68,8 @@ RESOURCE DIALOG r_dlg_about
 				layout = EGeneralLayout;
 				singular_label = STRING_r_about_text_s60; 
 				imagefile = APPICON;
-				imageid = EMbmPodcastPodcatcher_64px;
-				imagemask = EMbmPodcastPodcatcher_64px_mask;
+				imageid = EMbmPodcastAppicon;
+				imagemask = EMbmPodcastAppicon_mask;
 				};
 			}
         };

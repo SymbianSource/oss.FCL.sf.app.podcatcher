@@ -38,11 +38,13 @@ CShowEngine::CShowEngine(CPodcastModel& aPodcastModel) :
 
 EXPORT_C CShowEngine::~CShowEngine()
 	{	
+	DP("CShowEngine::~CShowEngine BEGIN");
 	delete iShowClient;
 	iObservers.Close();
 	delete iShowDownloading;
 	delete iMetaDataReader;
 	iApaSession.Close();
+	DP("CShowEngine::~CShowEngine END");
 	}
 
 EXPORT_C CShowEngine* CShowEngine::NewL(CPodcastModel& aPodcastModel)
@@ -374,11 +376,12 @@ EXPORT_C CShowInfo* CShowEngine::GetShowByUidL(TUint aShowUid)
 	{
 	return DBGetShowByUidL(aShowUid);
 	}
+
 CShowInfo* CShowEngine::DBGetShowByUidL(TUint aUid)
 	{
 	DP("CShowEngine::DBGetShowByUid");
 	CShowInfo *showInfo = NULL;
-	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype from shows where uid=%u");
+	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype, deletedate from shows where uid=%u");
 	iSqlBuffer.Format(KSqlStatement, aUid);
 
 	sqlite3_stmt *st;
@@ -408,7 +411,7 @@ EXPORT_C CShowInfo* CShowEngine::DBGetShowByFileNameL(TFileName aFileName)
 	{
 	DP("CShowEngine::DBGetShowByUid");
 	CShowInfo *showInfo = NULL;
-	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype from shows where filename=\"%S\"");
+	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype, lasterror, deletedate from shows where filename=\"%S\"");
 	iSqlBuffer.Format(KSqlStatement, &aFileName);
 
 	sqlite3_stmt *st;
@@ -435,7 +438,7 @@ EXPORT_C CShowInfo* CShowEngine::DBGetShowByFileNameL(TFileName aFileName)
 void CShowEngine::DBGetAllShowsL(RShowInfoArray& aShowArray)
 	{
 	DP("CShowEngine::DBGetAllShows");
-	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype from shows");
+	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype, lasterror, deletedate from shows");
 	iSqlBuffer.Format(KSqlStatement);
 
 	sqlite3_stmt *st;
@@ -463,7 +466,7 @@ void CShowEngine::DBGetAllShowsL(RShowInfoArray& aShowArray)
 void CShowEngine::DBGetAllDownloadsL(RShowInfoArray& aShowArray)
 	{
 	DP("CShowEngine::DBGetAllDownloads");
-	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, shows.uid, showsize, trackno, pubdate, showtype, lasterror from downloads, shows where downloads.uid=shows.uid");
+	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, shows.uid, showsize, trackno, pubdate, showtype, lasterror, deletedate from downloads, shows where downloads.uid=shows.uid");
 	iSqlBuffer.Format(KSqlStatement);
 
 #ifndef DONT_SORT_SQL
@@ -513,11 +516,69 @@ void CShowEngine::DBGetAllDownloadsL(RShowInfoArray& aShowArray)
 		}
 	}
 
+void CShowEngine::DBGetOldShowsL(RShowInfoArray& aShowArray)
+	{
+	DP("CShowEngine::DBGetOldShowsL BEGIN");
+	TTime now;
+	now.HomeTime();
+//	TTimeIntervalYears years(5);
+//	now += years;
+	
+	_LIT(KSqlStatement, "select filename from shows where downloadstate=%d and deletedate != 0 and deletedate < \"%Ld\"");
+	iSqlBuffer.Format(KSqlStatement, EDownloaded, now.Int64());
+
+	sqlite3_stmt *st;
+
+	int rc = sqlite3_prepare16_v2(&iDB, (const void*) iSqlBuffer.PtrZ(), -1,
+			&st, (const void**) NULL);
+
+	if (rc == SQLITE_OK)
+		{
+		rc = sqlite3_step(st);
+		Cleanup_sqlite3_finalize_PushL(st);
+		while (rc == SQLITE_ROW)
+			{
+			CShowInfo* showInfo = CShowInfo::NewLC();
+
+			const void *filez = sqlite3_column_text16(st, 0);
+			TPtrC16 file((const TUint16*) filez);
+			showInfo->SetFileNameL(file);
+
+			aShowArray.Append(showInfo);
+			CleanupStack::Pop(showInfo);
+			rc = sqlite3_step(st);
+			}
+		CleanupStack::PopAndDestroy();//st
+		}
+	else
+		{
+		User::Leave(KErrCorrupt);
+		}
+	
+	// now update DB
+	_LIT(KSqlStatement2, "update shows set downloadstate=%d and deletedate = 0 where downloadstate=%d and deletedate != 0 and deletedate < \"%Ld\"");
+	iSqlBuffer.Format(KSqlStatement2, ENotDownloaded, EDownloaded, now.Int64());
+
+
+	rc = sqlite3_prepare16_v2(&iDB, (const void*) iSqlBuffer.PtrZ(), -1,
+			&st, (const void**) NULL);
+
+	if (rc == SQLITE_OK)
+		{
+		rc = sqlite3_step(st);
+		Cleanup_sqlite3_finalize_PushL(st);
+		CleanupStack::PopAndDestroy();//st
+		}
+
+	
+	DP("CShowEngine::DBGetOldShowsL END");
+	}
+
 CShowInfo* CShowEngine::DBGetNextDownloadL()
 	{
 	DP("CShowEngine::DBGetNextDownload");
 	CShowInfo *showInfo = NULL;
-	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, shows.uid, showsize, trackno, pubdate, showtype, lasterror from downloads, shows where downloads.uid=shows.uid");
+	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, shows.uid, showsize, trackno, pubdate, showtype, lasterror, deletedate from downloads, shows where downloads.uid=shows.uid");
 	iSqlBuffer.Format(KSqlStatement);
 
 #ifdef DONT_SORT_SQL
@@ -560,25 +621,8 @@ CShowInfo* CShowEngine::DBGetNextDownloadL()
 void CShowEngine::DBGetShowsByFeedL(RShowInfoArray& aShowArray, TUint aFeedUid)
 	{
 	DP1("CShowEngine::DBGetShowsByFeed BEGIN, feedUid=%u", aFeedUid);
-	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype, lasterror from shows where feeduid=%u");
+	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype, lasterror, deletedate from shows where feeduid=%u");
 	iSqlBuffer.Format(KSqlStatement, aFeedUid);
-
-	if (iShowFilter == ENewShows)
-		{
-		_LIT(KSqlStatementNewShows, " and playstate = 0"); // ENeverPlayed
-		iSqlBuffer.Append(KSqlStatementNewShows);
-		}
-	else if (iShowFilter == EDownloadedShows)
-		{
-	_LIT(KSqlStatementDownloadedShows, " and downloadstate = 4"); // EDownloaded
-		iSqlBuffer.Append(KSqlStatementDownloadedShows);
-		}
-	else if (iShowFilter == ENewAndDownloadedShows)
-		{
-	_LIT(KSqlStatementDownloadedAndNewShows, " and (downloadstate = 4 or playstate = 0)"); // EDownloaded or ENeverPlayed
-		iSqlBuffer.Append(KSqlStatementDownloadedAndNewShows);
-	
-		}
 	
 #ifndef DONT_SORT_SQL	
 	_LIT(KSqlOrderByDate, " order by pubdate desc");
@@ -650,7 +694,7 @@ TUint CShowEngine::DBGetDownloadsCountL()
 void CShowEngine::DBGetDownloadedShowsL(RShowInfoArray& aShowArray)
 	{
 	DP("CShowEngine::DBGetDownloadedShows");
-	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype, lasterror from shows where downloadstate=%u");
+	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype, lasterror, deletedate from shows where downloadstate=%u");
 	iSqlBuffer.Format(KSqlStatement, EDownloaded);
 
 #ifndef DONT_SORT_SQL
@@ -686,7 +730,8 @@ void CShowEngine::DBGetDownloadedShowsL(RShowInfoArray& aShowArray)
 void CShowEngine::DBGetNewShowsL(RShowInfoArray& aShowArray)
 	{
 	DP("CShowEngine::DBGetNewShows");
-	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype, lasterror from shows where playstate=%u");
+	_LIT(KSqlStatement, "select url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype, lasterror from shows where playstate=%u order by pubdate desc");
+
 	iSqlBuffer.Format(KSqlStatement, ENeverPlayed);
 
 	sqlite3_stmt *st;
@@ -809,6 +854,10 @@ void CShowEngine::DBFillShowInfoFromStmtL(sqlite3_stmt *st, CShowInfo* showInfo)
 	
 	TInt lasterror = sqlite3_column_int(st, 14);
 	showInfo->SetLastError(lasterror);
+
+	sqlite3_int64 deletedate = sqlite3_column_int64(st, 15);
+	TTime timedeletedate(deletedate);
+	showInfo->SetDeleteDate(timedeletedate);
 	}
 
 void CShowEngine::DBAddShowL(const CShowInfo& aItem)
@@ -825,13 +874,13 @@ void CShowEngine::DBAddShowL(const CShowInfo& aItem)
 	descPtr.Copy(aItem.Description());
 	PodcastUtils::SQLEncode(descPtr);
 	
-	_LIT(KSqlStatement, "insert into shows (url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype) values (\"%S\",\"%S\", \"%S\", \"%S\", \"%Lu\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%Lu\", \"%d\")");
+	_LIT(KSqlStatement, "insert into shows (url, title, description, filename, position, playtime, playstate, downloadstate, feeduid, uid, showsize, trackno, pubdate, showtype, deletedate) values (\"%S\",\"%S\", \"%S\", \"%S\", \"%Lu\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%u\", \"%Lu\", \"%d\", \"%Lu\")");
 	
 	iSqlBuffer.Format(KSqlStatement, &aItem.Url(), &titlePtr, &descPtr,
 			&aItem.FileName(), aItem.Position().Int64(), aItem.PlayTime(),
 			aItem.PlayState(), aItem.DownloadState(), aItem.FeedUid(),
 			aItem.Uid(), aItem.ShowSize(), aItem.TrackNo(),
-			aItem.PubDate().Int64(), aItem.ShowType());
+			aItem.PubDate().Int64(), aItem.ShowType(), aItem.DeleteDate().Int64());
 
 	CleanupStack::PopAndDestroy(descBuf);
 	CleanupStack::PopAndDestroy(titleBuf);
@@ -898,12 +947,12 @@ void CShowEngine::DBUpdateShowL(CShowInfo& aItem)
 	descPtr.Copy(aItem.Description());
 	PodcastUtils::SQLEncode(descPtr);
 
-	_LIT(KSqlStatement, "update shows set url=\"%S\", title=\"%S\", description=\"%S\", filename=\"%S\", position=\"%Lu\", playtime=\"%u\", playstate=\"%u\", downloadstate=\"%u\", feeduid=\"%u\", showsize=\"%u\", trackno=\"%u\",pubdate=\"%Lu\", showtype=\"%d\", lasterror=\"%d\" where uid=\"%u\"");
+	_LIT(KSqlStatement, "update shows set url=\"%S\", title=\"%S\", description=\"%S\", filename=\"%S\", position=\"%Lu\", playtime=\"%u\", playstate=\"%u\", downloadstate=\"%u\", feeduid=\"%u\", showsize=\"%u\", trackno=\"%u\",pubdate=\"%Lu\", showtype=\"%d\", lasterror=\"%d\", deletedate=\"%Lu\" where uid=\"%u\"");
 	iSqlBuffer.Format(KSqlStatement, &aItem.Url(), &titlePtr, &descPtr,
 			&aItem.FileName(), aItem.Position().Int64(), aItem.PlayTime(),
 			aItem.PlayState(), aItem.DownloadState(), aItem.FeedUid(),
 			aItem.ShowSize(), aItem.TrackNo(), aItem.PubDate().Int64(),
-			aItem.ShowType(), aItem.LastError(), aItem.Uid());
+			aItem.ShowType(), aItem.LastError(), aItem.DeleteDate().Int64(), aItem.Uid());
 
 	CleanupStack::PopAndDestroy(descBuf);
 	CleanupStack::PopAndDestroy(titleBuf);
@@ -1428,6 +1477,12 @@ void CShowEngine::ReadMetaDataCompleteL()
 EXPORT_C void CShowEngine::UpdateShowL(CShowInfo& aInfo)
 	{
 	DBUpdateShowL(aInfo);
+	
+	// hack to ensure change in playstate is stored for the show actively downloading
+	if (iShowDownloading && iShowDownloading->Uid() == aInfo.Uid())
+		{
+		iShowDownloading->SetPlayState(aInfo.PlayState());
+		}	
 	}
 
 EXPORT_C CMetaDataReader& CShowEngine::MetaDataReader()
@@ -1438,6 +1493,24 @@ EXPORT_C CMetaDataReader& CShowEngine::MetaDataReader()
 void CShowEngine::FileError(TUint /*aError*/)
 	{
 	iDownloadErrors = KMaxDownloadErrors;
+	}
+
+EXPORT_C void CShowEngine::ExpireOldShows()
+	{
+	DP("CShowEngine::ExpireOldShows BEGIN");
+	RShowInfoArray oldShowsArray;
+	
+	TRAPD(err, DBGetOldShowsL(oldShowsArray));
+	
+	if (err == KErrNone)
+		{
+		for (int i=0;i<oldShowsArray.Count();i++)
+			{
+			DP1("    deleting %S", &oldShowsArray[i]->FileName());
+			BaflUtils::DeleteFile(iPodcastModel.FsSession(), oldShowsArray[i]->FileName());
+			}
+		}
+	DP("CShowEngine::ExpireOldShows END");
 	}
 
 EXPORT_C void CShowEngine::CheckForDeletedShows(TUint aFeedUid)
@@ -1467,11 +1540,6 @@ EXPORT_C void CShowEngine::CheckForDeletedShows(TUint aFeedUid)
 				}
 			}
 		}
-	}
-
-EXPORT_C void CShowEngine::SetShowFilter(TShowFilter aFilter)
-	{
-	iShowFilter = aFilter;
 	}
 
 EXPORT_C void CShowEngine::MoveDownloadUpL(TUint aUid)
@@ -1598,4 +1666,40 @@ EXPORT_C void CShowEngine::MoveDownloadDownL(TUint aUid)
 		{
 		User::Leave(KErrCorrupt);
 		}
+	}
+
+EXPORT_C void CShowEngine::PostPlayHandling(CShowInfo *aShow)
+	{
+	DP("CShowEngine::PostPlayHandling BEGIN");
+	if (!aShow)
+		return;
+		
+	aShow->SetPlayState(EPlayed);
+	
+	TAutoDeleteSetting deleteSetting = iPodcastModel.SettingsEngine().DeleteAutomatically();
+	TTimeIntervalDays daysAhead;
+	
+	switch (deleteSetting)
+		{
+		case EAutoDeleteOff:
+			break;
+		case EAutoDeleteAfter1Day:
+			daysAhead = 1;
+			break;
+		case EAutoDeleteAfter7Days:
+			daysAhead = 7;
+			break;
+		}
+	
+	if (daysAhead.Int() > 0)
+		{
+		TTime deleteDate;
+		deleteDate.HomeTime();
+		deleteDate += daysAhead;
+		aShow->SetDeleteDate(deleteDate);
+		DP2("Setting show %S to be deleted on the %d th", &aShow->Title(), deleteDate.DayNoInMonth()+1);
+		}
+	
+	UpdateShowL(*aShow);
+	DP("CShowEngine::PostPlayHandling END");
 	}

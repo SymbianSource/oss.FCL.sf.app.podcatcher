@@ -54,6 +54,11 @@ void CFeedParser::ParseFeedL(const TFileName &feedFileName, CFeedInfo *info, TUi
 	iMaxItems = aMaxItems;
 	iStoppedParsing = EFalse;
 	iEncoding = ELatin1;
+	if (iNewestShow)
+		delete iNewestShow;
+	iNewestShow = 0;
+	
+	iNewFeed = (iActiveFeed->LastUpdated() == 0) ? ETrue : EFalse;
 
 	TEntry entry;
 	User::LeaveIfError(iRfs.Entry(feedFileName, entry));
@@ -73,6 +78,8 @@ void CFeedParser::OnStartDocumentL(const RDocumentParameters& aDocParam, TInt /*
 	HBufC* charset = HBufC::NewLC(KMaxParseBuffer);
 	charset->Des().Copy(aDocParam.CharacterSetName().DesC());
 	iEncoding = EUtf8;
+	iFeedDirection = EFeedUnknown;
+	iPreviousPubDate = 0;
 	if (charset->CompareF(_L("utf-8")) == 0) {
 		DP("setting UTF8");
 		iEncoding = EUtf8;
@@ -87,6 +94,18 @@ void CFeedParser::OnStartDocumentL(const RDocumentParameters& aDocParam, TInt /*
 void CFeedParser::OnEndDocumentL(TInt /*aErrorCode*/)
 	{
 	//DP("OnEndDocumentL()");
+	if (iNewFeed)
+		{
+		// if the feed adds at bottom, this 
+		if (iNewestShow)
+			{
+			iNewestShow->SetPlayState(ENeverPlayed);
+			iCallbacks.ParserShowUpdatedL(*iNewestShow);
+			delete iNewestShow;
+			iNewestShow = 0;
+			}
+		}
+	
 	iCallbacks.ParsingCompleteL(iActiveFeed);
 	}
 
@@ -302,11 +321,42 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 					iActiveShow->SetPubDate(now);
 					}
 				
+				if (iFeedDirection == EFeedUnknown)
+					{
+					if (iPreviousPubDate.Int64() != 0) {
+						if (iActiveShow->PubDate() > iPreviousPubDate)
+							{
+							DP("Feed adds at bottom");
+							iFeedDirection = EFeedAddsAtBottom;
+							}
+						else
+							{
+							DP("Feed adds at top");
+							iFeedDirection = EFeedAddsAtTop;
+							}
+					}
+					iPreviousPubDate = iActiveShow->PubDate();
+					}
+				
 				if (iUid)
 					{
 					iActiveShow->SetUid(iUid);
 					}
+				
+				if (iNewFeed)
+					{
+					// set all played, except for the newest one
+					iActiveShow->SetPlayState(EPlayed);
+					
+					if (!iNewestShow || iActiveShow->PubDate() > iNewestShow->PubDate())
+						{
+						if (iNewestShow)
+							delete iNewestShow;
 						
+						iNewestShow = new CShowInfo(iActiveShow);
+						}
+					}
+					
 				iCallbacks.NewShowL(*iActiveShow);
 				
 				delete iActiveShow;				
@@ -316,7 +366,8 @@ void CFeedParser::OnEndElementL(const RTagInfo& aElement, TInt /*aErrorCode*/)
 				
 				iItemsParsed++;
 				DP2("iItemsParsed: %d, iMaxItems: %d", iItemsParsed, iMaxItems);
-				if (iItemsParsed >= iMaxItems) 
+				// we stop parsing after iMaxItems, but not if feed builds at bottom
+				if (iItemsParsed >= iMaxItems && iFeedDirection != EFeedAddsAtBottom) 
 					{
 					iStoppedParsing = ETrue;
 					DP("*** Too many items, aborting parsing");
