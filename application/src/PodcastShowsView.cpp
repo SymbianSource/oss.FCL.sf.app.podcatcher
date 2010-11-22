@@ -648,14 +648,12 @@ void CPodcastShowsView::HandleCommandL(TInt aCommand)
 			break;
 		case EPodcastMarkAllPlayed:
 			{
-			if (iShowNewShows) {
-				TBuf<KMaxMessageLength> msg;
-				iEikonEnv->ReadResourceL(msg, R_MARK_ALL_OLD_QUERY);
-				if (!ShowQueryMessageL(msg))
-					{
-					break;
-					}
-			}
+			TBuf<KMaxMessageLength> msg;
+			iEikonEnv->ReadResourceL(msg, R_MARK_ALL_OLD_QUERY);
+			if (!ShowQueryMessageL(msg))
+				{
+				break;
+				}
 			iPodcastModel.MarkSelectionPlayedL();
 			UpdateListboxItemsL();
 			}
@@ -836,7 +834,7 @@ void CPodcastShowsView::HandleSetShowPlayedL(TBool aPlayed)
 		{
 		CShowInfo *info = iPodcastModel.ActiveShowList()[index];
 		info->SetPlayState(aPlayed ? EPlayed : ENeverPlayed);
-		if (aPlayed)
+		if (aPlayed && info->DownloadState() == EDownloaded)
 			{
 			// PostPlayHandling calls UpdateShow, which is slow, so we don't need to do it again
 			iPodcastModel.ShowEngine().PostPlayHandling(info);

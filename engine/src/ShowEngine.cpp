@@ -1718,6 +1718,7 @@ EXPORT_C void CShowEngine::PostPlayHandling(CShowInfo *aShow)
 		deleteDate.HomeTime();
 		deleteDate += daysAhead;
 		aShow->SetDeleteDate(deleteDate);
+		DP2("Setting show %S to be deleted on the %d th", &aShow->Title(), deleteDate.DayNoInMonth()+1);
 		}
 	
 	UpdateShowL(*aShow);
