@@ -58,6 +58,18 @@ RESOURCE MENU_PANE r_podcast_queueview_menu
 			},
 		MENU_ITEM
 			{
+			txt = STRING_r_view_mark_as_unplayed_cmd_short;
+			command = EPodcastMarkAsUnplayed;
+			flags = EEikMenuItemSpecific;
+			},
+		MENU_ITEM
+			{
+			txt = STRING_r_view_mark_as_played_cmd_short;
+			command = EPodcastMarkAsPlayed;
+			flags = EEikMenuItemSpecific;
+			},
+		MENU_ITEM
+			{
 			txt = STRING_r_view_remove_download_short_cmd;
 			command = EPodcastRemoveDownload;
 			flags = EEikMenuItemSpecific;
